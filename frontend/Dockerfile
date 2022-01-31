@@ -1,6 +1,6 @@
 # Step 1: Build the app in image 'builder'
 FROM node:16.10-alpine AS builder
-
+ARG ANGULAR
 WORKDIR /usr/src/app
 COPY . .
 RUN npm i && npm i -g @angular/cli && ng build

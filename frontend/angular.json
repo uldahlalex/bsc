@@ -166,6 +166,21 @@
               "devServerTarget": "app:serve:production"
             }
           }
+        },
+        "ngsscbuild": {
+          "builder": "angular-server-side-configuration:ngsscbuild",
+          "options": {
+            "additionalEnvironmentVariables": [
+              "myvar"
+            ],
+            "ngsscEnvironmentFile": "src/environments/environment.prod.ts",
+            "browserTarget": "app:build"
+          },
+          "configurations": {
+            "production": {
+              "browserTarget": "app:build:production"
+            }
+          }
         }
       }
     }
