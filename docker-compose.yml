@@ -1,17 +1,11 @@
-version: '3.3'
+version: '3'
 
 volumes:
   postgres_data:
     driver: local
 
 services:
-  app:
-    image: './frontend'
-    build: '.'
-    ports:
-      - 3000:80
   postgres:
-    env_file: ".env"
     image: postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -20,7 +14,6 @@ services:
       POSTGRES_USER: ${KEYCLOAK_USER}
       POSTGRES_PASSWORD: ${KEYCLOAK_PASSWORD}
   keycloak:
-    env_file: ".env"
     image: quay.io/keycloak/keycloak:latest
     environment:
       DB_VENDOR: POSTGRES
@@ -33,6 +26,6 @@ services:
       KEYCLOAK_PASSWORD: ${KEYCLOAK_PASSWORD}
       #JDBC_PARAMS: "ssl=true"
     ports:
-      - ${AUTH_SERVER_PORT}:${AUTH_SERVER_PORT}
+      - 8080:8080
     depends_on:
       - postgres
