@@ -1,38 +1,16 @@
 version: '3'
 
-volumes:
-  postgres_data:
-    driver: local
-
 services:
-  frontend:
-    image: 'frontend'
-    build: 'frontend'
+#  frontend:
+#    image: 'frontend'
+#    build: 'frontend'
+#    ports:
+#      - '3000:80'
+  identityStore:
+    image: mongo
+    restart: 'no'
     ports:
-      - 3000:80
+      - '27017:27017'
     environment:
-      - ${ANGULAR}
-  postgres:
-    image: postgres
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    environment:
-      POSTGRES_DB: ${DB}
-      POSTGRES_USER: ${KEYCLOAK_USER}
-      POSTGRES_PASSWORD: ${KEYCLOAK_PASSWORD}
-  keycloak:
-    image: quay.io/keycloak/keycloak:latest
-    environment:
-      DB_VENDOR: POSTGRES
-      DB_ADDR: postgres
-      DB_DATABASE: ${DB}
-      DB_USER: ${KEYCLOAK_USER}
-      DB_SCHEMA: public
-      DB_PASSWORD: ${KEYCLOAK_PASSWORD}
-      KEYCLOAK_USER: ${KEYCLOAK_USER}
-      KEYCLOAK_PASSWORD: ${KEYCLOAK_PASSWORD}
-      #JDBC_PARAMS: "ssl=true"
-    ports:
-      - 8080:8080
-    depends_on:
-      - postgres
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
