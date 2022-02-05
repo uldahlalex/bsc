@@ -19,6 +19,7 @@ exports.verifyToken = (req, res, next) => {
     }
     try {
         const decoded = jwt.verify(token, argv['secret']);
+        console.log(jwt.decode(token));
         req.user = decoded;
     } catch (err) {
         return res.status(401).send("Try again");
