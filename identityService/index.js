@@ -18,8 +18,11 @@ mongoose.connect("mongodb://root:example@localhost:27017/?authSource=admin&readP
     err => { /** handle initial connection error */ }
 );
 app.use(express.json({ limit: "50mb" }));
-app.use(cors());
 
+app.use(cors({
+    origin: ['http://localhost:5002'],
+    methods: ['GET']
+}))
 
 app.post("/register", async (req, res) => {
         try {
@@ -81,7 +84,10 @@ app.post("/login", async (req, res) => {
         console.log(err);
     }
 });
-app.get("/test", helpers.verifyToken, (req, res) => {
+app.get("/test", cors({
+    origin: ['http://localhost:5002'],
+    methods: ['GET']
+}), helpers.verifyToken, (req, res) => {
     return res.status(200).send("Welcome. Token accepted");
 });
 

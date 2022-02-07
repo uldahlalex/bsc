@@ -1,7 +1,7 @@
 {
     "Routes": [
         {
-        "DownstreamPathTemplate": "/identity/{method}",
+        "DownstreamPathTemplate": "/{method}",
         "DownstreamScheme": "http",
         "DownstreamHostAndPorts": [
             {
@@ -9,11 +9,11 @@
                 "Port": 3000
             }
         ],
-        "UpstreamPathTemplate": "/{method}",
+        "UpstreamPathTemplate": "/identity/{method}",
         "UpstreamHttpMethod": [ "Get" ]
         }
     ],
     "GlobalConfiguration": {
-        "BaseUrl": "https://localhost:5000"
+        "BaseUrl": "http://localhost:5000"
     }
 }
