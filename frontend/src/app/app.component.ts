@@ -12,12 +12,9 @@ export class AppComponent {
 
 
   constructor(private http: HttpClient) {
-    const options = {
-      headers: new HttpHeaders({
-
-      })
-    }
-    this.http.post('',{}, options)
+    this.http.get('http://localhost:5000/identity/openEndpoint').subscribe(sub => {
+       console.log(sub);
+    })
   }
 
 }
