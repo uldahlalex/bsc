@@ -1,10 +1,14 @@
 import { PrismaClient } from '@prisma/client'
 import express from 'express';
 import http from 'http';
+import minimist from 'minimist';
+
 const app = express();
 const server = http.createServer(app)
 const prisma = new PrismaClient()
 const { Kafka, logLevel } = require('kafkajs')
+const argv = minimist(process.argv.slice(1));
+const port = argv['port'] || 3001;
 
 const kafkaProducer = new Kafka({
     logLevel: logLevel.ERROR,
@@ -50,8 +54,8 @@ app.get('/sendToIdentity', async (req, res) => {
 })
 
 
-server.listen(3001, () => {
-    console.log('now listening')
+server.listen(port, () => {
+    console.log('now listening on port '+port)
 })
 
 

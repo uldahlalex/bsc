@@ -8,7 +8,7 @@ import express from "express";
 import {Kafka, logLevel} from "kafkajs";
 
 const argv = minimist(process.argv.slice(1));
-const port = argv['port'] || 3000;
+const port = argv['port'] || 3002;
 const app = express();
 const server = http.createServer(app);
 const userModel = mongoose.model("user", new mongoose.Schema({

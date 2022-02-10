@@ -42,10 +42,13 @@ exports.__esModule = true;
 var client_1 = require("@prisma/client");
 var express_1 = __importDefault(require("express"));
 var http_1 = __importDefault(require("http"));
+var minimist_1 = __importDefault(require("minimist"));
 var app = (0, express_1["default"])();
 var server = http_1["default"].createServer(app);
 var prisma = new client_1.PrismaClient();
 var _a = require('kafkajs'), Kafka = _a.Kafka, logLevel = _a.logLevel;
+var argv = (0, minimist_1["default"])(process.argv.slice(1));
+var port = argv['port'] || 3001;
 var kafkaProducer = new Kafka({
     logLevel: logLevel.ERROR,
     brokers: ['localhost:9092'],
@@ -54,12 +57,7 @@ var kafkaProducer = new Kafka({
 function kafkaInit() {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, kafkaProducer.connect()];
-                case 1:
-                    _a.sent();
-                    return [2 /*return*/];
-            }
+            return [2 /*return*/];
         });
     });
 }
@@ -113,7 +111,7 @@ app.get('/sendToIdentity', function (req, res) { return __awaiter(void 0, void 0
         }
     });
 }); });
-server.listen(3001, function () {
-    console.log('now listening');
+server.listen(port, function () {
+    console.log('now listening on port ' + port);
 });
 //# sourceMappingURL=index.js.map

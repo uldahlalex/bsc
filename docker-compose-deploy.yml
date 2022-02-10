@@ -17,8 +17,17 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
-#  identityService:
-#    image: ''
+    volumes:
+      - db:/var/lib/mongodb/data
+  identityService:
+    image: 'identityservice'
+    build: 'identityService'
+    ports:
+      - '3002:3002'
+    depends_on:
+      - identityStore
+      - zookeeper
+      - broker
   taskStore:
     image: postgres:14.1-alpine
     restart: always
@@ -34,6 +43,10 @@ services:
     build: 'taskService'
     ports:
       - '3001:3001'
+    depends_on:
+      - taskStore
+      - zookeeper
+      - broker
   zookeeper:
     image: confluentinc/cp-zookeeper:6.2.0
     container_name: zookeeper
