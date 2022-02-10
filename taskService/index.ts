@@ -14,8 +14,7 @@ const kafkaProducer = new Kafka({
 
 async function kafkaInit() {
     await kafkaProducer.connect()
-    await kafkaProducer.subscribe({ topic: 'test-topic', fromBeginning: true })
-    await kafkaProducer.run()
+
 }
 
 kafkaInit().then(r => {
