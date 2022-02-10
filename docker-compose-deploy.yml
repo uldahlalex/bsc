@@ -1,10 +1,14 @@
 version: '3'
 
-# This is a compose file for running the system locally,
-# and therefore requires running microservices independently.
-# For a complete setup w/ all microservices, execute the docker-compose-deploy.yml
+# This is a compose file for running the system in its entirety,
+# For local development, use docker-compose.yml and execute microservices individually
 
 services:
+  frontend:
+    image: 'frontend'
+    build: 'frontend'
+    ports:
+      - '3000:80'
   identityStore:
     image: mongo
     restart: 'no'
@@ -13,6 +17,8 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
+#  identityService:
+#    image: ''
   taskStore:
     image: postgres:14.1-alpine
     restart: always
@@ -21,8 +27,13 @@ services:
       - POSTGRES_PASSWORD=postgres
     ports:
       - '5432:5432'
-    volumes: 
+    volumes:
       - db:/var/lib/postgresql/data
+  taskService:
+    image: 'taskservice'
+    build: 'taskService'
+    ports:
+      - '3001:3001'
   zookeeper:
     image: confluentinc/cp-zookeeper:6.2.0
     container_name: zookeeper

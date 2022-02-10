@@ -13,7 +13,7 @@ const kafkaProducer = new Kafka({
 }).producer({ groupId: 'test-group' });
 
 async function kafkaInit() {
-    await kafkaProducer.connect()
+    //await kafkaProducer.connect()
 
 }
 
