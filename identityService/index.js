@@ -1,7 +1,6 @@
 const helpers = require('./helpers.js');
 const http = require("http");
 const argv = require('minimist')(process.argv.slice(2));
-
 const port = argv['port'] || 3000;
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
@@ -9,19 +8,45 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const express = require('express');
 const app = express();
-
+const { Kafka, logLevel } = require('kafkajs')
 const server = http.createServer(app);
 const User = helpers.userModel;
+const kafkaConsumer = new Kafka({
+    logLevel: logLevel.ERROR,
+    brokers: ['localhost:9092'],
+    clientId: 'identity',
+}).consumer({ groupId: 'test-group' });
+
+async function kafkaInit() {
+    await kafkaConsumer.connect()
+    await kafkaConsumer.subscribe({ topic: 'test-topic', fromBeginning: true })
+    await kafkaConsumer.run({
+        eachMessage: async ({ topic, partition, message }) => {
+            console.log({
+                value: message.value.toString(),
+            })
+        },
+    })
+}
+
+kafkaInit().then(r => {
+    console.log(r);
+    console.log('Initialized kafka connection')
+});
 
 mongoose.connect("mongodb://root:example@localhost:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false").then(
-    () => { /** ready to use. The `mongoose.connect()` promise resolves to mongoose instance. */ },
-    err => { /** handle initial connection error */ }
+    () => {
+        console.log('Connected to MongoDB')
+        },
+    err => {
+        console.log(err)
+    }
 );
 app.use(express.json({ limit: "50mb" }));
 
 app.use(cors({
-    origin: ['http://localhost:5002'],
-    methods: ['GET']
+    origin: 'http://localhost:8100',
+    methods: "GET, PUT"
 }))
 
 app.post("/register", async (req, res) => {
@@ -84,12 +109,13 @@ app.post("/login", async (req, res) => {
         console.log(err);
     }
 });
-app.get("/test", cors({
-    origin: ['http://localhost:5002'],
-    methods: ['GET']
-}), helpers.verifyToken, (req, res) => {
+app.get("/test", helpers.verifyToken, (req, res) => {
     return res.status(200).send("Welcome. Token accepted");
 });
+
+app.get('/openEndpoint', (req, res) => {
+    return res.send('Connected');
+})
 
 app.use("*", (req, res) => {
     return res.status(404).json({

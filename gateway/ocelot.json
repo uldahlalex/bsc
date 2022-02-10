@@ -11,6 +11,18 @@
         ],
         "UpstreamPathTemplate": "/identity/{method}",
         "UpstreamHttpMethod": [ "Get" ]
+        },
+        {
+            "DownstreamPathTemplate": "/{method}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 3001
+                }
+            ],
+            "UpstreamPathTemplate": "/task/{method}",
+            "UpstreamHttpMethod": [ "Get" ]
         }
     ],
     "GlobalConfiguration": {

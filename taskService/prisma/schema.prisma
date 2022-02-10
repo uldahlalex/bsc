@@ -1,0 +1,15 @@
+datasource db {
+  provider = "postgres"
+  url      = "postgresql://postgres:postgres@localhost:5432/postgres?schema=public"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Task {
+  id        Int     @id @default(autoincrement())
+  title     String
+  desc      String?
+  authorId  Int?
+}
