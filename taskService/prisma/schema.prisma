@@ -1,11 +1,11 @@
 datasource db {
   provider = "postgres"
-  url      = "postgresql://postgres:postgres@localhost:5432/postgres?schema=public"
+  url      = "postgresql://alex:q1w2e3r4@localhost:5432/postgres?schema=public"
 }
 
 generator client {
   provider = "prisma-client-js"
-  binaryTargets = "linux-musl"
+  binaryTargets = ["linux-musl", "windows", "native"]
 }
 
 model Task {

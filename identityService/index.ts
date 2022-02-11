@@ -25,15 +25,15 @@ const kafkaConsumer = new Kafka({
 }).consumer({ groupId: 'test-group' });
 
 async function kafkaInit() {
-    await kafkaConsumer.connect()
-    await kafkaConsumer.subscribe({ topic: 'test-topic', fromBeginning: true })
+    //await kafkaConsumer.connect()
+    /*await kafkaConsumer.subscribe({ topic: 'test-topic', fromBeginning: true })
     await kafkaConsumer.run({
         eachMessage: async ({ message }) => {
             console.log({
                 value: message.value.toString(),
             })
         },
-    })
+    })*/
 }
 kafkaInit().then(r => {
     console.log(r);

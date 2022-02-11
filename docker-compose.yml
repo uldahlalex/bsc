@@ -13,6 +13,8 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - db:/var/lib/mongodb/data
   taskStore:
     image: postgres:14.1-alpine
     restart: always
@@ -21,7 +23,7 @@ services:
       - POSTGRES_PASSWORD=postgres
     ports:
       - '5432:5432'
-    volumes: 
+    volumes:
       - db:/var/lib/postgresql/data
   zookeeper:
     image: confluentinc/cp-zookeeper:6.2.0
