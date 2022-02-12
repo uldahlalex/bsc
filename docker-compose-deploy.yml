@@ -21,9 +21,9 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${IDENTITY_STORE_PASS}
     volumes:
       - db:/var/lib/mongodbprod/data
-    network_mode: bridge
-    networks:
-      - bridge
+    network_mode: host
+    #networks:
+    #  - host
   identityService:
     image: 'identityservice'
     build: 'identityService'
@@ -32,9 +32,9 @@ services:
     depends_on:
       - identityStore
       - broker
-    network_mode: bridge
-    networks:
-      - bridge
+    network_mode: host
+    #networks:
+    #  - host
   taskStore:
     image: postgres:14.1-alpine
     restart: always
@@ -45,9 +45,9 @@ services:
       - "5432:5432"
     volumes:
       - db:/var/lib/postgresqlprod/data
-    network_mode: bridge
-    networks:
-      - bridge
+    network_mode: host
+    #networks:
+    #  - host
   taskService:
     image: 'taskservice'
     build: 'taskService'
@@ -56,18 +56,18 @@ services:
     depends_on:
       - taskStore
       - broker
-    network_mode: bridge
-    networks:
-      - bridge
+    network_mode: host
+    #networks:
+    #  - host
   zookeeper:
     image: confluentinc/cp-zookeeper:6.2.0
     container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: ${ZOOKEEPER_CLIENT_PORT}
       ZOOKEEPER_TICK_TIME: 2000
-    network_mode: bridge
-    networks:
-      - bridge
+    network_mode: host
+    #networks:
+    #  - host
   broker:
     image: confluentinc/cp-kafka:6.2.0
     container_name: broker
@@ -83,12 +83,12 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-    network_mode: bridge
-    networks:
-      - bridge
+    network_mode: host
+    #networks:
+    #  - host
 volumes:
   db:
     driver: local
-networks:
-  bridge:
-    driver: bridge
+#networks:
+#  host
+#    driver: host

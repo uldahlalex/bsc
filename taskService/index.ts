@@ -10,6 +10,7 @@ const prisma = new PrismaClient()
 const { Kafka, logLevel } = require('kafkajs')
 const argv = minimist(process.argv.slice(1));
 const port = argv['port'] || 3001;
+
 prisma.$connect().then(r => {
     console.log(r);
     console.log('connected');

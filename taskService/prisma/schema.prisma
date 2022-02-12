@@ -1,7 +1,9 @@
 datasource db {
   provider = "postgres"
-  url      = "postgresql://alex:q1w2e3r4@172.22.0.3:5432/postgres?schema=public"
+  url      = "postgresql://alex:q1w2e3r4@localhost:5432/postgres?schema=public"
 }
+
+//prisma generate
 
 generator client {
   provider = "prisma-client-js"
@@ -14,3 +16,4 @@ model Task {
   desc      String?
   authorId  Int?
 }
+
