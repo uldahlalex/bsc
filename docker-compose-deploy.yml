@@ -4,7 +4,7 @@ version: '3'
 # For local development, use docker-compose.yml and execute microservices individually
 
 services:
-  frontend:
+  frontend-deploy:
     image: 'frontend'
     build: 'frontend'
     ports:
@@ -22,8 +22,6 @@ services:
     volumes:
       - db:/var/lib/mongodbprod/data
     network_mode: host
-    #networks:
-    #  - host
   identityService:
     image: 'identityservice'
     build: 'identityService'
@@ -33,11 +31,9 @@ services:
       - identityStore
       - broker
     network_mode: host
-    #networks:
-    #  - host
   taskStore:
     image: postgres:14.1-alpine
-    restart: always
+    restart: 'no'
     environment:
       - POSTGRES_USER=${TASK_STORE_USER}
       - POSTGRES_PASSWORD=${TASK_STORE_PASS}
@@ -46,8 +42,6 @@ services:
     volumes:
       - db:/var/lib/postgresqlprod/data
     network_mode: host
-    #networks:
-    #  - host
   taskService:
     image: 'taskservice'
     build: 'taskService'
@@ -57,20 +51,16 @@ services:
       - taskStore
       - broker
     network_mode: host
-    #networks:
-    #  - host
+  #gateway:
+  #
   zookeeper:
     image: confluentinc/cp-zookeeper:6.2.0
-    container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: ${ZOOKEEPER_CLIENT_PORT}
       ZOOKEEPER_TICK_TIME: 2000
     network_mode: host
-    #networks:
-    #  - host
-  broker:
+  broker-deploy:
     image: confluentinc/cp-kafka:6.2.0
-    container_name: broker
     ports:
       - ${BROKER_PORT}:${BROKER_PORT}
     depends_on:
@@ -84,11 +74,6 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
     network_mode: host
-    #networks:
-    #  - host
 volumes:
   db:
     driver: local
-#networks:
-#  host
-#    driver: host
