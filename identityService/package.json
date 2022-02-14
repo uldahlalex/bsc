@@ -6,12 +6,12 @@
     "build": "tsc -p ."
   },
   "dependencies": {
+    "amqplib": "^0.8.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "express": "^4.17.2",
     "express-swagger-generator": "^1.1.17",
     "jsonwebtoken": "^8.5.1",
-    "kafkajs": "^1.16.0",
     "minimist": "^1.2.5",
     "mongoose": "^6.2.0"
   },

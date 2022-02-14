@@ -2,8 +2,7 @@
   "name": "taskservice",
   "devDependencies": {
     "@types/express": "^4.17.13",
-    "@types/node": "16.11.19",
-    "prisma": "3.7.0",
+    "@types/node": "^16.11.19",
     "ts-node": "10.4.0",
     "typescript": "4.5.4"
   },
@@ -13,11 +12,11 @@
     "build": "tsc -p ."
   },
   "dependencies": {
-    "@prisma/client": "3.7.0",
-    "axios": "^0.25.0",
+    "amqplib": "^0.8.0",
     "express": "^4.17.2",
-    "kafkajs": "^1.16.0",
     "minimist": "^1.2.5",
+    "pg": "^8.7.3",
+    "reflect-metadata": "^0.1.13",
     "typeorm": "^0.2.41"
   },
   "engines": {
