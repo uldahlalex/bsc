@@ -8,7 +8,7 @@ import express from "express";
 import {Kafka, logLevel} from "kafkajs";
 
 const argv = minimist(process.argv.slice(1));
-const port = argv['port'] || 3000;
+const port = argv['port'] || 3002;
 const app = express();
 const server = http.createServer(app);
 const userModel = mongoose.model("user", new mongoose.Schema({
@@ -25,21 +25,21 @@ const kafkaConsumer = new Kafka({
 }).consumer({ groupId: 'test-group' });
 
 async function kafkaInit() {
-    await kafkaConsumer.connect()
-    await kafkaConsumer.subscribe({ topic: 'test-topic', fromBeginning: true })
+    //await kafkaConsumer.connect()
+    /*await kafkaConsumer.subscribe({ topic: 'test-topic', fromBeginning: true })
     await kafkaConsumer.run({
         eachMessage: async ({ message }) => {
             console.log({
                 value: message.value.toString(),
             })
         },
-    })
+    })*/
 }
 kafkaInit().then(r => {
     console.log(r);
     console.log('Initialized kafka connection')
 });
-mongoose.connect("mongodb://root:example@localhost:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false").then(
+mongoose.connect("mongodb://alex:q1w2e3r4@localhost:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false").then(
     () => {
         console.log('Connected to MongoDB')
         },
