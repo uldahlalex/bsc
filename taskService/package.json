@@ -12,12 +12,18 @@
     "build": "tsc -p ."
   },
   "dependencies": {
+    "@grpc/grpc-js": "^1.5.5",
+    "@grpc/proto-loader": "^0.6.9",
     "amqplib": "^0.8.0",
+    "body-parser": "^1.19.1",
     "express": "^4.17.2",
+    "grpc": "^1.24.11",
+    "hbs": "^4.2.0",
     "minimist": "^1.2.5",
     "pg": "^8.7.3",
     "reflect-metadata": "^0.1.13",
-    "typeorm": "^0.2.41"
+    "typeorm": "^0.2.41",
+    "uuid": "^8.3.2"
   },
   "engines": {
     "node": ">=12.2.0"

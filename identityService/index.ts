@@ -3,13 +3,17 @@ import http from "http";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import cors from 'cors';
-import mongoose from "mongoose";
+import mongoose, {mongo} from "mongoose";
 import express from "express";
+import grpc from 'grpc';
+import * as grpcServer from './grpc.server';
 
+const taskProto = grpc.load('./protos/task.proto')
+const notesProto = grpc.load('./protos/notes.proto')
 const argv = minimist(process.argv.slice(1));
 const port = argv['port'] || 3002;
 const app = express();
-const server = http.createServer(app);
+const httpServer = http.createServer(app);
 const userModel = mongoose.model("user", new mongoose.Schema({
     first_name: { type: String, default: null },
     last_name: { type: String, default: null },
@@ -17,7 +21,6 @@ const userModel = mongoose.model("user", new mongoose.Schema({
     password: { type: String },
     token: { type: String },
 }));
-
 
 
 mongoose.connect("mongodb://alex:q1w2e3r4@localhost:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false")
@@ -36,6 +39,15 @@ app.use(cors({
     origin: 'http://localhost:8100',
     methods: "GET, PUT"
 }))
+
+// @ts-ignore
+grpcServer.server.addService(notesProto.NoteService.service, {
+    list: (call, callback) => {
+        let res = userModel.findById(call.request)
+        console.log(call);
+        callback(null, res);
+    },
+})
 
 
 app.post("/register", async (req, res) => {
@@ -134,6 +146,7 @@ function verifyToken(req: any, res: any, next: any) {
     return next();
 }
 
-server.listen(port, () => {
+httpServer.listen(port, () => {
+    grpcServer.initGrpcServer();
     console.log(`Server running on port ${port}`);
 });
