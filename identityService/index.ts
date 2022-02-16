@@ -3,13 +3,12 @@ import http from "http";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import cors from 'cors';
-import mongoose, {mongo} from "mongoose";
+import mongoose from "mongoose";
 import express from "express";
 import grpc from 'grpc';
 import * as grpcServer from './grpc.server';
 
 const taskProto = grpc.load('./protos/task.proto')
-const notesProto = grpc.load('./protos/notes.proto')
 const argv = minimist(process.argv.slice(1));
 const port = argv['port'] || 3002;
 const app = express();
@@ -41,17 +40,7 @@ app.use(cors({
     methods: "GET, PUT"
 }))
 
-// @ts-ignore
-grpcServer.server.addService(notesProto.NoteService.service, {
-    list: (call, callback) => {
-        console.log(call.request.authorId);
-        console.log(call);
-        callback(null, [
-            { id: '1', title: 'Note 1', content: 'Content 1'},
-            { id: '2', title: 'Note 2', content: 'Content 2'}
-        ]);
-    },
-})
+
 // @ts-ignore
 grpcServer.server.addService(taskProto.TaskService.service, {
     getUserInfoForTasks: async (call, callback) => {

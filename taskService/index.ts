@@ -7,13 +7,17 @@ import "reflect-metadata";
 import {createConnection} from "typeorm";
 import {Task} from "./task";
 import * as amqp from 'amqplib/callback_api';
-import path from "path";
-//const client = import('./grpc.client');
 
 const app = express();
 const server = http.createServer(app)
 const argv = minimist(process.argv.slice(1));
 const port = argv['port'] || 3001;
+
+const grpc = require('grpc')
+const PROTO_PATH = './protos/task.proto'
+const TaskService = grpc.load(PROTO_PATH).TaskService
+const grpcClient = new TaskService('localhost:50051',
+    grpc.credentials.createInsecure());
 
 
 let taskRepo;
@@ -69,41 +73,21 @@ createConnection({
 }).then(connection => {
     taskRepo = connection.getRepository(Task)
 }).catch(error => console.log(error))
-const PROTO_PATH = "./task.proto";
 
-const grpc = require("grpc");
-const protoLoader = require("@grpc/proto-loader");
-
-var packageDefinition = protoLoader.loadSync(PROTO_PATH, {
-    keepCase: true,
-    longs: String,
-    enums: String,
-    arrays: true
-});
-
-const TaskService = grpc.loadPackageDefinition(packageDefinition).TaskService;
-const client = new TaskService(
-    "localhost:30043",
-    grpc.credentials.createInsecure()
-);
-
-
-
-import bodyParser from "body-parser";
-app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "hbs");
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-client.GetAll(null, (err, data) => {
-        console.log(data)
-});
 app.get('/tasks', async (req, res) => {
-    //await taskRepo.find()
+    let tasks = await taskRepo.find({id: '1'});
+    let authorId = tasks[0].authorId;
     //taskChannel.publish("topic_logs", "topic.critical", Buffer.from('topic message - very critical'))
-
-    res.send()
+    grpcClient.getUserInfoForTasks(authorId, (error, result) => {
+        if (!error) {
+            console.log('successfully fetch List notes')
+            console.log(result)
+        } else {
+            console.error(error)
+        }
+    })
+    res.send('Fetched')
 })
-
 
 app.get('/tasks/something', async (req, res) => {
     taskChannel.publish("topic_logs", "yada.critical", Buffer.from('not topic message - but very critical'))
