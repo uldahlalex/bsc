@@ -1,0 +1,12 @@
+db.tasks.aggregate( [
+   {
+      $graphLookup: {
+         from: "tasks",
+         startWith: "subtasks",
+         connectFromField: "subtasks",
+         connectToField: "_id",
+         as: "_id",
+	 maxDepth: 5, restrictSearchWithMatch: { title: "my title" }
+      }
+   }
+])
