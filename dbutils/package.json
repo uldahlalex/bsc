@@ -1,0 +1,19 @@
+{
+  "name": "dbutils",
+  "version": "1.0.0",
+  "description": "",
+  "main": "seeder.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mongodb": "^4.3.1",
+    "mongoose": "^6.2.1"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^6.0.0-alpha.6"
+  }
+}
