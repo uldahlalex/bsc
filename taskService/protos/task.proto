@@ -1,15 +1,15 @@
 syntax = "proto3";
 
-package task;
-
 service TaskService {
     rpc GetUserInfoForTasks(AuthorId) returns (UserInfo) { }
 }
 message AuthorId {
-    int64 authorId = 1;
+    string authorId = 1;
 }
 
 message UserInfo {
-    int64 userId = 1;
-    string username = 2;
+    string _id = 1;
+    string first_name = 2;
+    string last_name = 3;
+    string email = 4;
 }

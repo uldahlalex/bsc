@@ -13,5 +13,5 @@ export class Task {
     desc: string;
 
     @Column()
-    authorId: number;
+    authorId: string;
 }
