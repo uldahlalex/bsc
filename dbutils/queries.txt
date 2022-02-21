@@ -2,11 +2,44 @@ db.tasks.aggregate( [
    {
       $graphLookup: {
          from: "tasks",
-         startWith: "subtasks",
+         startWith: "_id",
          connectFromField: "subtasks",
-         connectToField: "_id",
-         as: "_id",
-	 maxDepth: 5, restrictSearchWithMatch: { title: "my title" }
+         connectToField: "id",
+         as: "id",
+	     maxDepth: 5,
+	     restrictSearchWithMatch: { title: "my title" }
       }
    }
 ])
+
+db.tasks.aggregate([
+    {
+        $match: {
+            title: "connect online sensor"
+        }
+    },
+    {
+        $graphLookup: {
+            from: "tasks",
+            startWith: "$_id",
+            connectFromField: "_id",
+            connectToField: "subtasks",
+            as: "children"
+        }
+    },
+])
+
+db.tasks.aggregate(
+    [
+        { "$graphLookup": {
+            "from": "tasks",
+            "startWith": "subtasks",
+            "connectFromField": "subtasks",
+            "connectToField": "_id",
+            "as": "connections"
+            restrictSearchWithMatch: { title: "my title" }
+        }},
+    ]
+)
+
+db.tasks.find({'title': 'parse wireless hard drive'})

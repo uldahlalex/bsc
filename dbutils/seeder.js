@@ -23,18 +23,18 @@ async function seedDB() {
         await collection.drop();
         // make a bunch of time series data
         let tasks = [];
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < 10; i++) {
             const title = faker.git.commitMessage();
             const desc = faker.lorem.sentence()
             const timestamp = faker.time.recent();
             const subtasks = [];
-                for (let j = 0; j < 10; j++) {
+                for (let j = 0; j < 2; j++) {
                     const id = mongoose.Types.ObjectId();
                     const title = faker.git.commitMessage();
                     const desc = faker.lorem.sentence()
                     const timestamp = faker.time.recent();
                     const innerTasks = [];
-                    for (let k = 0; k < 10; k++) {
+                    for (let k = 0; k < 2; k++) {
                         const id = mongoose.Types.ObjectId();
                         const title = faker.git.commitMessage();
                         const desc = faker.lorem.sentence()

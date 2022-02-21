@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import {Entity, PrimaryGeneratedColumn, Column, PrimaryColumn, ManyToOne} from "typeorm";
 
 @Entity()
 export class Task {
@@ -14,4 +14,21 @@ export class Task {
 
     @Column()
     authorId: string;
+
+    @Column()
+    rank: number;
+
+    @Column()
+    projectId: number;
+
+}
+@Entity()
+export class TaskRelation {
+
+    @PrimaryColumn()
+    superTask: number;
+
+    @PrimaryColumn()
+    subTask: number;
+
 }
