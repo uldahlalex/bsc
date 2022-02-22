@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import cors from 'cors';
 import mongoose from "mongoose";
+import {Schema} from 'mongoose';
 import express from "express";
 import grpc from 'grpc';
 import * as grpcServer from './grpc.server';
@@ -17,7 +18,8 @@ const userModel = mongoose.model("user", new mongoose.Schema({
     first_name: { type: String, default: null },
     last_name: { type: String, default: null },
     email: { type: String, unique: true },
-    hash: {type: String}
+    hash: {type: String },
+    _id: {type: Schema.Types.ObjectId}
 }));
 
 console.log(argv['secret']);
