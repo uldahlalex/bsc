@@ -16,6 +16,7 @@
     "@grpc/proto-loader": "^0.6.9",
     "amqplib": "^0.8.0",
     "body-parser": "^1.19.1",
+    "cypher-query-builder": "^6.0.4",
     "express": "^4.17.2",
     "grpc": "^1.24.11",
     "hbs": "^4.2.0",
