@@ -4,7 +4,6 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import cors from 'cors';
 import mongoose from "mongoose";
-import {Schema} from 'mongoose';
 import express from "express";
 import grpc from 'grpc';
 import * as grpcServer from './grpc.server';
@@ -19,14 +18,15 @@ const userModel = mongoose.model("user", new mongoose.Schema({
     last_name: { type: String, default: null },
     email: { type: String, unique: true },
     hash: {type: String },
-    _id: {type: Schema.Types.ObjectId}
+    id: {type: mongoose.Schema.Types.ObjectId},
+    token: {type: String}
 }));
 
 console.log(argv['secret']);
 
 
-mongoose.connect("mongodb://alex:q1w2e3r4@localhost:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false")
-//mongoose.connect("mongodb://root:example@localhost:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false")
+//mongoose.connect("mongodb://alex:q1w2e3r4@localhost:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false")
+mongoose.connect("mongodb://root:example@localhost:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false")
     .then(
     () => {
         console.log('Connected to MongoDB')
@@ -105,7 +105,7 @@ app.post("/login", async (req, res) => {
         }
         const user = await userModel.findOne({ email });
 
-        if (user && (await bcrypt.compare(password, user.password))) {
+        if (user && (await bcrypt.compare(password, user.hash))) {
             user.token = jwt.sign(
                 {user_id: user._id, email},
                 argv['secret'],
