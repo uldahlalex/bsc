@@ -22,8 +22,10 @@ const userModel = mongoose.model("user", new mongoose.Schema({
     token: {type: String}
 }));
 
-console.log(argv['secret']);
-
+if(argv['secret']==undefined) {
+    console.log('No secret defined. Program will close with exit code 1')
+    process.exit(1);
+}
 
 //mongoose.connect("mongodb://alex:q1w2e3r4@localhost:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false")
 mongoose.connect("mongodb://root:example@localhost:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false")
