@@ -6,11 +6,11 @@
         "DownstreamHostAndPorts": [
             {
                 "Host": "localhost",
-                "Port": 3000
+                "Port": 3002
             }
         ],
         "UpstreamPathTemplate": "/identity/{method}",
-        "UpstreamHttpMethod": [ "Get" ]
+        "UpstreamHttpMethod": [ "Get", "Post" ]
         },
         {
             "DownstreamPathTemplate": "/{method}",

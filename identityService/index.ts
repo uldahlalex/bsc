@@ -13,18 +13,34 @@ const argv = minimist(process.argv.slice(1));
 const port = argv['port'] || 3002;
 const app = express();
 const httpServer = http.createServer(app);
-const userModel = mongoose.model("user", new mongoose.Schema({
+
+type Token = {
+    user_id: string
+    email: string
+    roles: [string],
+    organization: string
+    iat: number,
+    exp: number
+}
+const User = mongoose.model("user",
+    new mongoose.Schema({
     first_name: { type: String, default: null },
     last_name: { type: String, default: null },
     email: { type: String, unique: true },
-    hash: {type: String}
+    hash: {type: String },
+    id: {type: mongoose.Schema.Types.ObjectId},
+    token: {type: String},
+    organizationId: {type: Number },
+    roles: [String]
 }));
 
-console.log(argv['secret']);
+if(argv['secret']==undefined) {
+    console.log('No secret defined. Program will close with exit code 1')
+    process.exit(1);
+}
 
-
-mongoose.connect("mongodb://alex:q1w2e3r4@localhost:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false")
-//mongoose.connect("mongodb://root:example@localhost:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false")
+//mongoose.connect("mongodb://alex:q1w2e3r4@localhost:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false")
+mongoose.connect("mongodb://root:example@localhost:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false")
     .then(
     () => {
         console.log('Connected to MongoDB')
@@ -45,7 +61,7 @@ app.use(cors({
 grpcServer.server.addService(taskProto.TaskService.service, {
     getUserInfoForTasks: async (call, callback) => {
         console.log(call.request)
-        await userModel.findById(call.request.authorId).exec().then(res => {
+        await User.findById(call.request.authorId).exec().then(res => {
             let returnObject = {
                 _id: res._id.toString(),
                 first_name: res.first_name,
@@ -58,6 +74,9 @@ grpcServer.server.addService(taskProto.TaskService.service, {
     },
 })
 
+//Revoke token
+//Refresh token
+//Authorize
 
 app.post("/register", async (req, res) => {
         try {
@@ -67,21 +86,24 @@ app.post("/register", async (req, res) => {
                 res.status(400).send("Invalid request");
             }
 
-            if (await userModel.findOne({ email })) {
+            if (await User.findOne({ email })) {
                 return res.status(409).send("User Already Exist. Please Login");
             }
 
             const encryptedPassword = await bcrypt.hash(password, 10);
-
-            const user = await userModel.create({
+            const roles = ["Member"];
+            const organization = undefined;
+            const user = await User.create({
                 first_name,
                 last_name,
                 email: email.toLowerCase(),
                 hash: encryptedPassword,
+                roles : roles,
+                organization: organization
             });
 
             user.token = jwt.sign(
-                {user_id: user._id, email},
+                {user_id: user._id, email, roles, organization},
                 argv['secret'],
                 {
                     expiresIn: "2h",
@@ -101,16 +123,28 @@ app.post("/login", async (req, res) => {
         if (!(email && password)) {
             res.status(400).send("All input is required");
         }
-        const user = await userModel.findOne({ email });
+        let roles = null;
+        let organization = null;
+        let user = null;
 
-        if (user && (await bcrypt.compare(password, user.password))) {
+        try {
+            user =await User.findOne({ email });
+            roles = user.roles || null;
+            organization = user.organization || null;
+        } catch (e) {
+            console.log(e)
+        }
+
+
+        if (user && (await bcrypt.compare(password, user.hash))) {
             user.token = jwt.sign(
-                {user_id: user._id, email},
+                {user_id: user._id, email, roles, organization},
                 argv['secret'],
                 {
                     expiresIn: "2h",
                 }
             );
+            console.log(jwt.decode(user.token));
             return res.status(200).json(user);
         }
 
@@ -147,8 +181,14 @@ function verifyToken(req: any, res: any, next: any) {
     }
     try {
         const decoded = jwt.verify(token, argv['secret']);
-        console.log(jwt.decode(token));
-        req.user = decoded;
+        const readable = decoded as Token;
+        console.log(readable);
+        if (readable.roles.includes("Member")) {
+            req.user = decoded;
+            return next();
+        } else {
+            return res.status(401).send('Only members allowed')
+        }
     } catch (err) {
         return res.status(401).send("Try again");
     }

@@ -16,18 +16,18 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
     volumes:
-      - db:/var/lib/mongodb/data
-  taskStore:
-    image: postgres:14.1-alpine
-    restart: 'unless-stopped'
-    network_mode: "bridge"
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-    ports:
-      - '5432:5432'
-    volumes:
-      - db:/var/lib/postgresql/data
+      - ./db:/data/mongodb/data
+#  taskStore:
+#    image: postgres:14.1-alpine
+#    restart: 'unless-stopped'
+#    network_mode: "bridge"
+#    environment:
+#      - POSTGRES_USER=postgres
+#      - POSTGRES_PASSWORD=postgres
+#    ports:
+#      - '5432:5432'
+#    volumes:
+#      - ./data/postgresql/data
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: 'rabbitmq'
@@ -35,8 +35,28 @@ services:
       - 5672:5672
       - 15672:15672
     volumes:
-      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
-      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
-volumes:
-  db:
-    driver: local
+      - ./.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+      - ./.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+  taskStore:
+    container_name: taskStore
+    image: neo4j:4.0
+    volumes:
+      - ./db:/data:/neo4j/data
+      - ./db:/plugins:/plugins
+      - ./db:/import:/import
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_apoc_import_file_enabled=true
+      - NEO4J_dbms_security_procedures_unrestricted=apoc.*,algo.*
+      - NEO4J_dbms_memory_heap_initial__size=512m
+      - NEO4J_dbms_memory_heap_max__size=2G
+      - NEO4J_apoc_uuid_enabled=true
+      - NEO4J_dbms_default__listen__address=0.0.0.0
+      - NEO4J_dbms_allow__upgrade=true
+      - NEO4J_dbms_default__database=neo4j
+      - NEO4J_AUTH=neo4j/test
+      - NEO4J_apoc_import_file_use__neo4j__config=true
+      - NEO4JLABS_PLUGINS=\[\"apoc\"\]
