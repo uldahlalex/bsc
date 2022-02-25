@@ -21,10 +21,7 @@
     "grpc": "^1.24.11",
     "hbs": "^4.2.0",
     "minimist": "^1.2.5",
-    "pg": "^8.7.3",
-    "reflect-metadata": "^0.1.13",
-    "typeorm": "^0.2.41",
-    "uuid": "^8.3.2"
+    "reflect-metadata": "^0.1.13"
   },
   "engines": {
     "node": ">=12.2.0"

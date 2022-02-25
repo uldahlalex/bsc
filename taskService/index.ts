@@ -5,7 +5,6 @@ import http from 'http';
 import minimist from 'minimist';
 import "reflect-metadata";
 import * as amqp from 'amqplib/callback_api';
-import cypher from 'cypher-query-builder';
 import {Connection} from 'cypher-query-builder';
 
 const app = express();
@@ -93,12 +92,12 @@ app.get('/tasks', async (req, res) => {
 
 app.get('/tasks/something', async (req, res) => {
     taskChannel.publish("topic_logs", "yada.critical", Buffer.from('not topic message - but very critical'))
-    res.send(await taskRepo.find())
+
 })
 
 app.get('/tasks/other', async (req, res) => {
     taskChannel.publish("topic_logs", "topic.noncritical", Buffer.from('topic message - not very critical'))
-    res.send(await taskRepo.find())
+
 })
 
 app.post('/tasks', async (req, res) => {
