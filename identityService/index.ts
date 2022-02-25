@@ -13,12 +13,7 @@ const argv = minimist(process.argv.slice(1));
 const port = argv['port'] || 3002;
 const app = express();
 const httpServer = http.createServer(app);
-const Organization = mongoose.model(
-    "Organization",
-    new mongoose.Schema({
-        name: String
-    })
-)
+
 type Token = {
     user_id: string
     email: string
@@ -35,7 +30,7 @@ const User = mongoose.model("user",
     hash: {type: String },
     id: {type: mongoose.Schema.Types.ObjectId},
     token: {type: String},
-    organization: {type: mongoose.Schema.Types.ObjectId, ref: "Organization"},
+    organizationId: {type: Number },
     roles: [String]
 }));
 
@@ -128,9 +123,18 @@ app.post("/login", async (req, res) => {
         if (!(email && password)) {
             res.status(400).send("All input is required");
         }
-        const user = await User.findOne({ email });
-        const roles = user.roles;
-        const organization = user.organization;
+        let roles = null;
+        let organization = null;
+        let user = null;
+
+        try {
+            user =await User.findOne({ email });
+            roles = user.roles || null;
+            organization = user.organization || null;
+        } catch (e) {
+            console.log(e)
+        }
+
 
         if (user && (await bcrypt.compare(password, user.hash))) {
             user.token = jwt.sign(
