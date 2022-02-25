@@ -69,7 +69,7 @@ function getAll() {
     let result = session.run('' +
         'MATCH (n) RETURN (n)');
 
-    var parsedResult = result
+    /*var parsedResult = result
         .then(parser.parse)
         .then(function(parsed){
             parsed.forEach(function(parsedRecord) {
@@ -79,7 +79,8 @@ function getAll() {
         .catch(function(parseError) {
             console.log(parseError);
         });
-    console.log(parsedResult);
+    console.log(parsedResult);*/
+    console.log(JSON.stringify(result, null, 3))
 }
 
 getAll();

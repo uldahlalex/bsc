@@ -9,6 +9,8 @@ import {MatTreeModule} from "@angular/material/tree";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatIconModule} from "@angular/material/icon";
+import {MatButtonModule} from "@angular/material/button";
+import {MatInputModule} from "@angular/material/input";
 
 @NgModule({
   imports: [
@@ -19,7 +21,9 @@ import {MatIconModule} from "@angular/material/icon";
     MatTreeModule,
     MatCheckboxModule,
     MatFormFieldModule,
-    MatIconModule
+    MatIconModule,
+    MatButtonModule,
+    MatInputModule
   ],
   declarations: [Tab2Page]
 })
