@@ -35,6 +35,7 @@ const neo4j = require('neo4j-driver');
 const driver = neo4j.driver('neo4j://localhost', neo4j.auth.basic('neo4j', 'test'));
 const session = driver.session();
 const {faker} = require('@faker-js/faker');
+const parser = require('parse-neo4j');
 
 function createOneTaskNode() {
     session.run('' +
@@ -64,3 +65,21 @@ function createRelationship() {
         })
 }
 
+function getAll() {
+    let result = session.run('' +
+        'MATCH (n) RETURN (n)');
+
+    var parsedResult = result
+        .then(parser.parse)
+        .then(function(parsed){
+            parsed.forEach(function(parsedRecord) {
+                console.log(parsedRecord);
+            });
+        })
+        .catch(function(parseError) {
+            console.log(parseError);
+        });
+    console.log(parsedResult);
+}
+
+getAll();
