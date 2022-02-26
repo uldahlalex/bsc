@@ -6,3 +6,4 @@ db
 .docker-conf
 volumes
 data
+neostore
