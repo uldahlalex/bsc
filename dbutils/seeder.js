@@ -32,7 +32,8 @@ relateNodeToOtherNode();
 */
 
 const neo4j = require('neo4j-driver');
-const driver = neo4j.driver('bolt://localhost', neo4j.auth.basic('neo4j', 'neo3j'));
+const driver = neo4j.driver('bolt://localhost',
+    neo4j.auth.basic('neo4j', 'test'));
 const {faker} = require('@faker-js/faker');
 const parser = require('parse-neo4j');
 
@@ -97,8 +98,8 @@ function seed() {
             })
         })
     }
-
 }
+seed()
 
 
 function queryTree() {

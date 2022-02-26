@@ -7,3 +7,4 @@ db
 volumes
 data
 neostore
+plugins

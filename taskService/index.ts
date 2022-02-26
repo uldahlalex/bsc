@@ -17,7 +17,8 @@ const PROTO_PATH = './protos/task.proto'
 const TaskService = grpc.load(PROTO_PATH).TaskService
 const grpcClient = new TaskService('localhost:50051', grpc.credentials.createInsecure());
 
-const driver = neo4j.driver('bolt://localhost', neo4j.auth.basic('neo4j', 'neo3j'));
+const driver = neo4j.driver('bolt://localhost',
+    neo4j.auth.basic('neo4j', 'test'));
 app.use(cors());
 
 let taskRepo;
