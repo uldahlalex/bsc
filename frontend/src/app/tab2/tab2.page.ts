@@ -34,7 +34,8 @@ const TREE_DATA = {
       Orange: null,
     },
   },
-  Reminders: ['Cook dinner', 'Read the Material Design spec', 'Upgrade Application to Angular'],
+  Reminders:
+    [ { "keys": [ "value" ], "length": 1, "_fields": [ { "_type": "Task", "name": "do something", "_id": { "low": 0, "high": 0 }, "hassubtasks": [ { "_type": "Task", "name": "bypass virtual hard drive", "_id": { "low": 15, "high": 0 } }, { "_type": "Task", "name": "transmit online firewall", "_id": { "low": 18, "high": 0 } }, { "_type": "Task", "name": "override wireless protocol", "_id": { "low": 21, "high": 0 } }, { "_type": "Task", "name": "bypass mobile firewall", "_id": { "low": 19, "high": 0 } }, { "_type": "Task", "name": "parse 1080p panel", "_id": { "low": 16, "high": 0 } }, { "_type": "Task", "name": "override wireless program", "_id": { "low": 20, "high": 0 } }, { "_type": "Task", "name": "navigate back-end hard drive", "_id": { "low": 13, "high": 0 } }, { "_type": "Task", "name": "transmit online bandwidth", "_id": { "low": 17, "high": 0 } }, { "_type": "Task", "name": "input digital bandwidth", "_id": { "low": 12, "high": 0 } }, { "_type": "Task", "name": "copy back-end firewall", "_id": { "low": 14, "high": 0 } }, { "_type": "Task", "name": "back up solid state bandwidth", "_id": { "low": 10, "high": 0 } }, { "_type": "Task", "name": "connect primary hard drive", "_id": { "low": 8, "high": 0 } }, { "_type": "Task", "name": "parse wireless application", "_id": { "low": 1, "high": 0 } }, { "_type": "Task", "name": "bypass redundant protocol", "_id": { "low": 6, "high": 0 } }, { "_type": "Task", "name": "copy back-end port", "_id": { "low": 7, "high": 0 } }, { "_type": "Task", "name": "override multi-byte program", "_id": { "low": 2, "high": 0 } }, { "_type": "Task", "name": "back up back-end monitor", "_id": { "low": 9, "high": 0 } }, { "_type": "Task", "name": "transmit back-end bandwidth", "_id": { "low": 5, "high": 0 } }, { "_type": "Task", "name": "index bluetooth matrix", "_id": { "low": 4, "high": 0 } }, { "_type": "Task", "name": "calculate neural firewall", "_id": { "low": 3, "high": 0 } } ] } ], "_fieldLookup": { "value": 0 } } ]
 };
 
 /**
@@ -44,7 +45,7 @@ const TREE_DATA = {
  */
 @Injectable()
 export class ChecklistDatabase {
-  dataChange = new BehaviorSubject<TodoItemNode[]>([]);
+  dataChange = new BehaviorSubject<any[]>([]);
 
   get data(): TodoItemNode[] {
     return this.dataChange.value;
@@ -128,7 +129,7 @@ export class Tab2Page {
   dataSource: MatTreeFlatDataSource<TodoItemNode, TodoItemFlatNode>;
 
   /** The selection for checklist */
-  checklistSelection = new SelectionModel<TodoItemFlatNode>(true /* multiple */);
+  checklistSelection = new SelectionModel<any>(true /* multiple */);
   tasks;
   constructor(private _database: ChecklistDatabase, private http: HttpClient) {
     this.treeFlattener = new MatTreeFlattener(
@@ -149,20 +150,20 @@ export class Tab2Page {
     });
   }
 
-  getLevel = (node: TodoItemFlatNode) => node.level;
+  getLevel = (node: any) => node.level;
 
-  isExpandable = (node: TodoItemFlatNode) => node.expandable;
+  isExpandable = (node: any) => node.expandable;
 
-  getChildren = (node: TodoItemNode): TodoItemNode[] => node.children;
+  getChildren = (node: any): any[] => node.children;
 
-  hasChild = (_: number, _nodeData: TodoItemFlatNode) => _nodeData.expandable;
+  hasChild = (_: number, _nodeData: any) => _nodeData.expandable;
 
-  hasNoContent = (_: number, _nodeData: TodoItemFlatNode) => _nodeData.item === '';
+  hasNoContent = (_: number, _nodeData: any) => _nodeData.item === '';
 
   /**
    * Transformer to convert nested node to flat node. Record the nodes in maps for later use.
    */
-  transformer = (node: TodoItemNode, level: number) => {
+  transformer = (node: any, level: number) => {
     const existingNode = this.nestedNodeMap.get(node);
     const flatNode =
       existingNode && existingNode.item === node.item ? existingNode : new TodoItemFlatNode();
@@ -175,7 +176,7 @@ export class Tab2Page {
   };
 
   /** Whether all the descendants of the node are selected. */
-  descendantsAllSelected(node: TodoItemFlatNode): boolean {
+  descendantsAllSelected(node: any): boolean {
     const descendants = this.treeControl.getDescendants(node);
     const descAllSelected =
       descendants.length > 0 &&
@@ -186,14 +187,14 @@ export class Tab2Page {
   }
 
   /** Whether part of the descendants are selected */
-  descendantsPartiallySelected(node: TodoItemFlatNode): boolean {
+  descendantsPartiallySelected(node: any): boolean {
     const descendants = this.treeControl.getDescendants(node);
     const result = descendants.some(child => this.checklistSelection.isSelected(child));
     return result && !this.descendantsAllSelected(node);
   }
 
   /** Toggle the to-do item selection. Select/deselect all the descendants node */
-  todoItemSelectionToggle(node: TodoItemFlatNode): void {
+  todoItemSelectionToggle(node: any): void {
     this.checklistSelection.toggle(node);
     const descendants = this.treeControl.getDescendants(node);
     this.checklistSelection.isSelected(node)
@@ -206,13 +207,13 @@ export class Tab2Page {
   }
 
   /** Toggle a leaf to-do item selection. Check all the parents to see if they changed */
-  todoLeafItemSelectionToggle(node: TodoItemFlatNode): void {
+  todoLeafItemSelectionToggle(node: any): void {
     this.checklistSelection.toggle(node);
     this.checkAllParentsSelection(node);
   }
 
   /* Checks all the parents when a leaf node is selected/unselected */
-  checkAllParentsSelection(node: TodoItemFlatNode): void {
+  checkAllParentsSelection(node: any): void {
     let parent: TodoItemFlatNode | null = this.getParentNode(node);
     while (parent) {
       this.checkRootNodeSelection(parent);
@@ -221,7 +222,7 @@ export class Tab2Page {
   }
 
   /** Check root node checked state and change it accordingly */
-  checkRootNodeSelection(node: TodoItemFlatNode): void {
+  checkRootNodeSelection(node: any): void {
     const nodeSelected = this.checklistSelection.isSelected(node);
     const descendants = this.treeControl.getDescendants(node);
     const descAllSelected =
