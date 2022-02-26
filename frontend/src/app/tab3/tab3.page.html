@@ -1,16 +1,25 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Tab 3
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 3</ion-title>
-    </ion-toolbar>
-  </ion-header>
 
+  <tree-root [nodes]="treeNodes">
+
+    <ng-template #treeNodeFullTemplate let-node let-index="index" let-templates="templates">
+      <div class="tree-node">
+
+        <input type="checkbox" [checked]="node.isActive" (change)="node.toggleActivated(true)" />
+
+        <tree-node-expander [node]="node"></tree-node-expander>
+
+        <div class="node-content-wrapper" [class.node-content-wrapper-active]="node.isActive"
+             [class.node-content-wrapper-focused]="node.isFocused" (click)="node.toggleActivated(true)">
+
+          <span [class]="node.data.className + 'Index'">{{ index }}</span>
+          <span [class]="node.data.className" [class.title]="true">{{ node.data.title }}</span>
+
+        </div>
+
+        <tree-node-children [node]="node" [templates]="templates"></tree-node-children>
+      </div>
+    </ng-template>
+
+  </tree-root>
 </ion-content>

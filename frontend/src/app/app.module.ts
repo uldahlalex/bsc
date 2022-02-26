@@ -8,6 +8,7 @@ import { AppComponent } from './app.component';
 import { HttpClientModule } from "@angular/common/http";
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {NgxEchartsModule} from "ngx-echarts";
+import {TreeModule} from "@circlon/angular-tree-component";
 
 
 @NgModule({
@@ -22,7 +23,8 @@ import {NgxEchartsModule} from "ngx-echarts";
     BrowserAnimationsModule,
     NgxEchartsModule.forRoot({
       echarts: () => import('echarts')
-    })
+    }),
+    TreeModule
   ],
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
   bootstrap: [AppComponent],

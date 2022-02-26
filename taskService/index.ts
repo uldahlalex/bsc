@@ -86,7 +86,7 @@ app.get('/tasks/other', async (req, res) => {
     //taskChannel.publish("topic_logs", "topic.noncritical", Buffer.from('topic message - not very critical'))
     function queryTree() {
         let session = driver.session();
-        session.run('MATCH p=(t:Task)-[:HASSUBTASKS]->()\n' +
+        session.run('MATCH p=(t:Task)-[:CHILDREN]->()\n' +
             'WITH COLLECT(p) AS ps\n' +
             'CALL apoc.convert.toTree(ps) YIELD value\n' +
             'RETURN value').then(

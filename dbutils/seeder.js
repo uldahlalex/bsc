@@ -87,9 +87,9 @@ function seed() {
     for(let i =0; i<10; i++) {
         let session = driver.session();
         session.run('MATCH(t:Task) WHERE ID(t)=$superIdentity\n' +
-            'CREATE (s:Task {name: $subtask})<-[:HASSUBTASKS]-(t)',
+            'CREATE (s:Task {name: $subtask})<-[:CHILDREN]-(t)',
             {
-                superIdentity: 0,
+                superIdentity: 4,
                 subtask: faker.git.commitMessage()
             }).then(res => {
             console.log(res);

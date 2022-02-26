@@ -2,7 +2,7 @@ import {SelectionModel} from '@angular/cdk/collections';
 import {FlatTreeControl} from '@angular/cdk/tree';
 import {Component, Injectable} from '@angular/core';
 import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject, Observable} from 'rxjs';
 import {HttpClient} from "@angular/common/http";
 
 /**
@@ -23,20 +23,7 @@ export class TodoItemFlatNode {
 /**
  * The Json object for to-do list data.
  */
-const TREE_DATA = {
-  Groceries: {
-    'Almond Meal flour': null,
-    'Organic eggs': null,
-    'Protein Powder': null,
-    Fruits: {
-      Apple: null,
-      Berries: ['Blueberry', 'Raspberry'],
-      Orange: null,
-    },
-  },
-  Reminders:
-    [ { "keys": [ "value" ], "length": 1, "_fields": [ { "_type": "Task", "name": "do something", "_id": { "low": 0, "high": 0 }, "hassubtasks": [ { "_type": "Task", "name": "bypass virtual hard drive", "_id": { "low": 15, "high": 0 } }, { "_type": "Task", "name": "transmit online firewall", "_id": { "low": 18, "high": 0 } }, { "_type": "Task", "name": "override wireless protocol", "_id": { "low": 21, "high": 0 } }, { "_type": "Task", "name": "bypass mobile firewall", "_id": { "low": 19, "high": 0 } }, { "_type": "Task", "name": "parse 1080p panel", "_id": { "low": 16, "high": 0 } }, { "_type": "Task", "name": "override wireless program", "_id": { "low": 20, "high": 0 } }, { "_type": "Task", "name": "navigate back-end hard drive", "_id": { "low": 13, "high": 0 } }, { "_type": "Task", "name": "transmit online bandwidth", "_id": { "low": 17, "high": 0 } }, { "_type": "Task", "name": "input digital bandwidth", "_id": { "low": 12, "high": 0 } }, { "_type": "Task", "name": "copy back-end firewall", "_id": { "low": 14, "high": 0 } }, { "_type": "Task", "name": "back up solid state bandwidth", "_id": { "low": 10, "high": 0 } }, { "_type": "Task", "name": "connect primary hard drive", "_id": { "low": 8, "high": 0 } }, { "_type": "Task", "name": "parse wireless application", "_id": { "low": 1, "high": 0 } }, { "_type": "Task", "name": "bypass redundant protocol", "_id": { "low": 6, "high": 0 } }, { "_type": "Task", "name": "copy back-end port", "_id": { "low": 7, "high": 0 } }, { "_type": "Task", "name": "override multi-byte program", "_id": { "low": 2, "high": 0 } }, { "_type": "Task", "name": "back up back-end monitor", "_id": { "low": 9, "high": 0 } }, { "_type": "Task", "name": "transmit back-end bandwidth", "_id": { "low": 5, "high": 0 } }, { "_type": "Task", "name": "index bluetooth matrix", "_id": { "low": 4, "high": 0 } }, { "_type": "Task", "name": "calculate neural firewall", "_id": { "low": 3, "high": 0 } } ] } ], "_fieldLookup": { "value": 0 } } ]
-};
+
 
 /**
  * Checklist database, it can build a tree structured Json object.
@@ -54,11 +41,25 @@ export class ChecklistDatabase {
   constructor() {
     this.initialize();
   }
+  TREE_DATA = {
+    Groceries: {
+      'Almond Meal flour': null,
+      'Organic eggs': null,
+      'Protein Powder': null,
+      Fruits: {
+        Apple: null,
+        Berries: ['Blueberry', 'Raspberry'],
+        Orange: null,
+      },
+    },
+    Reminders: {
+}
+  }
 
   initialize() {
     // Build the tree nodes from Json object. The result is a list of `TodoItemNode` with nested
     //     file node as children.
-    const data = this.buildFileTree(TREE_DATA, 0);
+    const data = this.buildFileTree(this.TREE_DATA, 0);
 
     // Notify the change.
     this.dataChange.next(data);
@@ -100,6 +101,8 @@ export class ChecklistDatabase {
   }
 }
 
+
+
 /**
  * @title Tree with checkboxes
  */
@@ -126,7 +129,7 @@ export class Tab2Page {
 
   treeFlattener: MatTreeFlattener<TodoItemNode, TodoItemFlatNode>;
 
-  dataSource: MatTreeFlatDataSource<TodoItemNode, TodoItemFlatNode>;
+  dataSource= {asd: 'asd'};
 
   /** The selection for checklist */
   checklistSelection = new SelectionModel<any>(true /* multiple */);
@@ -138,17 +141,22 @@ export class Tab2Page {
       this.isExpandable,
       this.getChildren,
     );
-    http.get('http://localhost:3001/tasks/other').subscribe(res => {
-      this.tasks = res;
-      }
-    )
+    this.http.get<Observable<any[]>>('http://localhost:3001/tasks/other').subscribe(sub => {
+      //this.dataSource = sub;
+    })
     this.treeControl = new FlatTreeControl<TodoItemFlatNode>(this.getLevel, this.isExpandable);
-    this.dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
+
 
     _database.dataChange.subscribe(data => {
-      this.dataSource.data = data;
+      //this.dataSource.data = data;
     });
   }
+
+
+
+
+
+
 
   getLevel = (node: any) => node.level;
 

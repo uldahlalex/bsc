@@ -31,7 +31,7 @@
                 "output": "./svg"
               }
             ],
-            "styles": ["src/theme/variables.scss", "src/global.scss"],
+            "styles": ["src/theme/variables.scss", "src/global.scss",  "./node_modules/@circlon/angular-tree-component/css/angular-tree-component.css"],
             "scripts": [],
             "aot": false,
             "vendorChunk": true,
@@ -80,7 +80,6 @@
               "browserTarget": "app:build:production"
             },
             "ci": {
-              "progress": false
             }
           }
         },
