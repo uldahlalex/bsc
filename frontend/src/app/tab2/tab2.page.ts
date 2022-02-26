@@ -3,6 +3,7 @@ import {FlatTreeControl} from '@angular/cdk/tree';
 import {Component, Injectable} from '@angular/core';
 import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
 import {BehaviorSubject} from 'rxjs';
+import {HttpClient} from "@angular/common/http";
 
 /**
  * Node for to-do item
@@ -128,14 +129,18 @@ export class Tab2Page {
 
   /** The selection for checklist */
   checklistSelection = new SelectionModel<TodoItemFlatNode>(true /* multiple */);
-
-  constructor(private _database: ChecklistDatabase) {
+  tasks;
+  constructor(private _database: ChecklistDatabase, private http: HttpClient) {
     this.treeFlattener = new MatTreeFlattener(
       this.transformer,
       this.getLevel,
       this.isExpandable,
       this.getChildren,
     );
+    http.get('http://localhost:3001/tasks/other').subscribe(res => {
+      this.tasks = res;
+      }
+    )
     this.treeControl = new FlatTreeControl<TodoItemFlatNode>(this.getLevel, this.isExpandable);
     this.dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
 

@@ -1,4 +1,4 @@
-version: '3'
+version: '4'
 
 # This is a compose file for running the system locally,
 # and therefore requires running microservices independently.
@@ -42,9 +42,8 @@ services:
     build: ./docker/neo4j
     image: neo4j:4.0
     volumes:
-      - ./db:/data:/neo4j/data
-      - ./db:/plugins:/plugins
-      - ./db:/import:/import
+      - ./data:/data
+      - ./plugins:/plugins
     ports:
       - "7474:7474"
       - "7687:7687"

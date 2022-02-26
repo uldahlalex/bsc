@@ -11,10 +11,7 @@ import {HttpClient, HttpHeaders} from "@angular/common/http";
 export class AppComponent {
 
 
-  constructor(private http: HttpClient) {
-    this.http.get('http://localhost:5000/identity/openEndpoint').subscribe(sub => {
-       console.log(sub);
-    })
+  constructor() {
   }
 
 }

@@ -5,21 +5,20 @@ import http from 'http';
 import minimist from 'minimist';
 import "reflect-metadata";
 import * as amqp from 'amqplib/callback_api';
-import {Connection} from 'cypher-query-builder';
+import neo4j from 'neo4j-driver';
+import cors from 'cors';
 
 const app = express();
 const server = http.createServer(app)
 const argv = minimist(process.argv.slice(1));
 const port = argv['port'] || 3001;
-
 const grpc = require('grpc')
 const PROTO_PATH = './protos/task.proto'
 const TaskService = grpc.load(PROTO_PATH).TaskService
 const grpcClient = new TaskService('localhost:50051', grpc.credentials.createInsecure());
-const db = new Connection('bolt://localhost', {
-    username: 'neo4j',
-    password: 'test'
-})
+
+const driver = neo4j.driver('bolt://localhost', neo4j.auth.basic('neo4j', 'neo3j'));
+app.use(cors());
 
 let taskRepo;
 let taskChannel;
@@ -60,19 +59,6 @@ amqp.connect('amqp://localhost', function(error0, connection) {
     });
 });
 
-db.matchNode('t', 'Task')
-    .return('t')
-    .run()
-    .then(function(results) {
-        console.log(results);
-    })
-
-const res = db.matchNode('t', 'Task')
-    .return('t')
-    .stream();
-res.subscribe(row => {
-    console.log(row)
-})
 
 
 app.get('/tasks', async (req, res) => {
@@ -96,8 +82,20 @@ app.get('/tasks/something', async (req, res) => {
 })
 
 app.get('/tasks/other', async (req, res) => {
-    taskChannel.publish("topic_logs", "topic.noncritical", Buffer.from('topic message - not very critical'))
-
+    //taskChannel.publish("topic_logs", "topic.noncritical", Buffer.from('topic message - not very critical'))
+    function queryTree() {
+        let session = driver.session();
+        session.run('MATCH p=(t:Task)-[:HASSUBTASKS]->()\n' +
+            'WITH COLLECT(p) AS ps\n' +
+            'CALL apoc.convert.toTree(ps) YIELD value\n' +
+            'RETURN value').then(
+                result => {
+                    session.close();
+                    res.send(result.records);
+                }
+        )
+    }
+    queryTree();
 })
 
 app.post('/tasks', async (req, res) => {

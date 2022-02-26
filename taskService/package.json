@@ -16,11 +16,13 @@
     "@grpc/proto-loader": "^0.6.9",
     "amqplib": "^0.8.0",
     "body-parser": "^1.19.1",
+    "cors": "^2.8.5",
     "cypher-query-builder": "^6.0.4",
     "express": "^4.17.2",
     "grpc": "^1.24.11",
     "hbs": "^4.2.0",
     "minimist": "^1.2.5",
+    "neo4j-driver": "^4.4.3",
     "reflect-metadata": "^0.1.13"
   },
   "engines": {

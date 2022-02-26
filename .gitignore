@@ -5,3 +5,4 @@ dist
 db
 .docker-conf
 volumes
+data

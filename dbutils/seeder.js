@@ -32,8 +32,7 @@ relateNodeToOtherNode();
 */
 
 const neo4j = require('neo4j-driver');
-const driver = neo4j.driver('neo4j://localhost', neo4j.auth.basic('neo4j', 'test'));
-const session = driver.session();
+const driver = neo4j.driver('bolt://localhost', neo4j.auth.basic('neo4j', 'neo3j'));
 const {faker} = require('@faker-js/faker');
 const parser = require('parse-neo4j');
 
@@ -83,4 +82,56 @@ function getAll() {
     console.log(JSON.stringify(result, null, 3))
 }
 
-getAll();
+function seed() {
+    for(let i =0; i<10; i++) {
+        let session = driver.session();
+        session.run('MATCH(t:Task) WHERE ID(t)=$superIdentity\n' +
+            'CREATE (s:Task {name: $subtask})<-[:HASSUBTASKS]-(t)',
+            {
+                superIdentity: 0,
+                subtask: faker.git.commitMessage()
+            }).then(res => {
+            console.log(res);
+            session.close().then(result => {
+                console.log(result)
+            })
+        })
+    }
+
+}
+
+
+function queryTree() {
+    let session = driver.session();
+    session.run('MATCH p=(t:Task)-[:SUBTASKOF]->()\n' +
+        'WITH COLLECT(p) AS ps\n' +
+        'CALL apoc.convert.toTree(ps) YIELD value\n' +
+        'RETURN value')
+        .then(parser.parse)
+        .then(function(parsed){
+            parsed.forEach(function(parsedRecord) {
+                console.log(parsedRecord);
+            });
+            session.close()
+        })
+        .catch(function(parseError) {
+            console.log(parseError);
+        });
+}
+function revQueryTree() {
+    let session = driver.session();
+    session.run('MATCH p=(t:Task)-[:SUBTASKOF]->()\n' +
+        'WITH COLLECT(p) AS ps\n' +
+        'CALL apoc.convert.toTree(ps) YIELD value\n' +
+        'RETURN value')
+        .then(parser.parse)
+        .then(function(parsed){
+            parsed.forEach(function(parsedRecord) {
+                console.log(parsedRecord);
+            });
+            session.close()
+        })
+        .catch(function(parseError) {
+            console.log(parseError);
+        });
+}
