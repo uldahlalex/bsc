@@ -1,37 +1,40 @@
-
-
 <ion-content [fullscreen]="true">
 
-  <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
-    <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding>
-      <button mat-icon-button disabled></button>
-      <mat-checkbox class="checklist-leaf-node"
-                    [checked]="checklistSelection.isSelected(node)"
-                    (change)="todoLeafItemSelectionToggle(node)">{{node.item}}</mat-checkbox>
-    </mat-tree-node>
 
-    <mat-tree-node *matTreeNodeDef="let node; when: hasNoContent" matTreeNodePadding>
-      <button mat-icon-button disabled></button>
-      <mat-form-field appearance="fill">
-        <mat-label>New item...</mat-label>
-        <input matInput #itemValue placeholder="Ex. Lettuce">
-      </mat-form-field>
-      <button mat-button (click)="saveNode(node, itemValue.value)">Save</button>
-    </mat-tree-node>
+  <!--
+  <ion-card *ngFor="let t of tasks">
+    <div *ngFor="let f of t._fields">
+      <div *ngFor="let i of [1,2,3]">
+        <div *ngFor="let c of f.children">
+          <ion-label>{{c.name}}</ion-label>
+          <ion-checkbox></ion-checkbox>
+          <button (click)="expand(c)">Expand</button>
+          <ion-card *ngIf="c.expanded==true">
+            <ion-label>{{t.name}}</ion-label>
+            <ion-checkbox></ion-checkbox>
+          </ion-card>
+        </div>
+      </div>
 
-    <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
-      <button mat-icon-button matTreeNodeToggle
-              [attr.aria-label]="'Toggle ' + node.item">
-        <mat-icon class="mat-icon-rtl-mirror">
-          {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
-        </mat-icon>
-      </button>
-      <mat-checkbox [checked]="descendantsAllSelected(node)"
-                    [indeterminate]="descendantsPartiallySelected(node)"
-                    (change)="todoItemSelectionToggle(node)">{{node.item}}</mat-checkbox>
-      <button mat-icon-button (click)="addNewItem(node)"><mat-icon>add</mat-icon></button>
-    </mat-tree-node>
-  </mat-tree>
+      </div>
 
+
+
+
+
+  </ion-card>
+-->
+
+  <ul>
+    <ng-template #recursiveList let-list>
+      <li *ngFor="let item of list">
+        {{item.name}}
+        <ul *ngIf="true">
+          <ng-container *ngTemplateOutlet="recursiveList; context:{ $implicit: item.children }"></ng-container>
+        </ul>
+      </li>
+    </ng-template>
+    <ng-container *ngTemplateOutlet="recursiveList; context:{ $implicit: list }"></ng-container>
+  </ul>
 
 </ion-content>

@@ -89,7 +89,7 @@ function seed() {
         session.run('MATCH(t:Task) WHERE ID(t)=$superIdentity\n' +
             'CREATE (s:Task {name: $subtask})<-[:CHILDREN]-(t)',
             {
-                superIdentity: 4,
+                superIdentity: 11,
                 subtask: faker.git.commitMessage()
             }).then(res => {
             console.log(res);
