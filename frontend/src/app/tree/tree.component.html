@@ -1,0 +1,19 @@
+<ion-content>
+  <ng-template #recursiveList let-list>
+    <ion-card *ngFor="let item of list">
+      <ion-button (click)="expand(item)">Expand</ion-button>
+      {{item | json}}
+      <div *ngIf="item.children">{{item.children.length}}</div>
+
+      <li *ngIf="item.expanded==true">
+
+        <ul *ngIf="true">
+          <ng-container *ngTemplateOutlet="recursiveList; context:{ $implicit: item.children }"></ng-container>
+        </ul>
+      </li>
+    </ion-card>
+  </ng-template>
+  <ng-container *ngTemplateOutlet="recursiveList; context:{ $implicit: list }"></ng-container>
+
+</ion-content>
+<p>hey</p>

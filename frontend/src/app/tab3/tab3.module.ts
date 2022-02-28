@@ -17,7 +17,6 @@ import {TreeModule} from "@circlon/angular-tree-component";
     IonicModule,
     CommonModule,
     FormsModule,
-    RouterModule.forChild([{path: '', component: Tab3Page}]),
     Tab3PageRoutingModule,
     MatTreeModule,
     MatCheckboxModule,

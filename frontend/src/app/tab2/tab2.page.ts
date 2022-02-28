@@ -2,6 +2,7 @@ import { NestedTreeControl} from '@angular/cdk/tree';
 import {Component, } from '@angular/core';
 import { MatTreeNestedDataSource} from '@angular/material/tree';
 import {HttpClient} from "@angular/common/http";
+import {ActivatedRoute, Router} from "@angular/router";
 
 /**
  * @title Tree with checkboxes
@@ -12,15 +13,10 @@ import {HttpClient} from "@angular/common/http";
   styleUrls: ['tab2.page.scss'],
 })
 export class Tab2Page {
-
-
   list;
 
-  constructor(private http: HttpClient) {
-    this.http.get<any[]>('http://localhost:3001/tasks/other').subscribe(sub => {
-      console.log(sub);
-      this.list = sub[0]._fields;
-    })
+  constructor(private router: Router, private route: ActivatedRoute) {
+
   }
 
   expand(child) {
@@ -33,5 +29,8 @@ export class Tab2Page {
   }
 
 
+  navigateToProject() {
+    this.router.navigate(['app-tree'], {relativeTo: this.route})
+  }
 }
 

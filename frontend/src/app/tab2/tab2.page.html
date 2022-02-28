@@ -9,25 +9,33 @@
 
 <ion-content [fullscreen]="true">
 
-
-<div>
-
-
-    <ng-template #recursiveList let-list>
-      <ion-card *ngFor="let item of list">
-        <ion-button (click)="expand(item)">Expand</ion-button>
-        {{item | json}}
-        <div *ngIf="item.children">{{item.children.length}}</div>
-
-        <li *ngIf="item.expanded==true">
-
-          <ul *ngIf="true">
-            <ng-container *ngTemplateOutlet="recursiveList; context:{ $implicit: item.children }"></ng-container>
-          </ul>
-        </li>
+<ion-grid>
+  <ion-row>
+    <ion-col>
+      <ion-card (click)="navigateToProject()">
+        <ion-card-title>Project 1</ion-card-title>
       </ion-card>
-    </ng-template>
-    <ng-container *ngTemplateOutlet="recursiveList; context:{ $implicit: list }"></ng-container>
+    </ion-col>
+    <ion-col>
+      <ion-card>
+        <ion-card-title>Project 2</ion-card-title>
+      </ion-card>
+    </ion-col>
+  </ion-row>
+  <ion-row>
+    <ion-col>
+      <ion-card>
+        <ion-card-title>Project 3</ion-card-title>
+      </ion-card>
+    </ion-col>
+    <ion-col>
+      <ion-card>
+        <ion-card-title>Project 4</ion-card-title>
+      </ion-card>
+    </ion-col>
+  </ion-row>
+</ion-grid>
 
-  </div>
+  <router-outlet></router-outlet>
+
 </ion-content>

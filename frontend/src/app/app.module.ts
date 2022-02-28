@@ -24,7 +24,6 @@ import {TreeModule} from "@circlon/angular-tree-component";
     NgxEchartsModule.forRoot({
       echarts: () => import('echarts')
     }),
-    TreeModule
   ],
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
   bootstrap: [AppComponent],
