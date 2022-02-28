@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
-import {HttpClient} from "@angular/common/http";
+import {HttpClient, HttpParams} from "@angular/common/http";
 import {FlatTreeControl} from "@angular/cdk/tree";
 import {ITreeOptions} from "@circlon/angular-tree-component";
+import {AuthService} from "../helpers/auth.service";
 
 @Component({
   selector: 'app-tab3',
@@ -10,42 +11,9 @@ import {ITreeOptions} from "@circlon/angular-tree-component";
 })
 export class Tab3Page {
 
-  treeNodes = [
-    {
-      name: 'root1',
-      children: [
-        { name: 'child1' },
-        { name: 'child2' }
-      ]
-    },
-    {
-      name: 'root2',
-      children: [
-        { name: 'child2.1', children: [] },
-        {
-          name: 'child2.2', children: [
-            { name: 'grandchild2.2.1' }
-          ]
-        }
-      ]
-    },
-    { name: 'root3' },
-    { name: 'root4', children: [] },
-    { name: 'root5', children: null }
-  ];
 
-
-  treeOptions: ITreeOptions = {
-    displayField: 'title',
-    nodeClass: (node) => `${node.data.title}Class`
-  };
-
-  constructor(private http: HttpClient) {
-    this.http.get('http://localhost:3001/tasks/other').subscribe(sub => {
-      let treeNodes = JSON.parse(JSON.stringify(sub[0]))
-      this.treeNodes = treeNodes._fields;
-      console.log(this.treeNodes)
-    })
+  constructor(private http: HttpClient,
+              private authService: AuthService) {
+    this.authService.login('alex@uldahl.dk', '1234');
   }
-
 }

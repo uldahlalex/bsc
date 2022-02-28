@@ -106,9 +106,10 @@ app.post("/register", async (req, res) => {
                 {user_id: user._id, email, roles, organization},
                 argv['secret'],
                 {
-                    expiresIn: "2h",
+                    expiresIn: "10h",
                 }
             );
+            user.hash = '';
             return res.status(201).json(user);
         } catch (err) {
             console.log(err);
@@ -141,10 +142,11 @@ app.post("/login", async (req, res) => {
                 {user_id: user._id, email, roles, organization},
                 argv['secret'],
                 {
-                    expiresIn: "2h",
+                    expiresIn: "1000d",
                 }
             );
             console.log(jwt.decode(user.token));
+            user.hash = '';
             return res.status(200).json(user);
         }
 

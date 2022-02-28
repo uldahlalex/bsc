@@ -1,40 +1,33 @@
+<ion-toolbar>
+  <ion-button fill="clear" slot="start">
+    <ion-icon name="arrow-back-outline"></ion-icon>
+  </ion-button>
+  <ion-button fill="clear" slot="end">
+    <ion-icon name="arrow-forward-outline"></ion-icon>
+  </ion-button>
+</ion-toolbar>
+
 <ion-content [fullscreen]="true">
 
 
-  <!--
-  <ion-card *ngFor="let t of tasks">
-    <div *ngFor="let f of t._fields">
-      <div *ngFor="let i of [1,2,3]">
-        <div *ngFor="let c of f.children">
-          <ion-label>{{c.name}}</ion-label>
-          <ion-checkbox></ion-checkbox>
-          <button (click)="expand(c)">Expand</button>
-          <ion-card *ngIf="c.expanded==true">
-            <ion-label>{{t.name}}</ion-label>
-            <ion-checkbox></ion-checkbox>
-          </ion-card>
-        </div>
-      </div>
-
-      </div>
+<div>
 
 
-
-
-
-  </ion-card>
--->
-
-  <ul>
     <ng-template #recursiveList let-list>
-      <li *ngFor="let item of list">
-        {{item.name}}
-        <ul *ngIf="true">
-          <ng-container *ngTemplateOutlet="recursiveList; context:{ $implicit: item.children }"></ng-container>
-        </ul>
-      </li>
+      <ion-card *ngFor="let item of list">
+        <ion-button (click)="expand(item)">Expand</ion-button>
+        {{item | json}}
+        <div *ngIf="item.children">{{item.children.length}}</div>
+
+        <li *ngIf="item.expanded==true">
+
+          <ul *ngIf="true">
+            <ng-container *ngTemplateOutlet="recursiveList; context:{ $implicit: item.children }"></ng-container>
+          </ul>
+        </li>
+      </ion-card>
     </ng-template>
     <ng-container *ngTemplateOutlet="recursiveList; context:{ $implicit: list }"></ng-container>
-  </ul>
 
+  </div>
 </ion-content>
