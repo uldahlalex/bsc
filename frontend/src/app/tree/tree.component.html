@@ -1,37 +1,36 @@
 <ion-content>
 
   <ion-text *ngIf="projectMetaData as project">
-    {{project.name}}
+
   </ion-text>
 
   <ng-template #recursiveList let-list>
     <ion-card *ngFor="let task of list">
-      <ion-card-header>
-        <ion-card-title>{{task.name}}</ion-card-title>
-        <ion-button *ngIf="task.expanded!=true" fill="clear" (click)="expand(task)">
-          <ion-icon name="arrow-forward-circle-outline">
+      <ion-toolbar>
+        <ion-card-header>
+          <ion-card-title>{{task.name}}</ion-card-title>
 
-          </ion-icon>  Expand
+        </ion-card-header>
+        <span slot="end" *ngIf="task.children">
+          <ion-button *ngIf="task.expanded!=true" fill="clear" (click)="expand(task)">
+          <ion-icon name="arrow-forward-circle-outline"></ion-icon>&nbsp;Show subtasks&nbsp; <ion-badge>{{task.children.length}}</ion-badge>
         </ion-button>
         <ion-button *ngIf="task.expanded==true" fill="clear" (click)="expand(task)">
-          <ion-icon name="arrow-down-circle-outline">
-            Hide subtasks
-          </ion-icon>
+          <ion-icon name="arrow-down-circle-outline"></ion-icon>&nbsp;Hide subtasks&nbsp; <ion-badge>{{task.children.length}}</ion-badge>
         </ion-button>
-      </ion-card-header>
+        </span></ion-toolbar>
+
+
       <ion-card-content>
+
 
       </ion-card-content>
 
-      {{task | json}}
-      <div *ngIf="task.children">{{task.children.length}}</div>
-
-      <li *ngIf="task.expanded==true">
-
+      <div *ngIf="task.expanded==true">
         <ul *ngIf="true">
           <ng-container *ngTemplateOutlet="recursiveList; context:{ $implicit: task.children }"></ng-container>
         </ul>
-      </li>
+      </div>
     </ion-card>
   </ng-template>
   <ng-container *ngTemplateOutlet="recursiveList; context:{ $implicit: list }"></ng-container>
