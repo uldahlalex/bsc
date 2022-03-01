@@ -1,40 +1,44 @@
 <ion-toolbar>
-  <ion-button fill="clear" slot="start">
-    <ion-icon name="arrow-back-outline"></ion-icon>
+  <ion-button *ngIf="showProjects==false" (click)="toggleShowProjects()" fill="clear" slot="start">
+    <ion-icon name="apps-outline"></ion-icon>&nbsp;Show all projects
   </ion-button>
-  <ion-button fill="clear" slot="end">
-    <ion-icon name="arrow-forward-outline"></ion-icon>
+  <ion-button *ngIf="showProjects==true" (click)="toggleShowProjects()" fill="clear" slot="start">
+    <ion-icon name="apps-outline"></ion-icon>&nbsp;Hide all projects
+  </ion-button>
+  <ion-button slot="end">
+    <ion-icon></ion-icon>
   </ion-button>
 </ion-toolbar>
 
 <ion-content [fullscreen]="true">
-
-<ion-grid>
-  <ion-row>
-    <ion-col>
-      <ion-card (click)="navigateToProject()">
-        <ion-card-title>Project 1</ion-card-title>
-      </ion-card>
-    </ion-col>
-    <ion-col>
-      <ion-card>
-        <ion-card-title>Project 2</ion-card-title>
-      </ion-card>
-    </ion-col>
-  </ion-row>
-  <ion-row>
-    <ion-col>
-      <ion-card>
-        <ion-card-title>Project 3</ion-card-title>
-      </ion-card>
-    </ion-col>
-    <ion-col>
-      <ion-card>
-        <ion-card-title>Project 4</ion-card-title>
-      </ion-card>
-    </ion-col>
-  </ion-row>
-</ion-grid>
+  <div *ngIf="showProjects==true">
+    <ion-grid>
+      <ion-row>
+        <ion-col>
+          <ion-card [routerLink]="'/tabs/projects/123'">
+            <ion-card-title>Project 1</ion-card-title>
+          </ion-card>
+        </ion-col>
+        <ion-col>
+          <ion-card [routerLink]="'/tabs/projects/4556'">
+            <ion-card-title>Project 2</ion-card-title>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          <ion-card>
+            <ion-card-title>Project 3</ion-card-title>
+          </ion-card>
+        </ion-col>
+        <ion-col>
+          <ion-card>
+            <ion-card-title>Project 4</ion-card-title>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
 
   <router-outlet></router-outlet>
 

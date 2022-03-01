@@ -8,7 +8,7 @@ const routes: Routes = [
     path: '',
     component: Tab2Page,
     children: [
-      {path: 'app-tree', component: TreeComponent}
+      {path: ':id', component: TreeComponent}
     ],loadChildren: () => import('../tree/tree.module').then(m => m.TreeModule)
   },
 ];

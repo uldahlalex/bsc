@@ -6,7 +6,7 @@ import {CommonModule} from "@angular/common";
 
 const routes: Routes = [
   {
-    path: '',
+    path: '/:id',
     component: TreeComponent,
   }
 ];

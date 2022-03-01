@@ -1,22 +1,28 @@
-import { NestedTreeControl} from '@angular/cdk/tree';
 import {Component, } from '@angular/core';
-import { MatTreeNestedDataSource} from '@angular/material/tree';
-import {HttpClient} from "@angular/common/http";
 import {ActivatedRoute, Router} from "@angular/router";
-
+import {Location} from '@angular/common';
 /**
  * @title Tree with checkboxes
  */
 @Component({
-  selector: 'app-tab2',
+  selector: 'app-projects',
   templateUrl: 'tab2.page.html',
   styleUrls: ['tab2.page.scss'],
 })
 export class Tab2Page {
+
   list;
 
-  constructor(private router: Router, private route: ActivatedRoute) {
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private location: Location) {}
 
+  navigateToProject(id) {
+    this.router.navigate([id], { relativeTo: this.route})}
+
+  goBack() {
+    this.location.back();
   }
 
   expand(child) {
@@ -28,9 +34,9 @@ export class Tab2Page {
     }
   }
 
-
-  navigateToProject() {
-    this.router.navigate(['app-tree'], {relativeTo: this.route})
+  showProjects = true;
+  toggleShowProjects() {
+      this.showProjects = this.showProjects != true;
   }
 }
 
