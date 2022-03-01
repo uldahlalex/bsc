@@ -92,7 +92,6 @@ app.get('/projects/:id', async (req, res) => {
             'RETURN value;').then(
                 result => {
                     session.close();
-                    console.log(result)
                     res.send(result.records);
                 }
         )
@@ -103,6 +102,26 @@ app.get('/projects', async(req, res) => {
     session.run('MATCH (p: Project) RETURN (p);').then(result => {
         session.close();
         res.send(result.records);
+    })
+})
+
+app.post('/markTaskAsDone/:id', async (req, res) => {
+    let session = driver.session();
+    session.run('MATCH (t:Task) WHERE ID(t)='+req.params.id+'\n' +
+        'SET t.done = true\n' +
+        'RETURN t').then(result => {
+            session.close();
+            res.send(true);
+    })
+})
+
+app.post('/markTaskAsUnDone/:id', async (req, res) => {
+    let session = driver.session();
+    session.run('MATCH (t:Task) WHERE ID(t)='+req.params.id+'\n' +
+        'SET t.done = false\n' +
+        'RETURN t').then(result => {
+        session.close();
+        res.send(true);
     })
 })
 

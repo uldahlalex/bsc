@@ -19,7 +19,6 @@ export class TreeComponent {
               private popoverController: PopoverController) {
     let id = this.route.snapshot.paramMap.get('id');
     this.taskService.getTasksForProject(id).subscribe(sub => {
-      console.log(sub);
       this.projectMetaData = sub[0]._fields[0];
       this.list = sub[0]._fields[0].children;
     })
@@ -46,6 +45,12 @@ export class TreeComponent {
 
     });
     await popover.present();
+    popover.onDidDismiss().then(
+      (data) => {
+        task = data;
+        console.log(task);
+      }
+    )
   }
 
 }
@@ -67,17 +72,24 @@ export class MyPopoverComponent {
   @Input('task') task;
 
   constructor(private taskService: TaskService,
-              private popoverController: PopoverController) {
-
-  }
+              private popoverController: PopoverController) {}
 
   markAsDone() {
-    this.task.done = true;
-    this.popoverController.dismiss();
+    this.taskService.markTaskAsDone(this.task._id.low).subscribe(sub => {
+      if (sub==true) {
+        this.task.done = true;
+        this.popoverController.dismiss({task:this.task});
+      }
+    })
+
   }
 
   markAsUndone() {
-    this.task.done = false;
-    this.popoverController.dismiss();
+    this.taskService.markTaskAsUnDone(this.task._id.low).subscribe(sub => {
+      if (sub==true) {
+        this.task.done = false;
+        this.popoverController.dismiss({task:this.task});
+      }
+    })
   }
 }

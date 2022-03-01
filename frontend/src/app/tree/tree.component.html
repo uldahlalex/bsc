@@ -4,6 +4,18 @@
 
   </ion-text>
 
+  <ion-grid>
+    <ion-row>
+      <ion-col size="10">
+        <ion-button>Expand all</ion-button>
+        <ion-button>Show XYZ</ion-button>
+      </ion-col>
+      <ion-col size="2">
+        <ion-button>Add task</ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
   <ng-template #recursiveList let-list>
     <ion-card *ngFor="let task of list">
       <ion-toolbar>
@@ -32,7 +44,28 @@
 
 
       <ion-card-content>
-        <ion-label><ion-icon name="hammer-outline"></ion-icon>&nbsp;Has undone tasks</ion-label>
+        <!--ion-label><ion-icon name="hammer-outline"></ion-icon>&nbsp;<b>Has undone tasks</b></ion-label><br>-->
+
+        <ion-grid>
+          <ion-row>
+            <ion-col size="10">
+              <ion-button color="dark" fill="outline" *ngIf="task.description">
+                <ion-icon name="create-outline"></ion-icon>
+              </ion-button>&nbsp;<b></b>{{task.description}}
+            </ion-col>
+            <ion-col size="2">
+                <ion-button>Add new subtask</ion-button>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="10">
+
+            </ion-col>
+            <ion-col size="2">
+              <ion-button>Delete subtask</ion-button>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
 
       </ion-card-content>
 
