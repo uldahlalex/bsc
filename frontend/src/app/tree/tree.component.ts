@@ -33,14 +33,13 @@ export class TreeComponent {
     }
   }
 
-
-  markAsDone(task) {
+  addTask() {
 
   }
 
   async openPopover(task) {
     const popover = await this.popoverController.create({
-      component: MyPopoverComponent,
+      component: EditTaskStatusComponent,
       componentProps: {task: task}
 
     });
@@ -68,7 +67,7 @@ export class TreeComponent {
     </ion-list>
   `
 })
-export class MyPopoverComponent {
+export class EditTaskStatusComponent {
   @Input('task') task;
 
   constructor(private taskService: TaskService,
