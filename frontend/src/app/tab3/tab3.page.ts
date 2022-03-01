@@ -1,7 +1,5 @@
 import { Component } from '@angular/core';
 import {HttpClient, HttpParams} from "@angular/common/http";
-import {FlatTreeControl} from "@angular/cdk/tree";
-import {ITreeOptions} from "@circlon/angular-tree-component";
 import {AuthService} from "../helpers/auth.service";
 
 @Component({

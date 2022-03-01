@@ -13,27 +13,10 @@
 <ion-content [fullscreen]="true">
   <div *ngIf="showProjects==true">
     <ion-grid>
-      <ion-row>
+      <ion-row *ngFor="let p of projects">
         <ion-col>
-          <ion-card [routerLink]="'/tabs/projects/123'">
-            <ion-card-title>Project 1</ion-card-title>
-          </ion-card>
-        </ion-col>
-        <ion-col>
-          <ion-card [routerLink]="'/tabs/projects/4556'">
-            <ion-card-title>Project 2</ion-card-title>
-          </ion-card>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col>
-          <ion-card>
-            <ion-card-title>Project 3</ion-card-title>
-          </ion-card>
-        </ion-col>
-        <ion-col>
-          <ion-card>
-            <ion-card-title>Project 4</ion-card-title>
+          <ion-card [routerLink]="'/tabs/projects/'+p.identity.low">
+            <ion-card-title>{{p.properties.name}}</ion-card-title>
           </ion-card>
         </ion-col>
       </ion-row>

@@ -82,27 +82,28 @@ app.get('/tasks/something', async (req, res) => {
 
 })
 
-/**
- * MATCH (p:Organization {name: "Uldahl"})-[:CHILDREN*]->(n) RETURN n;
- */
-app.get('/tasks/other', async (req, res) => {
+app.get('/projects/:id', async (req, res) => {
     //taskChannel.publish("topic_logs", "topic.noncritical", Buffer.from('topic message - not very critical'))
-    function queryTree() {
         let session = driver.session();
         session.run('' +
-            //'MATCH p=(t:Task)-[:CHILDREN*]->(m)\n' +
-            'MATCH p=(o:Organization {name: "Uldahl"})-[:CHILDREN*]->(n)' +
-            //'WHERE NOT ()-[:CHILDREN]->(n)\n' +
+            'MATCH p=(o:Project)-[:CHILDREN*]->(n) WHERE ID(o)='+req.params.id+'\n' +
             'WITH COLLECT(p) AS ps\n' +
             'CALL apoc.convert.toTree(ps) YIELD value\n' +
             'RETURN value;').then(
                 result => {
                     session.close();
+                    console.log(result)
                     res.send(result.records);
                 }
         )
-    }
-    queryTree();
+})
+
+app.get('/projects', async(req, res) => {
+    let session = driver.session();
+    session.run('MATCH (p: Project) RETURN (p);').then(result => {
+        session.close();
+        res.send(result.records);
+    })
 })
 
 app.post('/tasks', async (req, res) => {

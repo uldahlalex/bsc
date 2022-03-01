@@ -1,6 +1,7 @@
 import {Component, } from '@angular/core';
 import {ActivatedRoute, Router} from "@angular/router";
 import {Location} from '@angular/common';
+import {TaskService} from "../helpers/task.service";
 /**
  * @title Tree with checkboxes
  */
@@ -11,12 +12,18 @@ import {Location} from '@angular/common';
 })
 export class Tab2Page {
 
-  list;
+  projects;
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    private location: Location) {}
+    private location: Location,
+    private taskService: TaskService) {
+    this.taskService.getProjects().subscribe(res => {
+      this.projects = res[0]._fields
+      console.log(res[0]._fields);
+    })
+  }
 
   navigateToProject(id) {
     this.router.navigate([id], { relativeTo: this.route})}

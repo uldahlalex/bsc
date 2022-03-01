@@ -1,4 +1,9 @@
 <ion-content>
+
+  <ion-text *ngIf="projectMetaData as project">
+    {{project.name}}
+  </ion-text>
+
   <ng-template #recursiveList let-list>
     <ion-card *ngFor="let item of list">
       <ion-button (click)="expand(item)">Expand</ion-button>

@@ -6,7 +6,6 @@ import { FormsModule } from '@angular/forms';
 import { TabsPageRoutingModule } from './tabs-routing.module';
 
 import { TabsPage } from './tabs.page';
-import {TreeComponent} from "../tree/tree.component";
 
 @NgModule({
   imports: [
