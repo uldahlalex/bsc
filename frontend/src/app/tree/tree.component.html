@@ -5,15 +5,31 @@
   </ion-text>
 
   <ng-template #recursiveList let-list>
-    <ion-card *ngFor="let item of list">
-      <ion-button (click)="expand(item)">Expand</ion-button>
-      {{item | json}}
-      <div *ngIf="item.children">{{item.children.length}}</div>
+    <ion-card *ngFor="let task of list">
+      <ion-card-header>
+        <ion-card-title>{{task.name}}</ion-card-title>
+        <ion-button *ngIf="task.expanded!=true" fill="clear" (click)="expand(task)">
+          <ion-icon name="arrow-forward-circle-outline">
 
-      <li *ngIf="item.expanded==true">
+          </ion-icon>  Expand
+        </ion-button>
+        <ion-button *ngIf="task.expanded==true" fill="clear" (click)="expand(task)">
+          <ion-icon name="arrow-down-circle-outline">
+            Hide subtasks
+          </ion-icon>
+        </ion-button>
+      </ion-card-header>
+      <ion-card-content>
+
+      </ion-card-content>
+
+      {{task | json}}
+      <div *ngIf="task.children">{{task.children.length}}</div>
+
+      <li *ngIf="task.expanded==true">
 
         <ul *ngIf="true">
-          <ng-container *ngTemplateOutlet="recursiveList; context:{ $implicit: item.children }"></ng-container>
+          <ng-container *ngTemplateOutlet="recursiveList; context:{ $implicit: task.children }"></ng-container>
         </ul>
       </li>
     </ion-card>
@@ -21,4 +37,3 @@
   <ng-container *ngTemplateOutlet="recursiveList; context:{ $implicit: list }"></ng-container>
 
 </ion-content>
-<p>hey</p>
