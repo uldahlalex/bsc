@@ -7,22 +7,30 @@
   <ng-template #recursiveList let-list>
     <ion-card *ngFor="let task of list">
       <ion-toolbar>
-        <ion-card-header>
-          <ion-card-title>{{task.name}}</ion-card-title>
 
-        </ion-card-header>
+        <ion-item style="border-radius: 15px;" lines="none" *ngIf="task.done != true" color="light" fill="solid" slot="start">
+          <ion-icon size="large" color="warning" name="trophy-outline"></ion-icon>
+          <ion-select interface="popover">
+            <ion-select-option>Mark as done</ion-select-option>
+          </ion-select>
+          &nbsp;<b style="font-size:15px;">Done</b>
+        </ion-item>
+
+        <ion-title slot="start">{{task.name}}</ion-title>
+
         <span slot="end" *ngIf="task.children">
           <ion-button *ngIf="task.expanded!=true" fill="clear" (click)="expand(task)">
-          <ion-icon name="arrow-forward-circle-outline"></ion-icon>&nbsp;Show subtasks&nbsp; <ion-badge>{{task.children.length}}</ion-badge>
-        </ion-button>
+            <ion-icon name="arrow-forward-circle-outline"></ion-icon>&nbsp;Show subtasks&nbsp; <ion-badge>{{task.children.length}}</ion-badge>
+          </ion-button>
         <ion-button *ngIf="task.expanded==true" fill="clear" (click)="expand(task)">
           <ion-icon name="arrow-down-circle-outline"></ion-icon>&nbsp;Hide subtasks&nbsp; <ion-badge>{{task.children.length}}</ion-badge>
         </ion-button>
-        </span></ion-toolbar>
+        </span>
+      </ion-toolbar>
 
 
       <ion-card-content>
-
+        <ion-label><ion-icon name="hammer-outline"></ion-icon>&nbsp;Has undone tasks</ion-label>
 
       </ion-card-content>
 
