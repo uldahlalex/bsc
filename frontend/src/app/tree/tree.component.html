@@ -8,21 +8,15 @@
     <ion-card *ngFor="let task of list">
       <ion-toolbar>
 
-        <ion-item *ngIf="task.done == true"  style="border-radius: 15px;" lines="none" color="light" fill="solid" slot="start">
+        <ion-button *ngIf="task.done == true" (click)="openPopover(task)" style="border-radius: 15px;" size="large" color="light" fill="solid" slot="start">
           <ion-icon size="large" color="warning" name="trophy-outline"></ion-icon>
-          <ion-select interface="action-sheet">
-            <ion-select-option>Mark as un-done</ion-select-option>
-          </ion-select>
-          &nbsp;<b style="font-size:15px;">Done</b>
-        </ion-item>
+          &nbsp;Done
+        </ion-button>
 
-        <ion-item *ngIf="task.done != true" style="border-radius: 15px;" lines="none" color="light" fill="solid" slot="start">
+        <ion-button *ngIf="task.done != true" (click)="openPopover(task)" style="border-radius: 15px;" size="large" color="light" fill="solid" slot="start">
           <ion-icon size="large" color="primary" name="hourglass-outline"></ion-icon>
-          <ion-select interface="action-sheet">
-            <ion-select-option (click)="markAsDone(task)">Mark as done</ion-select-option>
-          </ion-select>
-          &nbsp;<b style="font-size:15px;">In progress</b>
-        </ion-item>
+          &nbsp;In progress
+        </ion-button>
 
         <ion-title slot="start">{{task.name}}</ion-title>
 

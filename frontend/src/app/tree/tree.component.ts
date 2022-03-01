@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {TaskService} from "../helpers/task.service";
 import {ActivatedRoute} from "@angular/router";
+import {PopoverController} from "@ionic/angular";
 
 @Component({
   selector: 'app-tree',
@@ -14,7 +15,8 @@ export class TreeComponent {
   list;
 
   constructor(private taskService: TaskService,
-              private route: ActivatedRoute) {
+              private route: ActivatedRoute,
+              private popoverController: PopoverController) {
     let id = this.route.snapshot.paramMap.get('id');
     this.taskService.getTasksForProject(id).subscribe(sub => {
       console.log(sub);
@@ -33,7 +35,49 @@ export class TreeComponent {
   }
 
 
-  markAsDone(task: any) {
-    
+  markAsDone(task) {
+
+  }
+
+  async openPopover(task) {
+    const popover = await this.popoverController.create({
+      component: MyPopoverComponent,
+      componentProps: {task: task}
+
+    });
+    await popover.present();
+  }
+
+}
+
+@Component({
+  selector: "app-my-popover",
+  template: `
+    <ion-list>
+      <ion-button *ngIf="task.done != true" (click)="markAsDone()" expand="block" fill="clear">
+        <ion-icon name="checkmark-done-outline"></ion-icon>&nbsp;Mark as done
+      </ion-button>
+      <ion-button *ngIf="task.done == true" (click)="markAsUndone()" expand="block" fill="clear">
+        <ion-icon name="hourglass-outline"></ion-icon>&nbsp;Mark as undone
+      </ion-button>
+    </ion-list>
+  `
+})
+export class MyPopoverComponent {
+  @Input('task') task;
+
+  constructor(private taskService: TaskService,
+              private popoverController: PopoverController) {
+
+  }
+
+  markAsDone() {
+    this.task.done = true;
+    this.popoverController.dismiss();
+  }
+
+  markAsUndone() {
+    this.task.done = false;
+    this.popoverController.dismiss();
   }
 }
