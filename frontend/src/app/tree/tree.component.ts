@@ -33,4 +33,7 @@ export class TreeComponent {
   }
 
 
+  markAsDone(task: any) {
+    
+  }
 }
