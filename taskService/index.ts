@@ -20,6 +20,7 @@ const grpcClient = new TaskService('localhost:50051', grpc.credentials.createIns
 const driver = neo4j.driver('bolt://localhost',
     neo4j.auth.basic('neo4j', 'test'));
 app.use(cors());
+app.use(express.json());
 
 let taskRepo;
 let taskChannel;
@@ -125,9 +126,14 @@ app.post('/markTaskAsUnDone/:id', async (req, res) => {
     })
 })
 
-app.post('/tasks', async (req, res) => {
-
-
+app.post('/projects/:project/task', async (req, res) => {
+    let session = driver.session();
+    session.run('' +
+        'MATCH (p:Project) WHERE ID(p)=$project CREATE (t:Task {name: $name })<-[:CHILDREN]-(p);',
+        {project: Number(req.params.project), name: req.body.name}).then(result => {
+        session.close();
+        res.send(result);
+    })
 })
 
 app.get('/sendToIdentity', async (req, res) => {

@@ -27,4 +27,7 @@ export class TaskService {
     return this.http.post<any>(this.baseUrl+'markTaskAsUnDone/'+taskId, {});
   }
 
+  createNewTask(task, projectId) {
+    return this.http.post<any>(this.baseUrl+'projects/'+projectId+'/task', {name: task.name});
+  }
 }

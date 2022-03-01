@@ -3,6 +3,8 @@ import {HttpClient} from "@angular/common/http";
 import {TaskService} from "../helpers/task.service";
 import {ActivatedRoute} from "@angular/router";
 import {PopoverController} from "@ionic/angular";
+import {EditTaskStatusComponent} from "./minicomponents/editTaskStatus.component";
+import {NewTaskComponent} from "./minicomponents/newTask.component";
 
 @Component({
   selector: 'app-tree',
@@ -52,43 +54,19 @@ export class TreeComponent {
     )
   }
 
-}
+  async openAddTaskPopover(projectId) {
+    const popover = await this.popoverController.create({
+      component: NewTaskComponent,
+      componentProps: {projectId: projectId}
 
-@Component({
-  selector: "app-my-popover",
-  template: `
-    <ion-list>
-      <ion-button *ngIf="task.done != true" (click)="markAsDone()" expand="block" fill="clear">
-        <ion-icon name="checkmark-done-outline"></ion-icon>&nbsp;Mark as done
-      </ion-button>
-      <ion-button *ngIf="task.done == true" (click)="markAsUndone()" expand="block" fill="clear">
-        <ion-icon name="hourglass-outline"></ion-icon>&nbsp;Mark as undone
-      </ion-button>
-    </ion-list>
-  `
-})
-export class EditTaskStatusComponent {
-  @Input('task') task;
-
-  constructor(private taskService: TaskService,
-              private popoverController: PopoverController) {}
-
-  markAsDone() {
-    this.taskService.markTaskAsDone(this.task._id.low).subscribe(sub => {
-      if (sub==true) {
-        this.task.done = true;
-        this.popoverController.dismiss({task:this.task});
+    });
+    await popover.present();
+    popover.onDidDismiss().then(
+      (data) => {
+        console.log(data);
       }
-    })
-
-  }
-
-  markAsUndone() {
-    this.taskService.markTaskAsUnDone(this.task._id.low).subscribe(sub => {
-      if (sub==true) {
-        this.task.done = false;
-        this.popoverController.dismiss({task:this.task});
-      }
-    })
+    )
   }
 }
+
+
