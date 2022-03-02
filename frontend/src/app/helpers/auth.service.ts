@@ -1,5 +1,4 @@
 import {Injectable} from '@angular/core';
-import * as moment from "moment";
 import {HttpClient} from "@angular/common/http";
 import jwt_decode from "jwt-decode";
 
@@ -8,18 +7,17 @@ import jwt_decode from "jwt-decode";
 })
 export class AuthService {
 
+  constructor(private http: HttpClient) { }
 
-  constructor(private http: HttpClient) {
-
-  }
-
+  decodedToken: Token;
 
   login(email:string, password:string ) {
     return this.http.post<any>('http://localhost:3002/login', {email, password})
       .subscribe(res => {
-        let token: Token = jwt_decode(res.token);
+        this.decodedToken = jwt_decode(res.token);
         localStorage.setItem('id_token', res.token);
-        localStorage.setItem('expires_at', String(token.exp))
+        localStorage.setItem('expires_at', String(this.decodedToken.exp))
+        localStorage.setItem('decoded_token', JSON.stringify(this.decodedToken))
       });
   }
 
@@ -37,6 +35,10 @@ export class AuthService {
 
   isLoggedOut() {
     return !this.isLoggedIn();
+  }
+
+  getDecodedToken() {
+    return this.decodedToken;
   }
 }
 

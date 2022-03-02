@@ -138,12 +138,36 @@ app.post('/projects/:project/task', async (req, res) => {
     })
 })
 
+app.post('/project', async(req, res) => {
+    let session = driver.session();
+    session.run('' +
+        'CREATE', {
+
+    }).then(result => {
+        session.close();
+        res.send()
+    })
+})
+
+app.post('/organization', async(req, res) => {
+    let session = driver.session();
+    session.run('' +
+        'CREATE (o:Organization {name: $name}) RETURN o;', {
+        $name: req.query.name
+    }).then(result => {
+        session.close();
+        res.send()
+    })
+})
+
 app.post('/projects/:project/:task/subtask', async (req, res) => {
     let session = driver.session();
     session.run('' +
-        'MATCH (t:Task) WHERE ID(t)=$supertaskId\n' +
-        'CREATE (s:Task {name: $name })<-[:CHILDREN]-(t)\n'+
-        'RETURN (s);', {
+        'MATCH (t:Project) WHERE ID(t)=$supertaskId\n' +
+        'CREATE p=(s:Task {name: $name })<-[:CHILDREN]-(t)\n' +
+        'WITH COLLECT(p) AS ps\n' +
+        'CALL apoc.convert.toTree(ps) YIELD value\n' +
+        'RETURN value;', {
         supertaskId: Number(req.params.task),
         name: req.body.name
     }).then(result => {

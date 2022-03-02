@@ -58,12 +58,16 @@ export class TreeComponent {
     await popover.present();
     popover.onDidDismiss().then(
       (returnedTask) => {
-        console.log(returnedTask)
         if (isSubtask) {
-
-          supertask.children.push(returnedTask.data.subTask[0]);
+          let task = returnedTask.data.subTask[0];
+          task.children = null;
+          supertask.children.push(task);
         } else {
-          this.list.push(returnedTask)
+          console.log(returnedTask);
+          let task = returnedTask.data.newTask[0];
+          task.children = null;
+          console.log(task);
+          this.list.push(task)
         }
       }
     )

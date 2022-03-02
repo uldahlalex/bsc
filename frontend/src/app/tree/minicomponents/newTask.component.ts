@@ -32,7 +32,6 @@ export class NewTaskComponent {
     let task = {
       name: this.taskName.value
     }
-    console.log(task);
     this.taskService.createNewTask(task, this.projectId).subscribe(result => {
       if (result) {
         this.popoverController.dismiss({newTask: result[0]._fields});

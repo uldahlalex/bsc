@@ -2,6 +2,9 @@ import {Component, } from '@angular/core';
 import {ActivatedRoute, Router} from "@angular/router";
 import {Location} from '@angular/common';
 import {TaskService} from "../helpers/task.service";
+import {AuthService} from "../helpers/auth.service";
+
+
 /**
  * @title Tree with checkboxes
  */
@@ -22,6 +25,8 @@ export class Tab2Page {
     this.taskService.getProjects().subscribe(res => {
       this.projects = res[0]._fields
     })
+
+    console.log('TOKEN: ',JSON.parse(localStorage.getItem('decoded_token')));
   }
 
   navigateToProject(id) {

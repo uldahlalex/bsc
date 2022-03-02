@@ -34,4 +34,8 @@ export class TaskService {
   createNewSubtask(task, supertaskId, projectId) {
     return this.http.post<any>(this.baseUrl+'projects/'+projectId+'/'+supertaskId+'/subtask', task);
   }
+
+  createNewOrganization(org) {
+    return this.http.post<any>(this.baseUrl+'organization', org);
+  }
 }

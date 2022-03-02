@@ -2,7 +2,9 @@ syntax = "proto3";
 
 service TaskService {
     rpc GetUserInfoForTasks(AuthorId) returns (UserInfo) { }
+    rpc JoinOrganizationUponCreation(JoinOrgExchange) returns (JoinOrgExchangeConfirmation) { }
 }
+
 message AuthorId {
     string authorId = 1;
 }
@@ -12,4 +14,13 @@ message UserInfo {
     string first_name = 2;
     string last_name = 3;
     string email = 4;
+}
+
+message JoinOrgExchange {
+    string userId = 1;
+    string organizationId = 2;
+}
+
+message JoinOrgExchangeConfirmation {
+    bool accepted = 1;
 }
