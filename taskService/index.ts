@@ -130,10 +130,11 @@ app.post('/projects/:project/task', async (req, res) => {
     let session = driver.session();
     session.run('' +
         'MATCH (p:Project) WHERE ID(p)=$project ' +
-        'CREATE (t:Task {name: $name })<-[:CHILDREN]-(p);',
+        'CREATE (t:Task {name: $name })<-[:CHILDREN]-(p) ' +
+        'RETURN (t);',
         {project: Number(req.params.project), name: req.body.name}).then(result => {
         session.close();
-        res.send(result);
+        res.send(result.records);
     })
 })
 
@@ -141,7 +142,8 @@ app.post('/projects/:project/:task/subtask', async (req, res) => {
     let session = driver.session();
     session.run('' +
         'MATCH (t:Task) WHERE ID(t)=$supertaskId\n' +
-        'CREATE (s:Task {name: $name })<-[:CHILDREN]-(t);', {
+        'CREATE (s:Task {name: $name })<-[:CHILDREN]-(t)\n'+
+        'RETURN (s);', {
         supertaskId: Number(req.params.task),
         name: req.body.name
     }).then(result => {

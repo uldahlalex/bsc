@@ -21,14 +21,12 @@ import {FormControl} from "@angular/forms";
 export class NewTaskComponent {
   @Input('projectId') projectId;
   @Input('isSubtask') isSubtask;
-  @Input('supertaskId') supertaskId;
-
+  @Input('supertask') supertask;
 
   taskName = new FormControl('')
 
   constructor(private taskService: TaskService,
               private popoverController: PopoverController) {}
-
 
   newTask() {
     let task = {
@@ -37,7 +35,7 @@ export class NewTaskComponent {
     console.log(task);
     this.taskService.createNewTask(task, this.projectId).subscribe(result => {
       if (result) {
-        this.popoverController.dismiss();
+        this.popoverController.dismiss({newTask: result[0]._fields});
       }
     })
   }
@@ -46,12 +44,9 @@ export class NewTaskComponent {
     let task = {
       name: this.taskName.value
     }
-    console.log(task);
-    console.log(this.supertaskId);
-    console.log(this.projectId);
-    this.taskService.createNewSubtask(task, this.supertaskId, this.projectId).subscribe(result => {
+    this.taskService.createNewSubtask(task, this.supertask._id.low, this.projectId).subscribe(result => {
       if (result) {
-        this.popoverController.dismiss();
+        this.popoverController.dismiss({subTask: result[0]._fields});
       }
     })
   }

@@ -45,21 +45,26 @@ export class TreeComponent {
     popover.onDidDismiss().then(
       (data) => {
         task = data;
-        console.log(task);
       }
     )
   }
 
-  async openAddTaskPopover(projectId, isSubtask, supertaskId?) {
+  async openAddTaskPopover(projectId, isSubtask, supertask?) {
     const popover = await this.popoverController.create({
       component: NewTaskComponent,
-      componentProps: {projectId: projectId, isSubtask: isSubtask, supertaskId: supertaskId}
+      componentProps: {projectId: projectId, isSubtask: isSubtask, supertask: supertask}
 
     });
     await popover.present();
     popover.onDidDismiss().then(
-      (data) => {
-        console.log(data);
+      (returnedTask) => {
+        console.log(returnedTask)
+        if (isSubtask) {
+
+          supertask.children.push(returnedTask.data.subTask[0]);
+        } else {
+          this.list.push(returnedTask)
+        }
       }
     )
   }

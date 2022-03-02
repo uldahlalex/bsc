@@ -21,7 +21,6 @@ export class Tab2Page {
     private taskService: TaskService) {
     this.taskService.getProjects().subscribe(res => {
       this.projects = res[0]._fields
-      console.log(res[0]._fields);
     })
   }
 
