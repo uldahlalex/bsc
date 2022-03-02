@@ -11,7 +11,7 @@
         <ion-button>Show XYZ</ion-button>
       </ion-col>
       <ion-col size="2">
-        <ion-button (click)="openAddTaskPopover(projectMetaData._id.low)">Add task</ion-button>
+        <ion-button (click)="openAddTaskPopover(projectMetaData._id.low, false)">Add task</ion-button>
       </ion-col>
     </ion-row>
   </ion-grid>
@@ -54,7 +54,7 @@
               </ion-button>&nbsp;<b></b>{{task.description}}
             </ion-col>
             <ion-col size="2">
-                <ion-button>Add new subtask</ion-button>
+                <ion-button (click)="openAddTaskPopover(projectMetaData._id.low, true, task._id.low)">Add new subtask</ion-button>
             </ion-col>
           </ion-row>
           <ion-row>

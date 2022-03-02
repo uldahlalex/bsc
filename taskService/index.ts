@@ -129,10 +129,55 @@ app.post('/markTaskAsUnDone/:id', async (req, res) => {
 app.post('/projects/:project/task', async (req, res) => {
     let session = driver.session();
     session.run('' +
-        'MATCH (p:Project) WHERE ID(p)=$project CREATE (t:Task {name: $name })<-[:CHILDREN]-(p);',
+        'MATCH (p:Project) WHERE ID(p)=$project ' +
+        'CREATE (t:Task {name: $name })<-[:CHILDREN]-(p);',
         {project: Number(req.params.project), name: req.body.name}).then(result => {
         session.close();
         res.send(result);
+    })
+})
+
+app.post('/projects/:project/:task/subtask', async (req, res) => {
+    let session = driver.session();
+    session.run('' +
+        'MATCH (t:Task) WHERE ID(t)=$supertaskId\n' +
+        'CREATE (s:Task {name: $name })<-[:CHILDREN]-(t);', {
+        supertaskId: Number(req.params.task),
+        name: req.body.name
+    }).then(result => {
+        session.close();
+        res.send(result.records);
+    })
+})
+
+app.delete('/projects/:project/:task', async(req, res) => {
+    let session = driver.session();
+    session.run('' +
+        'MATCH (t:Task)-[:CHILDREN]->(n) WHERE ID(t)=$id\n' +
+        'WITH n\n' +
+        'MATCH childPath=(n)-[:CHILDREN*0..]->(e)\n' +
+        'WITH childPath, e\n' +
+        'DETACH DELETE e;\n' +
+        'MATCH (a:Task) WHERE ID(a)=$id DETACH DELETE (a);', {
+        id: Number(req.params.task)
+    }).then(result => {
+        session.close();
+        res.send(true);
+    })
+})
+
+app.delete('/projects/:project/:task/subtasks', async(req, res) => {
+    let session = driver.session();
+    session.run('' +
+        'MATCH (t:Task)-[:CHILDREN]->(n) WHERE ID(t)=$id\n' +
+        'WITH n\n' +
+        'MATCH childPath=(n)-[:CHILDREN*0..]->(e)\n' +
+        'WITH childPath, e\n' +
+        'DETACH DELETE e;\n', {
+        id: Number(req.params.task)
+    }).then(result => {
+        session.close();
+        res.send(true);
     })
 })
 

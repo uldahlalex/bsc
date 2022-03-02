@@ -35,10 +35,6 @@ export class TreeComponent {
     }
   }
 
-  addTask() {
-
-  }
-
   async openPopover(task) {
     const popover = await this.popoverController.create({
       component: EditTaskStatusComponent,
@@ -54,10 +50,10 @@ export class TreeComponent {
     )
   }
 
-  async openAddTaskPopover(projectId) {
+  async openAddTaskPopover(projectId, isSubtask, supertaskId?) {
     const popover = await this.popoverController.create({
       component: NewTaskComponent,
-      componentProps: {projectId: projectId}
+      componentProps: {projectId: projectId, isSubtask: isSubtask, supertaskId: supertaskId}
 
     });
     await popover.present();

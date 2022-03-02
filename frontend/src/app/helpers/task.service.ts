@@ -28,6 +28,10 @@ export class TaskService {
   }
 
   createNewTask(task, projectId) {
-    return this.http.post<any>(this.baseUrl+'projects/'+projectId+'/task', {name: task.name});
+    return this.http.post<any>(this.baseUrl+'projects/'+projectId+'/task',task);
+  }
+
+  createNewSubtask(task, supertaskId, projectId) {
+    return this.http.post<any>(this.baseUrl+'projects/'+projectId+'/'+supertaskId+'/subtask', task);
   }
 }
