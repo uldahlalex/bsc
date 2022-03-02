@@ -72,6 +72,12 @@ grpcServer.server.addService(taskProto.TaskService.service, {
             callback(null, returnObject);
         })
     },
+    joinOrganizationUponCreation: async (call, callback) => {
+        console.log(call.request);
+        await User.findOneAndUpdate(call.request.userId, {organizationId: call.request.organizationId}).exec().then(res => {
+            callback(null, true);
+        })
+    }
 })
 
 //Revoke token

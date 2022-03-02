@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import {HttpClient, HttpParams} from "@angular/common/http";
-import {AuthService} from "../helpers/auth.service";
+import {AuthService, Token} from "../helpers/auth.service";
 import {TaskService} from "../helpers/task.service";
+
 
 @Component({
   selector: 'app-tab3',
@@ -18,9 +19,12 @@ export class Tab3Page {
   }
 
   newOrganization() {
+    let token: Token = JSON.parse(localStorage.getItem('decoded_token'))
     let org = {
-      name: "Uldahl"
+      name: "Uldahl",
+      userId: token.user_id
     };
     this.taskService.createNewOrganization(org);
   }
 }
+

@@ -42,6 +42,7 @@ export class AuthService {
   }
 }
 
-class Token {
+export class Token {
   exp: number;
+  user_id: string;
 }

@@ -151,12 +151,22 @@ app.post('/project', async(req, res) => {
 
 app.post('/organization', async(req, res) => {
     let session = driver.session();
+    console.log('reached');
     session.run('' +
         'CREATE (o:Organization {name: $name}) RETURN o;', {
-        $name: req.query.name
-    }).then(result => {
+        name: req.body.name
+    }).then((result:any) => {
         session.close();
-        res.send()
+        console.log(result.records[0]._fields[0].identity.low);
+        grpcClient.JoinOrganizationUponCreation(req.body.userId, result.records[0]._fields[0].identity.low, (error, result) => {
+            if (!error) {
+                console.log('successfully fetch List notes')
+                console.log(result)
+            } else {
+                console.error(error)
+            }
+        })
+        res.send(result.records)
     })
 })
 
