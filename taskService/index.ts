@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-
 import express from 'express';
 import http from 'http';
 import minimist from 'minimist';
@@ -16,9 +15,9 @@ const grpc = require('grpc')
 const PROTO_PATH = './protos/task.proto'
 const TaskService = grpc.load(PROTO_PATH).TaskService
 const grpcClient = new TaskService('localhost:50051', grpc.credentials.createInsecure());
-
 const driver = neo4j.driver('bolt://localhost',
     neo4j.auth.basic('neo4j', 'test'));
+
 app.use(cors());
 app.use(express.json());
 
@@ -60,11 +59,8 @@ amqp.connect('amqp://localhost', function(error0, connection) {
         });
     });
 });
-
-
-
+/*
 app.get('/tasks', async (req, res) => {
-
     let authorId = undefined;
     //taskChannel.publish("topic_logs", "topic.critical", Buffer.from('topic message - very critical'))
     grpcClient.getUserInfoForTasks(authorId, (error, result) => {
@@ -80,24 +76,12 @@ app.get('/tasks', async (req, res) => {
 
 app.get('/tasks/something', async (req, res) => {
     taskChannel.publish("topic_logs", "yada.critical", Buffer.from('not topic message - but very critical'))
-
 })
-/*
-app.get('/projects/:id', async (req, res) => {
-    //taskChannel.publish("topic_logs", "topic.noncritical", Buffer.from('topic message - not very critical'))
-        let session = driver.session();
-        session.run('' +
-            'MATCH p=(o:Project)-[:CHILDREN*]->(n) WHERE ID(o)='+req.params.id+'\n' +
-            'WITH COLLECT(p) AS ps\n' +
-            'CALL apoc.convert.toTree(ps) YIELD value\n' +
-            'RETURN value;').then(
-                result => {
-                    session.close();
-                    res.send(result.records);
-                }
-        )
-})*/
+ */
 
+/**
+ * @RETURNS GETS ALL PROJECTS BELONGING TO AN ORGANIZATION
+ */
 app.get('/projects/:organizationId', async(req, res) => {
     let session = driver.session();
     session.run('' +
@@ -106,14 +90,13 @@ app.get('/projects/:organizationId', async(req, res) => {
         'CALL apoc.convert.toTree(ps) YIELD value\n' +
         'RETURN value;', {
         organizationId: Number(req.params.organizationId),
-
     }).then((result:any) => {
         session.close();
         res.send(result.records[0]._fields[0].children);
     })
 })
 
-app.post('/markTaskAsDone/:id', async (req, res) => {
+app.patch('/markTaskAsDone/:id', async (req, res) => {
     let session = driver.session();
     session.run('MATCH (t:Task) WHERE ID(t)='+req.params.id+'\n' +
         'SET t.done = true\n' +
@@ -123,7 +106,7 @@ app.post('/markTaskAsDone/:id', async (req, res) => {
     })
 })
 
-app.post('/markTaskAsUnDone/:id', async (req, res) => {
+app.patch('/markTaskAsUnDone/:id', async (req, res) => {
     let session = driver.session();
     session.run('MATCH (t:Task) WHERE ID(t)='+req.params.id+'\n' +
         'SET t.done = false\n' +
@@ -133,20 +116,11 @@ app.post('/markTaskAsUnDone/:id', async (req, res) => {
     })
 })
 
-app.post('/projects/:project/task', async (req, res) => {
-    let session = driver.session();
-    session.run('' +
-        'MATCH (p:Project) WHERE ID(p)=$project ' +
-        'CREATE (t:Task {name: $name })<-[:CHILDREN]-(p) ' +
-        'RETURN (t);',
-        {project: Number(req.params.project), name: req.body.name}).then(result => {
-        session.close();
-        res.send(result.records);
-    })
-})
 
+/**
+ * CREATES NEW PROJECT FOR ORGANIZATION
+ */
 app.post('/projects', async(req, res) => {
-    console.log('REACHED')
     let session = driver.session();
     console.log(req.body.organizationId);
     console.log(req.body.name);
@@ -162,6 +136,10 @@ app.post('/projects', async(req, res) => {
     })
 })
 
+
+/**
+ * CREATES AND JOINS(THROUGH GRPC) NEW ORGANIZATION
+ */
 app.post('/organization', async(req, res) => {
     let session = driver.session();
     session.run('' +
@@ -181,6 +159,25 @@ app.post('/organization', async(req, res) => {
     })
 })
 
+
+/**
+ * CREATES NEW TASK FOR PROJECT (SUPERTASK)
+ */
+app.post('/projects/:project/task', async (req, res) => {
+    let session = driver.session();
+    session.run('' +
+        'MATCH (p:Project) WHERE ID(p)=$project ' +
+        'CREATE (t:Task {name: $name })<-[:CHILDREN]-(p) ' +
+        'RETURN (t);',
+        {project: Number(req.params.project), name: req.body.name}).then(result => {
+        session.close();
+        res.send(result.records);
+    })
+})
+
+/**
+ * CREATES A SUBTASK TO A TASK
+ */
 app.post('/projects/:project/:task/subtask', async (req, res) => {
     let session = driver.session();
     session.run('' +
@@ -189,6 +186,7 @@ app.post('/projects/:project/:task/subtask', async (req, res) => {
         'WITH COLLECT(p) AS ps\n' +
         'CALL apoc.convert.toTree(ps) YIELD value\n' +
         'RETURN value;', {
+        //IN DEVELOPMENT
         supertaskId: Number(req.params.task),
         name: req.body.name
     }).then(result => {
@@ -197,41 +195,42 @@ app.post('/projects/:project/:task/subtask', async (req, res) => {
     })
 })
 
+/**
+ * DELETES A TASK AND ALL ITS CHILDREN (SUBTASKS)
+ */
 app.delete('/projects/:project/:task', async(req, res) => {
     let session = driver.session();
     session.run('' +
-        'MATCH (t:Task)-[:CHILDREN]->(n) WHERE ID(t)=$id\n' +
-        'WITH n\n' +
+        'MATCH (t:Task)-[:CHILDREN]->(n)\n' +
+        'WHERE ID(t)=$taskId WITH n\n' +
         'MATCH childPath=(n)-[:CHILDREN*0..]->(e)\n' +
         'WITH childPath, e\n' +
         'DETACH DELETE e;\n' +
-        'MATCH (a:Task) WHERE ID(a)=$id DETACH DELETE (a);', {
-        id: Number(req.params.task)
+        'MATCH (a:Task) WHERE ID(a)=$taskId DETACH DELETE (a);', {
+        taskId: Number(req.params.task)
     }).then(result => {
         session.close();
         res.send(true);
     })
 })
 
+/**
+ * DELETES ALL CHILDREN (SUBTASKS) BUT NOT THE TASK ITSELF
+ */
 app.delete('/projects/:project/:task/subtasks', async(req, res) => {
     let session = driver.session();
     session.run('' +
-        'MATCH (t:Task)-[:CHILDREN]->(n) WHERE ID(t)=$id\n' +
-        'WITH n\n' +
+        'MATCH (t:Task)-[:CHILDREN]->(n) ' +
+        'WHERE ID(t)=$taskId WITH n\n' +
         'MATCH childPath=(n)-[:CHILDREN*0..]->(e)\n' +
         'WITH childPath, e\n' +
         'DETACH DELETE e;\n', {
-        id: Number(req.params.task)
+        taskId: Number(req.params.task)
     }).then(result => {
         session.close();
         res.send(true);
     })
 })
-
-app.get('/sendToIdentity', async (req, res) => {
-
-})
-
 
 server.listen(port, () => {
     console.log('now listening on port ' + port)
