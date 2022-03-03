@@ -11,8 +11,8 @@ export class TaskService {
 
   baseUrl = 'http://localhost:3001/'
 
-  getProjects() {
-    return this.http.get<any[]>(this.baseUrl+'projects');
+  getProjects(organizationId) {
+    return this.http.get<any[]>(this.baseUrl+'projects/'+organizationId);
   }
 
   getTasksForProject(projectId): Observable<any[]> {

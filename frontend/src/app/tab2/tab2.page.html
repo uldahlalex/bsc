@@ -17,8 +17,8 @@
     <ion-grid>
       <ion-row *ngFor="let p of projects">
         <ion-col>
-          <ion-card class="ion-padding" [routerLink]="'/tabs/projects/'+p.identity.low">
-            <ion-title>{{p.properties.name}}</ion-title>
+          <ion-card class="ion-padding" [routerLink]="'/tabs/projects/'+p._id.low">
+            <ion-title>{{p.name}}</ion-title>
           </ion-card>
         </ion-col>
       </ion-row>

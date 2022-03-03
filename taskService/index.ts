@@ -161,37 +161,45 @@ app.post('/organization', async(req, res) => {
 
 
 /**
- * CREATES NEW TASK FOR PROJECT (SUPERTASK)
+ * CREATES NEW TASK FOR PROJECT (ROOT TASK)
  */
-app.post('/projects/:project/task', async (req, res) => {
+app.post('/projects/:project/roottask', async (req, res) => {
     let session = driver.session();
     session.run('' +
-        'MATCH (p:Project) WHERE ID(p)=$project ' +
-        'CREATE (t:Task {name: $name })<-[:CHILDREN]-(p) ' +
-        'RETURN (t);',
-        {project: Number(req.params.project), name: req.body.name}).then(result => {
-        session.close();
-        res.send(result.records);
-    })
+        'MATCH (project:Project) WHERE ID(project)=$project ' +
+        'CREATE p=(t:Task {name: $name })<-[:CHILDREN]-(project) ' +
+        'WITH COLLECT(p) AS ps\n' +
+        'CALL apoc.convert.toTree(ps) YIELD value\n' +
+        'RETURN value;',
+        {
+            project: Number(req.params.project), name: req.body.name
+        })
+        .then((result: any)  => {
+            session.close();
+            let dto = result.records[0]._fields[0];
+            dto.children = null;
+            res.send(dto);
+        })
 })
 
 /**
  * CREATES A SUBTASK TO A TASK
  */
-app.post('/projects/:project/:task/subtask', async (req, res) => {
+app.post('/supertask/:task/subtask', async (req, res) => {
     let session = driver.session();
     session.run('' +
-        'MATCH (t:Project) WHERE ID(t)=$supertaskId\n' +
+        'MATCH (t:Task) WHERE ID(t)=$supertaskId\n' +
         'CREATE p=(s:Task {name: $name })<-[:CHILDREN]-(t)\n' +
         'WITH COLLECT(p) AS ps\n' +
         'CALL apoc.convert.toTree(ps) YIELD value\n' +
         'RETURN value;', {
-        //IN DEVELOPMENT
         supertaskId: Number(req.params.task),
         name: req.body.name
-    }).then(result => {
+    }).then((result: any)  => {
         session.close();
-        res.send(result.records);
+        let dto = result.records[0]._fields[0];
+        dto.children = null;
+        res.send(dto);
     })
 })
 

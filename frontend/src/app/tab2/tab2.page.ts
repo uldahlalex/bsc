@@ -23,11 +23,12 @@ export class Tab2Page {
     private route: ActivatedRoute,
     private location: Location,
     private taskService: TaskService) {
-    this.taskService.getProjects().subscribe(res => {
-      console.log(res);
-      this.projects = res[0]._fields
-    })
     this.decoded_token = JSON.parse(localStorage.getItem('decoded_token'))
+    this.taskService.getProjects(this.decoded_token.organization).subscribe(res => {
+      this.projects = res
+      console.log(res);
+    })
+    console.log(this.decoded_token);
 
   }
 
