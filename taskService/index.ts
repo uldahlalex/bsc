@@ -82,7 +82,7 @@ app.get('/tasks/something', async (req, res) => {
 /**
  * @RETURNS GETS ALL PROJECTS BELONGING TO AN ORGANIZATION
  */
-app.get('/projects/:organizationId', async(req, res) => {
+app.get('organization/:organizationId/projects', async(req, res) => {
     let session = driver.session();
     session.run('' +
         'MATCH p=(o:Organization)-[:CHILDREN]->(n) WHERE ID(o)=$organizationId\n' +
@@ -96,11 +96,30 @@ app.get('/projects/:organizationId', async(req, res) => {
     })
 })
 
-app.patch('/markTaskAsDone/:id', async (req, res) => {
+app.get('project/:projectId/tasks', async (req, res) => {
     let session = driver.session();
-    session.run('MATCH (t:Task) WHERE ID(t)='+req.params.id+'\n' +
+    session.run('' +
+        'MATCH (o:Organization)-[:CHILDREN]->(project:Project)\n' +
+        'WHERE ID(o)=14 AND ID(project)=$projectId\n' +
+        'MATCH p=(project)-[:CHILDREN*]->(t:Task)\n' +
+        'WITH COLLECT(p) AS ps\n' +
+        'CALL apoc.convert.toTree(ps) YIELD value\n' +
+        'RETURN value;', {
+        projectId: Number(req.params.projectId)
+    }).then( (result: any) => {
+        session.close();
+        res.send(result.records[0]._fields[0].children)
+    } )
+})
+
+app.patch('task/markTaskAsDone/:id', async (req, res) => {
+    let session = driver.session();
+    session.run('' +
+        'MATCH (t:Task) WHERE ID(t)=$taskId\n' +
         'SET t.done = true\n' +
-        'RETURN t').then(result => {
+        'RETURN t', {
+        taskId: req.params.id
+    }).then(result => {
             session.close();
             res.send(true);
     })
@@ -108,9 +127,12 @@ app.patch('/markTaskAsDone/:id', async (req, res) => {
 
 app.patch('/markTaskAsUnDone/:id', async (req, res) => {
     let session = driver.session();
-    session.run('MATCH (t:Task) WHERE ID(t)='+req.params.id+'\n' +
+    session.run('' +
+        'MATCH (t:Task) WHERE ID(t)=$taskId\n' +
         'SET t.done = false\n' +
-        'RETURN t').then(result => {
+        'RETURN t', {
+        taskId: req.params.id
+    }).then(result => {
         session.close();
         res.send(true);
     })
@@ -122,17 +144,19 @@ app.patch('/markTaskAsUnDone/:id', async (req, res) => {
  */
 app.post('/projects', async(req, res) => {
     let session = driver.session();
-    console.log(req.body.organizationId);
-    console.log(req.body.name);
     session.run('' +
         'MATCH (o: Organization) WHERE ID(o)=$organizationId\n' +
-        'CREATE (p:Project {name: $name})<-[:CHILDREN]-(o)\n' +
-        'RETURN (p);', {
-        organizationId: (req.body.organizationId),
+        'CREATE p=(project:Project {name: $name})<-[:CHILDREN]-(o)\n' +
+        'WITH COLLECT(p) AS ps\n' +
+        'CALL apoc.convert.toTree(ps) YIELD value\n' +
+        'RETURN value;', {
+        organizationId: Number(req.body.organizationId),
         name: req.body.name
     }).then((result:any) => {
         session.close();
-        res.send(result.records)
+        let dto = result.records[0]._fields[0];
+        dto.children = null;
+        res.send(dto);
     })
 })
 
@@ -172,7 +196,8 @@ app.post('/projects/:project/roottask', async (req, res) => {
         'CALL apoc.convert.toTree(ps) YIELD value\n' +
         'RETURN value;',
         {
-            project: Number(req.params.project), name: req.body.name
+            project: Number(req.params.project),
+            name: req.body.name
         })
         .then((result: any)  => {
             session.close();
@@ -206,7 +231,7 @@ app.post('/supertask/:task/subtask', async (req, res) => {
 /**
  * DELETES A TASK AND ALL ITS CHILDREN (SUBTASKS)
  */
-app.delete('/projects/:project/:task', async(req, res) => {
+app.delete('/task/:task', async(req, res) => {
     let session = driver.session();
     session.run('' +
         'MATCH (t:Task)-[:CHILDREN]->(n)\n' +
@@ -225,7 +250,7 @@ app.delete('/projects/:project/:task', async(req, res) => {
 /**
  * DELETES ALL CHILDREN (SUBTASKS) BUT NOT THE TASK ITSELF
  */
-app.delete('/projects/:project/:task/subtasks', async(req, res) => {
+app.delete('/task/:task/subtasks', async(req, res) => {
     let session = driver.session();
     session.run('' +
         'MATCH (t:Task)-[:CHILDREN]->(n) ' +
