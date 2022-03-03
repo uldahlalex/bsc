@@ -23,7 +23,6 @@ export class Tab3Page {
   }
 
   newOrganization() {
-
     let org = {
       name: "Uldahl",
       userId: this.decoded_token.user_id

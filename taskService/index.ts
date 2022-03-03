@@ -82,7 +82,7 @@ app.get('/tasks/something', async (req, res) => {
     taskChannel.publish("topic_logs", "yada.critical", Buffer.from('not topic message - but very critical'))
 
 })
-
+/*
 app.get('/projects/:id', async (req, res) => {
     //taskChannel.publish("topic_logs", "topic.noncritical", Buffer.from('topic message - not very critical'))
         let session = driver.session();
@@ -96,13 +96,20 @@ app.get('/projects/:id', async (req, res) => {
                     res.send(result.records);
                 }
         )
-})
+})*/
 
-app.get('/projects', async(req, res) => {
+app.get('/projects/:organizationId', async(req, res) => {
     let session = driver.session();
-    session.run('MATCH (p: Project) RETURN (p);').then(result => {
+    session.run('' +
+        'MATCH p=(o:Organization)-[:CHILDREN]->(n) WHERE ID(o)=$organizationId\n' +
+        'WITH COLLECT(p) AS ps\n' +
+        'CALL apoc.convert.toTree(ps) YIELD value\n' +
+        'RETURN value;', {
+        organizationId: Number(req.params.organizationId),
+
+    }).then((result:any) => {
         session.close();
-        res.send(result.records);
+        res.send(result.records[0]._fields[0].children);
     })
 })
 
@@ -138,21 +145,25 @@ app.post('/projects/:project/task', async (req, res) => {
     })
 })
 
-app.post('/project', async(req, res) => {
+app.post('/projects', async(req, res) => {
+    console.log('REACHED')
     let session = driver.session();
+    console.log(req.body.organizationId);
+    console.log(req.body.name);
     session.run('' +
-        'CREATE', {
-
-    }).then(result => {
+        'MATCH (o: Organization) WHERE ID(o)=$organizationId\n' +
+        'CREATE (p:Project {name: $name})<-[:CHILDREN]-(o)\n' +
+        'RETURN (p);', {
+        organizationId: (req.body.organizationId),
+        name: req.body.name
+    }).then((result:any) => {
         session.close();
-        res.send()
+        res.send(result.records)
     })
 })
 
 app.post('/organization', async(req, res) => {
     let session = driver.session();
-    console.log(req.body.userId);
-    console.log(req.body.name);
     session.run('' +
         'CREATE (o:Organization {name: $name}) RETURN o;', {
         name: req.body.name

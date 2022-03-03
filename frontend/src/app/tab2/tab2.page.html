@@ -10,7 +10,9 @@
   </ion-button>
 </ion-toolbar>
 
+
 <ion-content [fullscreen]="true">
+  <ion-button (click)="newProject()">Add new project</ion-button>
   <div *ngIf="showProjects==true">
     <ion-grid>
       <ion-row *ngFor="let p of projects">

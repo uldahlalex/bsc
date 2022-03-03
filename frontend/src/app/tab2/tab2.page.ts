@@ -2,7 +2,7 @@ import {Component, } from '@angular/core';
 import {ActivatedRoute, Router} from "@angular/router";
 import {Location} from '@angular/common';
 import {TaskService} from "../helpers/task.service";
-import {AuthService} from "../helpers/auth.service";
+import {AuthService, Token} from "../helpers/auth.service";
 
 
 /**
@@ -16,6 +16,7 @@ import {AuthService} from "../helpers/auth.service";
 export class Tab2Page {
 
   projects;
+  decoded_token: Token;
 
   constructor(
     private router: Router,
@@ -23,8 +24,10 @@ export class Tab2Page {
     private location: Location,
     private taskService: TaskService) {
     this.taskService.getProjects().subscribe(res => {
+      console.log(res);
       this.projects = res[0]._fields
     })
+    this.decoded_token = JSON.parse(localStorage.getItem('decoded_token'))
 
   }
 
@@ -47,6 +50,14 @@ export class Tab2Page {
   showProjects = true;
   toggleShowProjects() {
       this.showProjects = this.showProjects != true;
+  }
+
+  newProject() {
+    let project = {
+      name: "New project",
+      organizationId: this.decoded_token.organization
+    }
+    this.taskService.newProject(project);
   }
 }
 
