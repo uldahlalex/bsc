@@ -80,9 +80,6 @@ grpcServer.server.addService(taskProto.TaskService.service, {
     }
 })
 
-//Revoke token
-//Refresh token
-//Authorize
 
 app.post("/register", async (req, res) => {
         try {
@@ -137,7 +134,7 @@ app.post("/login", async (req, res) => {
         try {
             user =await User.findOne({ email });
             roles = user.roles || null;
-            organization = user.organization || null;
+            organization = user.organizationId;
         } catch (e) {
             console.log(e)
         }
@@ -152,6 +149,7 @@ app.post("/login", async (req, res) => {
                 }
             );
             console.log(jwt.decode(user.token));
+            console.log(user);
             user.hash = '';
             return res.status(200).json(user);
         }
@@ -190,7 +188,6 @@ function verifyToken(req: any, res: any, next: any) {
     try {
         const decoded = jwt.verify(token, argv['secret']);
         const readable = decoded as Token;
-        console.log(readable);
         if (readable.roles.includes("Member")) {
             req.user = decoded;
             return next();

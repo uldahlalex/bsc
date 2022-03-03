@@ -151,17 +151,17 @@ app.post('/project', async(req, res) => {
 
 app.post('/organization', async(req, res) => {
     let session = driver.session();
-    console.log('reached');
+    console.log(req.body.userId);
+    console.log(req.body.name);
     session.run('' +
         'CREATE (o:Organization {name: $name}) RETURN o;', {
         name: req.body.name
     }).then((result:any) => {
         session.close();
         console.log(result.records[0]._fields[0].identity.low);
-        grpcClient.JoinOrganizationUponCreation(req.body.userId, result.records[0]._fields[0].identity.low, (error, result) => {
+        grpcClient.joinOrganizationUponCreation({userId: req.body.userId, organizationId: result.records[0]._fields[0].identity.low}, (error, result) => {
             if (!error) {
-                console.log('successfully fetch List notes')
-                console.log(result)
+                console.log('Successfully updated org ID for user')
             } else {
                 console.error(error)
             }

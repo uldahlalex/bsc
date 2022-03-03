@@ -18,7 +18,7 @@ message UserInfo {
 
 message JoinOrgExchange {
     string userId = 1;
-    string organizationId = 2;
+    int32 organizationId = 2;
 }
 
 message JoinOrgExchangeConfirmation {

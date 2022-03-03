@@ -36,6 +36,6 @@ export class TaskService {
   }
 
   createNewOrganization(org) {
-    return this.http.post<any>(this.baseUrl+'organization', org);
+    return this.http.post(this.baseUrl+'organization/', org);
   }
 }

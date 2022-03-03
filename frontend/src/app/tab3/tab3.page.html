@@ -1,3 +1,17 @@
 <ion-content [fullscreen]="true">
-  <ion-button (click)="newOrganization()">New organization</ion-button>
+
+  <ion-card *ngIf="decoded_token.organization!=undefined" class="ion-padding">
+    <ion-card-title>Organization name</ion-card-title>
+  </ion-card>
+
+  <ion-list class="ion-padding">
+    <ion-list-header>New organization?</ion-list-header>
+    <ion-item>
+      <ion-label position="floating">Organization name</ion-label>
+      <ion-input [formControl]="organizationName"></ion-input>
+    </ion-item>
+    <br>
+    <ion-button expand="block" fill="outline" (click)="newOrganization()">Create and join organization</ion-button>
+  </ion-list>
+
 </ion-content>

@@ -15,6 +15,7 @@ export class AuthService {
     return this.http.post<any>('http://localhost:3002/login', {email, password})
       .subscribe(res => {
         this.decodedToken = jwt_decode(res.token);
+        console.log(this.decodedToken);
         localStorage.setItem('id_token', res.token);
         localStorage.setItem('expires_at', String(this.decodedToken.exp))
         localStorage.setItem('decoded_token', JSON.stringify(this.decodedToken))
@@ -37,12 +38,10 @@ export class AuthService {
     return !this.isLoggedIn();
   }
 
-  getDecodedToken() {
-    return this.decodedToken;
-  }
 }
 
 export class Token {
   exp: number;
   user_id: string;
+  organization: number;
 }

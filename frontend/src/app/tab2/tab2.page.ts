@@ -26,7 +26,6 @@ export class Tab2Page {
       this.projects = res[0]._fields
     })
 
-    console.log('TOKEN: ',JSON.parse(localStorage.getItem('decoded_token')));
   }
 
   navigateToProject(id) {
