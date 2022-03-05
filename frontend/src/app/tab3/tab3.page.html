@@ -12,6 +12,11 @@
     </ion-item>
     <br>
     <ion-button expand="block" fill="outline" (click)="newOrganization()">Create and join organization</ion-button>
+
+    <ion-card *ngFor="let o of organizations">
+      {{o._fields[0].name}}
+      {{o._fields[0]._id.low}}
+    </ion-card>
   </ion-list>
 
 </ion-content>

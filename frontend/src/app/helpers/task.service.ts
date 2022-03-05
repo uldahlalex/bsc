@@ -10,6 +10,9 @@ export class TaskService {
 
   baseUrl = 'http://localhost:3001/'
 
+  getOrganizations() {
+    return this.http.get<any[]>(this.baseUrl+'organizations');
+  }
   getProjects(organizationId) {
     return this.http.get<any[]>(this.baseUrl+'organizations/'+organizationId+'/projects');
   }
@@ -40,4 +43,5 @@ export class TaskService {
   deleteTasks(organizationId, projectId, taskId) {
     return this.http.delete<any>(this.baseUrl+'organizations/'+organizationId+'/projects/'+projectId+'/tasks/'+taskId);
   }
+
 }

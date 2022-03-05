@@ -14,12 +14,16 @@ export class Tab3Page {
 
   organizationName = new FormControl('');
   decoded_token: Token;
+  organizations;
 
   constructor(private http: HttpClient,
               private authService: AuthService,
               private taskService: TaskService) {
     this.authService.login('alex@uldahl.dk', '1234');
-    this.decoded_token = JSON.parse(localStorage.getItem('decoded_token'))
+    this.decoded_token = JSON.parse(localStorage.getItem('decoded_token'));
+    taskService.getOrganizations().subscribe(sub => {
+      this.organizations = sub;
+    })
   }
 
   newOrganization() {

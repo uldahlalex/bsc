@@ -78,6 +78,18 @@ app.get('/tasks/something', async (req, res) => {
     taskChannel.publish("topic_logs", "yada.critical", Buffer.from('not topic message - but very critical'))
 })
  */
+app.get('/organizations', async(req, res) => {
+    let session = driver.session();
+    session.run('' +
+        'MATCH collect=(o:Organization)\n' +
+        'WITH COLLECT(collect) AS ps\n' +
+        'CALL apoc.convert.toTree(ps) YIELD value\n' +
+        'RETURN value;')
+        .then((result: any) => {
+            console.log(result.records);
+            res.send(result.records)
+        })
+})
 
 app.get('/organizations/:organizationId/projects', async(req, res) => {
     let session = driver.session();
@@ -173,9 +185,6 @@ app.post('/organizations/:organizationId/projects', async(req, res) => {
     })
 })
 
-/**
- * IN PROGRESS
- */
 app.post('/organizations', async(req, res) => {
     let session = driver.session();
     session.run('' +
