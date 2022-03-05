@@ -79,16 +79,15 @@ app.get('/tasks/something', async (req, res) => {
 })
  */
 
-/**
- * @RETURNS GETS ALL PROJECTS BELONGING TO AN ORGANIZATION
- */
-app.get('organization/:organizationId/projects', async(req, res) => {
+app.get('/organizations/:organizationId/projects', async(req, res) => {
     let session = driver.session();
     session.run('' +
-        'MATCH p=(o:Organization)-[:CHILDREN]->(n) WHERE ID(o)=$organizationId\n' +
-        'WITH COLLECT(p) AS ps\n' +
+        'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
+        'WITH o as organization\n' +
+        'MATCH collect=(organization)-[:CHILDREN]->(p:Project)\n' +
+        'WITH COLLECT(collect) AS ps\n' +
         'CALL apoc.convert.toTree(ps) YIELD value\n' +
-        'RETURN value;', {
+        'RETURN value', {
         organizationId: Number(req.params.organizationId),
     }).then((result:any) => {
         session.close();
@@ -96,15 +95,18 @@ app.get('organization/:organizationId/projects', async(req, res) => {
     })
 })
 
-app.get('project/:projectId/tasks', async (req, res) => {
+app.get('/organizations/:organizationId/projects/:projectId/tasks', async (req, res) => {
     let session = driver.session();
     session.run('' +
-        'MATCH (o:Organization)-[:CHILDREN]->(project:Project)\n' +
-        'WHERE ID(o)=14 AND ID(project)=$projectId\n' +
-        'MATCH p=(project)-[:CHILDREN*]->(t:Task)\n' +
-        'WITH COLLECT(p) AS ps\n' +
+        'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
+        'WITH o as organization\n' +
+        'MATCH (p:Project)<-[:CHILDREN]-(organization) WHERE ID(p)=$projectId\n' +
+        'WITH p as projects\n' +
+        'MATCH collect=(projects)-[:CHILDREN*]->(t:Task)\n' +
+        'WITH COLLECT(collect) AS ps\n' +
         'CALL apoc.convert.toTree(ps) YIELD value\n' +
         'RETURN value;', {
+        organizationId: Number(req.params.organizationId),
         projectId: Number(req.params.projectId)
     }).then( (result: any) => {
         session.close();
@@ -112,45 +114,56 @@ app.get('project/:projectId/tasks', async (req, res) => {
     } )
 })
 
-app.patch('task/markTaskAsDone/:id', async (req, res) => {
+app.put('/organizations/:organizationId/projects/:projectId/tasks/:taskId/markTaskAsDone', async (req, res) => {
     let session = driver.session();
     session.run('' +
-        'MATCH (t:Task) WHERE ID(t)=$taskId\n' +
-        'SET t.done = true\n' +
-        'RETURN t', {
-        taskId: req.params.id
+        'MATCH (o:Organization) WHERE ID(o)=$organizationId \n' +
+        'WITH o as organization \n' +
+        'MATCH (organization)-[:CHILDREN]->(p:Project) WHERE ID(p)=$projectId \n' +
+        'WITH p as project \n' +
+        'MATCH (project)-[:CHILDREN*]->(t:Task) WHERE ID(t)=$taskId \n' +
+        'WITH t as task \n' +
+        'SET task.done = true \n' +
+        'RETURN task;', {
+        organizationId: Number(req.params.organizationId),
+        projectId: Number(req.params.projectId),
+        taskId: Number(req.params.taskId)
     }).then(result => {
             session.close();
             res.send(true);
     })
 })
 
-app.patch('/markTaskAsUnDone/:id', async (req, res) => {
+app.put('/organizations/:organizationId/projects/:projectId/tasks/:taskId/markTaskAsUnDone', async (req, res) => {
     let session = driver.session();
     session.run('' +
-        'MATCH (t:Task) WHERE ID(t)=$taskId\n' +
-        'SET t.done = false\n' +
-        'RETURN t', {
-        taskId: req.params.id
+        'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
+        'WITH o as organization\n' +
+        'MATCH (organization)-[:CHILDREN]->(p:Project) WHERE ID(p)=$projectId\n' +
+        'WITH p as project\n' +
+        'MATCH (project)-[:CHILDREN*]->(t:Task) WHERE ID(t)=$taskId\n' +
+        'with t as task\n' +
+        'SET task.done = false\n' +
+        'RETURN task;', {
+        organizationId: Number(req.params.organizationId),
+        projectId: Number(req.params.projectId),
+        taskId: Number(req.params.taskId)
     }).then(result => {
         session.close();
         res.send(true);
     })
 })
 
-
-/**
- * CREATES NEW PROJECT FOR ORGANIZATION
- */
-app.post('/projects', async(req, res) => {
+app.post('/organizations/:organizationId/projects', async(req, res) => {
     let session = driver.session();
     session.run('' +
         'MATCH (o: Organization) WHERE ID(o)=$organizationId\n' +
-        'CREATE p=(project:Project {name: $name})<-[:CHILDREN]-(o)\n' +
+        'WITH o as organization\n' +
+        'CREATE p=(project:Project {name: $name})<-[:CHILDREN]-(organization)\n' +
         'WITH COLLECT(p) AS ps\n' +
         'CALL apoc.convert.toTree(ps) YIELD value\n' +
         'RETURN value;', {
-        organizationId: Number(req.body.organizationId),
+        organizationId: Number(req.params.organizationId),
         name: req.body.name
     }).then((result:any) => {
         session.close();
@@ -160,43 +173,68 @@ app.post('/projects', async(req, res) => {
     })
 })
 
-
 /**
- * CREATES AND JOINS(THROUGH GRPC) NEW ORGANIZATION
+ * IN PROGRESS
  */
-app.post('/organization', async(req, res) => {
+app.post('/organizations', async(req, res) => {
     let session = driver.session();
     session.run('' +
         'CREATE (o:Organization {name: $name}) RETURN o;', {
         name: req.body.name
     }).then((result:any) => {
         session.close();
-        console.log(result.records[0]._fields[0].identity.low);
-        grpcClient.joinOrganizationUponCreation({userId: req.body.userId, organizationId: result.records[0]._fields[0].identity.low}, (error, result) => {
-            if (!error) {
-                console.log('Successfully updated org ID for user')
-            } else {
-                console.error(error)
-            }
-        })
-        res.send(result.records)
+        try {
+            grpcClient.joinOrganizationUponCreation(
+                {
+                    userId: req.body.userId,
+                    organizationId: result.records[0]._fields[0].identity.low
+                }, (grpcError, grpcResult) => {
+                    if (!grpcError) {
+                        console.log('Successfully updated org ID for user')
+                    } else {
+                        //ROLLBACK
+                        console.error(grpcError)
+                        let session = driver.session();
+                        session.run('' +
+                            'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
+                            'DETACH DELETE (o);', {
+                            organizationId: result.records[0]._fields[0].identity.low
+                        }).then( result => {
+                            res.send('Error adding user to organization; No organization added')
+                        })
+                    }
+                })
+        } catch(e) {
+            //ROLLBACK
+            console.error(e)
+            let session = driver.session();
+            session.run('' +
+                'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
+                'DETACH DELETE (o);', {
+                organizationId: result.records[0]._fields[0].identity.low
+            }).then( result => {
+                res.send('Error adding user to organization; No organization added')
+            })
+        }
+
+        res.send(result.records[0]._fields)
     })
 })
 
-
-/**
- * CREATES NEW TASK FOR PROJECT (ROOT TASK)
- */
-app.post('/projects/:project/roottask', async (req, res) => {
+app.post('/organizations/:organizationId/projects/:projectId/tasks', async (req, res) => {
     let session = driver.session();
     session.run('' +
-        'MATCH (project:Project) WHERE ID(project)=$project ' +
-        'CREATE p=(t:Task {name: $name })<-[:CHILDREN]-(project) ' +
-        'WITH COLLECT(p) AS ps\n' +
+        'MATCH (o:Organization) WHERE ID(o)=$organizationId \n' +
+        'WITH o as organization \n' +
+        'MATCH (organization)-[:CHILDREN]->(p:Project) WHERE ID(p)=$projectId \n' +
+        'WITH p as project \n' +
+        'CREATE collect=(t:Task {name: $name })<-[:CHILDREN]-(project) ' +
+        'WITH COLLECT(collect) AS ps\n' +
         'CALL apoc.convert.toTree(ps) YIELD value\n' +
         'RETURN value;',
         {
-            project: Number(req.params.project),
+            organizationId: Number(req.params.organizationId),
+            projectId: Number(req.params.projectId),
             name: req.body.name
         })
         .then((result: any)  => {
@@ -207,18 +245,22 @@ app.post('/projects/:project/roottask', async (req, res) => {
         })
 })
 
-/**
- * CREATES A SUBTASK TO A TASK
- */
-app.post('/supertask/:task/subtask', async (req, res) => {
+app.post('/organizations/:organizationId/projects/:projectId/tasks/:taskId/subtask', async (req, res) => {
     let session = driver.session();
     session.run('' +
-        'MATCH (t:Task) WHERE ID(t)=$supertaskId\n' +
-        'CREATE p=(s:Task {name: $name })<-[:CHILDREN]-(t)\n' +
-        'WITH COLLECT(p) AS ps\n' +
+        'MATCH (o:Organization) WHERE ID(o)=$organizationId \n' +
+        'WITH o as organization \n' +
+        'MATCH (organization)-[:CHILDREN]->(p:Project) WHERE ID(p)=$projectId \n' +
+        'WITH p as project \n' +
+        'MATCH (project)-[:CHILDREN*]->(t:Task) WHERE ID(t)=$taskId\n' +
+        'WITH t as task\n' +
+        'CREATE collect=(s:Task {name: $name })<-[:CHILDREN]-(task)\n' +
+        'WITH COLLECT(collect) AS ps\n' +
         'CALL apoc.convert.toTree(ps) YIELD value\n' +
         'RETURN value;', {
-        supertaskId: Number(req.params.task),
+        organizationId: Number(req.params.organizationId),
+        projectId: Number(req.params.projectId),
+        taskId: Number(req.params.taskId),
         name: req.body.name
     }).then((result: any)  => {
         session.close();
@@ -228,37 +270,40 @@ app.post('/supertask/:task/subtask', async (req, res) => {
     })
 })
 
-/**
- * DELETES A TASK AND ALL ITS CHILDREN (SUBTASKS)
- */
-app.delete('/task/:task', async(req, res) => {
+app.delete('/organizations/:organizationId/projects/:projectId/tasks/:taskId/subtasks', async(req, res) => {
     let session = driver.session();
     session.run('' +
-        'MATCH (t:Task)-[:CHILDREN]->(n)\n' +
-        'WHERE ID(t)=$taskId WITH n\n' +
-        'MATCH childPath=(n)-[:CHILDREN*0..]->(e)\n' +
-        'WITH childPath, e\n' +
-        'DETACH DELETE e;\n' +
-        'MATCH (a:Task) WHERE ID(a)=$taskId DETACH DELETE (a);', {
-        taskId: Number(req.params.task)
+        'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
+        'WITH o as organization \n' +
+        'MATCH (organization)-[:CHILDREN]->(p:Project) WHERE ID(p)=$projectId\n' +
+        'WITH p as project \n' +
+        'MATCH (project)-[:CHILDREN]->(t:Task) WHERE ID(t)=$taskId\n' +
+        'WITH t as task\n' +
+        'MATCH (task)-[:CHILDREN*]->(n)\n' +
+        'DETACH DELETE n;', {
+        organizationId: Number(req.params.organizationId),
+        projectId: Number(req.params.projectId),
+        taskId: Number(req.params.taskId),
     }).then(result => {
         session.close();
         res.send(true);
     })
 })
 
-/**
- * DELETES ALL CHILDREN (SUBTASKS) BUT NOT THE TASK ITSELF
- */
-app.delete('/task/:task/subtasks', async(req, res) => {
+app.delete('/organizations/:organizationId/projects/:projectId/tasks/:taskId', async(req, res) => {
     let session = driver.session();
     session.run('' +
-        'MATCH (t:Task)-[:CHILDREN]->(n) ' +
-        'WHERE ID(t)=$taskId WITH n\n' +
-        'MATCH childPath=(n)-[:CHILDREN*0..]->(e)\n' +
-        'WITH childPath, e\n' +
-        'DETACH DELETE e;\n', {
-        taskId: Number(req.params.task)
+        'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
+        'WITH o as organization \n' +
+        'MATCH (organization)-[:CHILDREN]->(p:Project) WHERE ID(p)=$projectId\n' +
+        'WITH p as project \n' +
+        'MATCH (project)-[:CHILDREN]->(t:Task) WHERE ID(t)=$taskId\n' +
+        'WITH t as task\n' +
+        'MATCH (task)-[:CHILDREN*]->(n)\n' +
+        'DETACH DELETE n, task;', {
+        organizationId: Number(req.params.organizationId),
+        projectId: Number(req.params.projectId),
+        taskId: Number(req.params.taskId),
     }).then(result => {
         session.close();
         res.send(true);

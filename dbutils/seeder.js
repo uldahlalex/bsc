@@ -70,7 +70,7 @@ function seed() {
 
 //52 - 61
 async function createOrganizations() {
-    for(let i = 0; i<10; i++){
+    for(let i = 0; i<1000; i++){
         let session = driver.session();
         session.run('' +
             'CREATE (o: Organization {name: $name});',
@@ -93,12 +93,28 @@ async function createProjects() {
                     orgId: i,
                     name: "Project_"+k
                 }).then(res => {
-                    console.log(res);
                 session.close();
             })
         }
     }
 }
+
+async function createProjectsWithNoOrganization() {
+    for(let i = 0; i<10000; i++){
+        let session = driver.session();
+        session.run('' +
+            'CREATE (p:Project {name: $name})',
+            {
+                name: "Project_"+i
+            }).then(res => {
+            console.log(res);
+            session.close();
+        })
+
+    }
+}
+createProjectsWithNoOrganization();
+
 
 async function createTasks() {
     for(let i = 112; i<209; i++) {
