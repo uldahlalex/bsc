@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import {HttpClient} from "@angular/common/http";
-import {Observable} from "rxjs";
 
 @Injectable({
   providedIn: 'root'
@@ -12,34 +11,33 @@ export class TaskService {
   baseUrl = 'http://localhost:3001/'
 
   getProjects(organizationId) {
-    return this.http.get<any[]>(this.baseUrl+'projects/'+organizationId);
+    return this.http.get<any[]>(this.baseUrl+'organizations/'+organizationId+'/projects');
   }
-
-  getTasksForProject(projectId): Observable<any[]> {
-    return this.http.get<any[]>(this.baseUrl+'projects/'+projectId);
+  getTasks(organizationId, projectId) {
+    return this.http.get<any[]>(this.baseUrl+'organizations/'+organizationId+'/projects/'+projectId+'/tasks');
   }
-
-  markTaskAsDone(taskId) {
-    return this.http.post<any>(this.baseUrl+'markTaskAsDone/'+taskId, {});
+  markTaskAsDone(organizationId, projectId, taskId) {
+    return this.http.put<any>(this.baseUrl+'organizations/'+organizationId+'/projects/'+projectId+'/tasks/'+taskId+'/markTaskAsDone', {});
   }
-
-  markTaskAsUnDone(taskId) {
-    return this.http.post<any>(this.baseUrl+'markTaskAsUnDone/'+taskId, {});
+  markTaskAsUnDone(organizationId, projectId, taskId) {
+    return this.http.put<any>(this.baseUrl+'organizations/'+organizationId+'/projects/'+projectId+'/tasks/'+taskId+'/markTaskAsUnDone', {});
   }
-
-  createNewTask(task, projectId) {
-    return this.http.post<any>(this.baseUrl+'projects/'+projectId+'/task',task);
+  newProject(organizationId, project) {
+    return this.http.post<any>(this.baseUrl+'organizations/'+organizationId+'/projects/', project);
   }
-
-  createNewSubtask(task, supertaskId, projectId) {
-    return this.http.post<any>(this.baseUrl+'projects/'+projectId+'/'+supertaskId+'/subtask', task);
-  }
-
   createNewOrganization(org) {
-    return this.http.post<any>(this.baseUrl+'organization/', org);
+    return this.http.post<any>(this.baseUrl+'organizations/', org);
   }
-
-  newProject(project) {
-    return this.http.post<any>(this.baseUrl+'projects/', project);
+  createNewTask(organizationId, projectId, task) {
+    return this.http.post<any>(this.baseUrl+'organizations/'+organizationId+'/projects/'+projectId+'/tasks',task);
+  }
+  createNewSubtask(organizationId, projectId, taskId, task) {
+    return this.http.post<any>(this.baseUrl+'organizations/'+organizationId+'/projects/'+projectId+'/tasks/'+taskId+'/subtasks',task);
+  }
+  deleteSubtasks(organizationId, projectId, taskId) {
+    return this.http.delete<any>(this.baseUrl+'organizations/'+organizationId+'/projects/'+projectId+'/tasks/'+taskId+'/subtasks');
+  }
+  deleteTasks(organizationId, projectId, taskId) {
+    return this.http.delete<any>(this.baseUrl+'organizations/'+organizationId+'/projects/'+projectId+'/tasks/'+taskId);
   }
 }
