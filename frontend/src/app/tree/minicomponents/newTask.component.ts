@@ -22,6 +22,7 @@ export class NewTaskComponent {
   @Input('projectId') projectId;
   @Input('isSubtask') isSubtask;
   @Input('supertask') supertask;
+  @Input('organizationId') organizationId;
 
   taskName = new FormControl('')
 
@@ -32,9 +33,10 @@ export class NewTaskComponent {
     let task = {
       name: this.taskName.value
     }
-    this.taskService.createNewTask(task, this.projectId).subscribe(result => {
+    this.taskService.createNewTask(this.organizationId, this.projectId, task).subscribe(result => {
       if (result) {
-        this.popoverController.dismiss({newTask: result[0]._fields});
+        console.log(result);
+        this.popoverController.dismiss(result);
       }
     })
   }
@@ -43,9 +45,9 @@ export class NewTaskComponent {
     let task = {
       name: this.taskName.value
     }
-    this.taskService.createNewSubtask(task, this.supertask._id.low, this.projectId).subscribe(result => {
+    this.taskService.createNewSubtask(this.organizationId, this.projectId, this.supertask._id.low, task).subscribe(result => {
       if (result) {
-        this.popoverController.dismiss({subTask: result[0]._fields});
+        this.popoverController.dismiss(result);
       }
     })
   }

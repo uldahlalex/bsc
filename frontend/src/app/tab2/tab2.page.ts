@@ -26,10 +26,7 @@ export class Tab2Page {
     this.decoded_token = JSON.parse(localStorage.getItem('decoded_token'))
     this.taskService.getProjects(this.decoded_token.organization).subscribe(res => {
       this.projects = res
-      console.log(res);
     })
-    console.log(this.decoded_token);
-
   }
 
   navigateToProject(id) {
@@ -54,11 +51,11 @@ export class Tab2Page {
   }
 
   newProject() {
+    let organizationId = this.decoded_token.organization;
     let project = {
       name: "New project",
-      organizationId: this.decoded_token.organization
     }
-    this.taskService.newProject(project);
+    this.taskService.newProject(organizationId,project);
   }
 }
 

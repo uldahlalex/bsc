@@ -17,25 +17,31 @@ import {PopoverController} from "@ionic/angular";
 })
 export class EditTaskStatusComponent {
   @Input('task') task;
+  @Input('projectId') projectId;
+  @Input('organizationId') organizationId;
 
   constructor(private taskService: TaskService,
               private popoverController: PopoverController) {}
 
   markAsDone() {
-    this.taskService.markTaskAsDone(this.task._id.low).subscribe(sub => {
+    this.taskService.markTaskAsDone(this.organizationId, this.projectId, this.task._id.low).subscribe(sub => {
       if (sub==true) {
         this.task.done = true;
-        this.popoverController.dismiss({task:this.task});
+        this.popoverController.dismiss(true);
+      } else {
+        this.popoverController.dismiss(false);
       }
     })
 
   }
 
   markAsUndone() {
-    this.taskService.markTaskAsUnDone(this.task._id.low).subscribe(sub => {
+    this.taskService.markTaskAsUnDone(this.organizationId, this.projectId, this.task._id.low).subscribe(sub => {
       if (sub==true) {
         this.task.done = false;
-        this.popoverController.dismiss({task:this.task});
+        this.popoverController.dismiss(true);
+      } else {
+        this.popoverController.dismiss(false);
       }
     })
   }

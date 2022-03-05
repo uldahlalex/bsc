@@ -23,11 +23,11 @@ export class Tab3Page {
   }
 
   newOrganization() {
+    let userId = this.decoded_token.user_id;
     let org = {
-      name: "Uldahl",
-      userId: this.decoded_token.user_id
+      name: "Uldahl"
     };
-    this.taskService.createNewOrganization(org);
+    this.taskService.createNewOrganization(org, userId);
   }
 }
 

@@ -270,7 +270,7 @@ app.post('/organizations/:organizationId/projects/:projectId/tasks/:taskId/subta
     })
 })
 
-app.delete('/organizations/:organizationId/projects/:projectId/tasks/:taskId/subtasks', async(req, res) => {
+app.delete('/organizations/:organizationId/projects/:projectId/tasks/:taskId/subtask', async(req, res) => {
     let session = driver.session();
     session.run('' +
         'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +

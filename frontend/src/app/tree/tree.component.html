@@ -11,7 +11,7 @@
         <ion-button>Show XYZ</ion-button>
       </ion-col>
       <ion-col size="2">
-        <ion-button (click)="openAddTaskPopover(projectMetaData._id.low, false)">Add task</ion-button>
+        <ion-button (click)="openAddTaskPopover(projectId, false)">Add task</ion-button>
       </ion-col>
     </ion-row>
   </ion-grid>
@@ -20,12 +20,12 @@
     <ion-card *ngFor="let task of list">
       <ion-toolbar>
 
-        <ion-button *ngIf="task.done == true" (click)="openPopover(task)" style="border-radius: 15px;" size="large" color="light" fill="solid" slot="start">
+        <ion-button *ngIf="task.done == true" (click)="openEditTaskPopover(task)" style="border-radius: 15px;" size="large" color="light" fill="solid" slot="start">
           <ion-icon size="large" color="warning" name="trophy-outline"></ion-icon>
           &nbsp;Done
         </ion-button>
 
-        <ion-button *ngIf="task.done != true" (click)="openPopover(task)" style="border-radius: 15px;" size="large" color="light" fill="solid" slot="start">
+        <ion-button *ngIf="task.done != true" (click)="openEditTaskPopover(task)" style="border-radius: 15px;" size="large" color="light" fill="solid" slot="start">
           <ion-icon size="large" color="primary" name="hourglass-outline"></ion-icon>
           &nbsp;In progress
         </ion-button>
@@ -54,7 +54,7 @@
               </ion-button>&nbsp;<b></b>{{task.description}}
             </ion-col>
             <ion-col size="2">
-                <ion-button (click)="openAddTaskPopover(projectMetaData._id.low, true, task)">Add new subtask</ion-button>
+                <ion-button (click)="openAddTaskPopover(projectId, true, task)">Add new subtask</ion-button>
             </ion-col>
           </ion-row>
           <ion-row>
@@ -76,6 +76,6 @@
       </div>
     </ion-card>
   </ng-template>
-  <ng-container *ngTemplateOutlet="recursiveList; context:{ $implicit: list }"></ng-container>
+  <ng-container *ngTemplateOutlet="recursiveList; context:{ $implicit: tasks }"></ng-container>
 
 </ion-content>

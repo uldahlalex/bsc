@@ -25,17 +25,17 @@ export class TaskService {
   newProject(organizationId, project) {
     return this.http.post<any>(this.baseUrl+'organizations/'+organizationId+'/projects/', project);
   }
-  createNewOrganization(org) {
-    return this.http.post<any>(this.baseUrl+'organizations/', org);
+  createNewOrganization(org, userId) {
+    return this.http.post<any>(this.baseUrl+'organizations/', {name: org.name,userId: userId});
   }
   createNewTask(organizationId, projectId, task) {
     return this.http.post<any>(this.baseUrl+'organizations/'+organizationId+'/projects/'+projectId+'/tasks',task);
   }
   createNewSubtask(organizationId, projectId, taskId, task) {
-    return this.http.post<any>(this.baseUrl+'organizations/'+organizationId+'/projects/'+projectId+'/tasks/'+taskId+'/subtasks',task);
+    return this.http.post<any>(this.baseUrl+'organizations/'+organizationId+'/projects/'+projectId+'/tasks/'+taskId+'/subtask',task);
   }
   deleteSubtasks(organizationId, projectId, taskId) {
-    return this.http.delete<any>(this.baseUrl+'organizations/'+organizationId+'/projects/'+projectId+'/tasks/'+taskId+'/subtasks');
+    return this.http.delete<any>(this.baseUrl+'organizations/'+organizationId+'/projects/'+projectId+'/tasks/'+taskId+'/subtask');
   }
   deleteTasks(organizationId, projectId, taskId) {
     return this.http.delete<any>(this.baseUrl+'organizations/'+organizationId+'/projects/'+projectId+'/tasks/'+taskId);
