@@ -21,6 +21,7 @@
     "express": "^4.17.2",
     "grpc": "^1.24.11",
     "hbs": "^4.2.0",
+    "jsonwebtoken": "^8.5.1",
     "minimist": "^1.2.5",
     "neo4j-driver": "^4.4.3",
     "reflect-metadata": "^0.1.13"

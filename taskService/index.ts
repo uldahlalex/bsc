@@ -6,6 +6,7 @@ import "reflect-metadata";
 import * as amqp from 'amqplib/callback_api';
 import neo4j from 'neo4j-driver';
 import cors from 'cors';
+import jwt from "jsonwebtoken";
 
 const app = express();
 const server = http.createServer(app)
@@ -78,7 +79,8 @@ app.get('/tasks/something', async (req, res) => {
     taskChannel.publish("topic_logs", "yada.critical", Buffer.from('not topic message - but very critical'))
 })
  */
-app.get('/organizations', async(req, res) => {
+app.get('/organizations', verifyToken('Member'), async(req, res, next) => {
+
     let session = driver.session();
     session.run('' +
         'MATCH collect=(o:Organization)\n' +
@@ -86,7 +88,6 @@ app.get('/organizations', async(req, res) => {
         'CALL apoc.convert.toTree(ps) YIELD value\n' +
         'RETURN value;')
         .then((result: any) => {
-            console.log(result.records);
             res.send(result.records)
         })
 })
@@ -324,3 +325,36 @@ server.listen(port, () => {
 })
 
 
+function verifyToken(...role) {
+    return (req, res, next) => {
+        console.log(role)
+        const token =
+            req.body.token || req.query.token || req.headers["x-access-token"];
+
+        if (!token) {
+            return res.status(403).send("A token is required for authentication");
+        }
+        try {
+            const decoded = jwt.verify(token, argv['secret']);
+            const readable = decoded as Token;
+            if (readable.roles.includes(role[0])) {
+                req.user = decoded;
+                return next();
+            } else {
+                return res.status(401).send('Only '+role+' allowed')
+            }
+        } catch (err) {
+            return res.status(401).send("Try again");
+        }
+        return next();
+    }
+
+}
+type Token = {
+    user_id: string
+    email: string
+    roles: [string],
+    organization: string
+    iat: number,
+    exp: number
+}

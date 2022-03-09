@@ -33,5 +33,9 @@ export class Tab3Page {
     };
     this.taskService.createNewOrganization(org, userId);
   }
+
+  logout() {
+    this.authService.logout();
+  }
 }
 
