@@ -52,7 +52,7 @@ mongoose.connect("mongodb://root:example@localhost:27017/?authSource=admin&readP
 app.use(express.json({ limit: "50mb" }));
 
 app.use(cors({
-    origin: ['http://localhost:8100', 'http://localhost:4200'],
+    origin: ['http://localhost:8100', 'http://localhost:4200', 'http://localhost:5000'],
     methods: "GET, PUT"
 }))
 

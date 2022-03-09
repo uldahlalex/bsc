@@ -5,6 +5,10 @@ using Microsoft.Extensions.Hosting;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 
+using System.Net;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+
 namespace OcelotBasic
 {
     public class Program
@@ -24,6 +28,11 @@ namespace OcelotBasic
                     .AddEnvironmentVariables();
             })
             .ConfigureServices(s => {
+                s.AddCors(options => {
+                    options.AddPolicy(name: "My Policy", builder => {
+                        builder.WithOrigins("http://localhost:8100");
+                    });
+                });
                 s.AddOcelot();
             })
             .ConfigureLogging((hostingContext, logging) =>
@@ -34,6 +43,10 @@ namespace OcelotBasic
             .Configure(app =>
             {
                 app.UseOcelot().Wait();
+                app.UseCors(app =>
+                        app.WithOrigins("http://localhost:8100").AllowCredentials()
+                               .AllowAnyMethod()
+                               .AllowAnyHeader());
             })
             .Build()
             .Run();

@@ -19,7 +19,10 @@ const grpcClient = new TaskService('localhost:50051', grpc.credentials.createIns
 const driver = neo4j.driver('bolt://localhost',
     neo4j.auth.basic('neo4j', 'test'));
 
-app.use(cors());
+app.use(cors({
+    origin: ['http://localhost:8100', 'http://localhost:4200', 'http://localhost:5000'],
+    methods: "GET, PUT"
+}));
 app.use(express.json());
 
 let taskRepo;

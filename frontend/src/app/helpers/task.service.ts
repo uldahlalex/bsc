@@ -9,7 +9,7 @@ export class TaskService {
 
   constructor(private http: HttpClient) { }
 
-  baseUrl = 'http://localhost:3001/'
+  baseUrl = 'http://localhost:5000/task/'
 
   getOrganizations() {
     return this.http.get<any[]>(this.baseUrl+'organizations');
