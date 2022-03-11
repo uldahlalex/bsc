@@ -17,6 +17,9 @@ export class TaskService {
   getProjects(organizationId) {
     return this.http.get<any[]>(this.baseUrl+'organizations/'+organizationId+'/projects');
   }
+  getProjectMetadata(organizationId, projectId) {
+    return this.http.get<any>(this.baseUrl+'organizations/'+organizationId+'/projects/'+projectId);
+  }
   getTasks(organizationId, projectId) {
     return this.http.get<any[]>(this.baseUrl+'organizations/'+organizationId+'/projects/'+projectId+'/tasks');
   }

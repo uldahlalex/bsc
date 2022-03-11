@@ -82,7 +82,7 @@ app.get('/tasks/something', async (req, res) => {
     taskChannel.publish("topic_logs", "yada.critical", Buffer.from('not topic message - but very critical'))
 })
  */
-app.get('/organizations', verifyToken('Member'), async(req, res, next) => {
+app.get('/organizations', async(req, res, next) => {
 
     let session = driver.session();
     session.run('' +
@@ -108,6 +108,25 @@ app.get('/organizations/:organizationId/projects', async(req, res) => {
     }).then((result:any) => {
         session.close();
         res.send(result.records[0]._fields[0].children);
+    })
+})
+
+app.get('/organizations/:organizationId/projects/:projectId', async(req, res) => {
+    let session = driver.session();
+    session.run('' +
+        'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
+        'WITH o as organization\n' +
+        'MATCH collect=(p:Project)<-[:CHILDREN]-(organization) WHERE ID(p)=$projectId\n' +
+        'WITH COLLECT(collect) AS ps\n' +
+        'CALL apoc.convert.toTree(ps) YIELD value\n' +
+        'RETURN value;', {
+        organizationId: Number(req.params.organizationId),
+        projectId: Number(req.params.projectId),
+    }).then((result:any) => {
+        session.close();
+        let dto = result.records[0]._fields[0];
+        dto.children = null;
+        res.send(dto);
     })
 })
 
@@ -175,7 +194,7 @@ app.post('/organizations/:organizationId/projects', async(req, res) => {
     session.run('' +
         'MATCH (o: Organization) WHERE ID(o)=$organizationId\n' +
         'WITH o as organization\n' +
-        'CREATE p=(project:Project {name: $name, description: $description})<-[:CHILDREN]-(organization)\n' +
+        'CREATE p=(project:Project {name: $name, description: $description, createdAt: datetime()})<-[:CHILDREN]-(organization)\n' +
         'WITH COLLECT(p) AS ps\n' +
         'CALL apoc.convert.toTree(ps) YIELD value\n' +
         'RETURN value;', {
@@ -242,7 +261,11 @@ app.post('/organizations/:organizationId/projects/:projectId/tasks', async (req,
         'WITH o as organization \n' +
         'MATCH (organization)-[:CHILDREN]->(p:Project) WHERE ID(p)=$projectId \n' +
         'WITH p as project \n' +
-        'CREATE collect=(t:Task {name: $name })<-[:CHILDREN]-(project) ' +
+        'CREATE collect=(t:Task {' +
+        'name: $name, ' +
+        'description: $description, ' +
+        'createdAt: datetime(), ' +
+        '})<-[:CHILDREN]-(project) ' +
         'WITH COLLECT(collect) AS ps\n' +
         'CALL apoc.convert.toTree(ps) YIELD value\n' +
         'RETURN value;',

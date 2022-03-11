@@ -1,5 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {HttpClient} from "@angular/common/http";
+import {Component} from '@angular/core';
 import {TaskService} from "../helpers/task.service";
 import {ActivatedRoute} from "@angular/router";
 import {PopoverController} from "@ionic/angular";
@@ -25,18 +24,15 @@ export class TreeComponent {
     this.projectId = this.route.snapshot.paramMap.get('id');
     this.decoded_token = JSON.parse(localStorage.getItem('decoded_token'))
     this.taskService.getTasks(this.decoded_token.organization, this.projectId).subscribe(sub => {
-      //this.projectMetaData = sub[0]._fields[0]; Query the project to get this data
       this.tasks = sub;
+    })
+    this.taskService.getProjectMetadata(this.decoded_token.organization, this.projectId).subscribe(sub => {
+      this.projectMetaData = sub;
     })
   }
 
   expand(child) {
-    if(child.expanded != true){
-      child.expanded = true
-    }
-    else {
-      child.expanded = false;
-    }
+    child.expanded = child.expanded != true;
   }
 
   async openEditTaskPopover(task) {
