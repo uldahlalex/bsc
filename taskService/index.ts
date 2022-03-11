@@ -175,12 +175,13 @@ app.post('/organizations/:organizationId/projects', async(req, res) => {
     session.run('' +
         'MATCH (o: Organization) WHERE ID(o)=$organizationId\n' +
         'WITH o as organization\n' +
-        'CREATE p=(project:Project {name: $name})<-[:CHILDREN]-(organization)\n' +
+        'CREATE p=(project:Project {name: $name, description: $description})<-[:CHILDREN]-(organization)\n' +
         'WITH COLLECT(p) AS ps\n' +
         'CALL apoc.convert.toTree(ps) YIELD value\n' +
         'RETURN value;', {
         organizationId: Number(req.params.organizationId),
-        name: req.body.name
+        name: req.body.name,
+        description: req.body.description
     }).then((result:any) => {
         session.close();
         let dto = result.records[0]._fields[0];
