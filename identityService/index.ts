@@ -53,7 +53,7 @@ app.use(express.json({ limit: "50mb" }));
 
 app.use(cors({
     origin: ['http://localhost:8100', 'http://localhost:4200', 'http://localhost:5000'],
-    methods: "GET, PUT"
+    methods: "GET, PUT, POST, DELETE"
 }))
 
 

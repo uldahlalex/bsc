@@ -5,14 +5,11 @@
   <ion-button *ngIf="showProjects==true" (click)="toggleShowProjects()" fill="clear" slot="start">
     <ion-icon name="apps-outline"></ion-icon>&nbsp;Hide all projects
   </ion-button>
-  <ion-button fill="clear" slot="end">
-    <ion-icon name="return-up-back-outline"></ion-icon>
-  </ion-button>
+  <ion-button slot="end" fill="clear" (click)="newProject()"><ion-icon name="add-outline"></ion-icon>Add new project</ion-button>
 </ion-toolbar>
 
 
-<ion-content [fullscreen]="true">
-  <ion-button (click)="newProject()">Add new project</ion-button>
+<ion-content class="ion-padding" [fullscreen]="true">
   <div *ngIf="showProjects==true">
     <ion-grid>
       <ion-row *ngFor="let p of projects">

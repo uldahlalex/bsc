@@ -45,7 +45,7 @@ export class Tab2Page {
     }
   }
 
-  showProjects = true;
+  showProjects = false;
   toggleShowProjects() {
       this.showProjects = this.showProjects != true;
   }
