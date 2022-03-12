@@ -159,7 +159,7 @@ app.post("/login", async (req, res) => {
         console.log(err);
     }
 });
-app.get("/test", verifyToken, (req, res) => {
+app.get("/test", verifyToken("Member"), (req, res) => {
     return res.status(200).send("Welcome. Token accepted");
 });
 
@@ -178,29 +178,32 @@ app.use("*", (req, res) => {
     });
 });
 
-function verifyToken(req: any, res: any, next: any) {
-    const token =
-        req.body.token || req.query.token || req.headers["x-access-token"];
-
-    if (!token) {
-        return res.status(403).send("A token is required for authentication");
-    }
-    try {
-        const decoded = jwt.verify(token, argv['secret']);
-        const readable = decoded as Token;
-        if (readable.roles.includes("Member")) {
-            req.user = decoded;
-            return next();
-        } else {
-            return res.status(401).send('Only members allowed')
-        }
-    } catch (err) {
-        return res.status(401).send("Try again");
-    }
-    return next();
-}
-
 httpServer.listen(port, () => {
-    grpcServer.initGrpcServer();
-    console.log(`Server running on port ${port}`);
-});
+    console.log('now listening on port ' + port)
+})
+
+function verifyToken(...role) {
+    return (req, res, next) => {
+        console.log(role)
+        const token =
+            req.body.token || req.query.token || req.headers["x-access-token"];
+
+        if (!token) {
+            return res.status(403).send("A token is required for authentication");
+        }
+        try {
+            const decoded = jwt.verify(token, argv['secret']);
+            const readable = decoded as Token;
+            if (readable.roles.includes(role[0])) {
+                req.user = decoded;
+                return next();
+            } else {
+                return res.status(401).send('Only '+role+' allowed')
+            }
+        } catch (err) {
+            return res.status(401).send("Try again");
+        }
+        return next();
+    }
+
+}
