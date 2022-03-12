@@ -32,16 +32,14 @@ relateNodeToOtherNode();
 */
 
 const neo4j = require('neo4j-driver');
-const driver = neo4j.driver('neo4j://localhost', neo4j.auth.basic('neo4j', 'test'));
-const session = driver.session();
+const driver = neo4j.driver('bolt://localhost',
+    neo4j.auth.basic('neo4j', 'test'));
 const {faker} = require('@faker-js/faker');
+const parser = require('parse-neo4j');
 
-function createOneTaskNode() {
-    session.run('' +
-        'CREATE (task:Task {' +
-        'title: $title, ' +
-        'description: $description,' +
-        'authorId: $authorId }) RETURN task',
+function bootStrap() {
+    let session = driver.session.run('' +
+        '',
         {
             title: faker.git.commitMessage(),
             description: faker.lorem.sentence(),
@@ -51,16 +49,83 @@ function createOneTaskNode() {
     })
 }
 
-function createRelationship() {
-    session.run('' +
-        'MATCH (a:Task), (b:Task)\n' +
-        'WHERE ID(a) = $aIdentity AND ID(b) = $bIdentity\n' +
-        'CREATE (a)-[:SUBTASK]->(b);',
-        {
-            aIdentity: 2,
-            bIdentity: 0
-        }).then(result => {
-          console.log(result);
+
+
+function seed() {
+    for(let i =0; i<100; i++) {
+        let session = driver.session();
+        session.run('MATCH(t:Task) WHERE ID(t)=$superIdentity\n' +
+            'CREATE (s:Task {name: $subtask})<-[:CHILDREN]-(t)',
+            {
+                superIdentity: 26,
+                subtask: faker.git.commitMessage()
+            }).then(res => {
+            console.log(res);
+            session.close().then(result => {
+                console.log(result)
+            })
         })
+    }
 }
 
+//52 - 61
+async function createOrganizations() {
+    for(let i = 0; i<1000; i++){
+        let session = driver.session();
+        session.run('' +
+            'CREATE (o: Organization {name: $name});',
+            {
+                name: 'Organization_'+i
+            }).then(res => {
+                session.close();
+        })
+    }
+}
+
+async function createProjects() {
+    for (let i = 52; i<62; i++) {
+        for (let k = 0; k < 10; k++) {
+            let session = driver.session();
+            session.run('' +
+                'MATCH (o:Organization) WHERE ID(o)=$orgId \n' +
+                'CREATE (p:Project {name: $name})<-[:CHILDREN]-(o)',
+                {
+                    orgId: i,
+                    name: "Project_"+k
+                }).then(res => {
+                session.close();
+            })
+        }
+    }
+}
+
+async function createProjectsWithNoOrganization() {
+    for(let i = 0; i<10000; i++){
+        let session = driver.session();
+        session.run('' +
+            'CREATE (p:Project {name: $name})',
+            {
+                name: "Project_"+i
+            }).then(res => {
+            console.log(res);
+            session.close();
+        })
+
+    }
+}
+createProjectsWithNoOrganization();
+
+
+async function createTasks() {
+    for(let i = 112; i<209; i++) {
+        for(let k = 0; k<10; k++) {
+            let session= driver.session();
+            session.run(
+            'MATCH (p:Task) WHERE ID(p)=$projectId \n' +
+            'CREATE (t:Task {name: $name})<-[:CHILDREN]-(p)', {
+                projectId: i,
+                    name: "Task_"+k
+                })
+        }
+    }
+}

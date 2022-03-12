@@ -11,7 +11,10 @@
   "license": "ISC",
   "dependencies": {
     "cypher-query-builder": "^6.0.4",
-    "neo4j-driver": "^4.4.3"
+    "mongoose": "^6.2.0",
+    "bcryptjs": "^2.4.3",
+    "neo4j-driver": "^4.4.3",
+    "parse-neo4j": "^0.6.11"
   },
   "devDependencies": {
     "@faker-js/faker": "^6.0.0-alpha.6"

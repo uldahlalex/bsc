@@ -4,3 +4,7 @@ node_modules
 dist
 db
 .docker-conf
+volumes
+data
+neostore
+plugins

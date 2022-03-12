@@ -52,8 +52,8 @@ mongoose.connect("mongodb://root:example@localhost:27017/?authSource=admin&readP
 app.use(express.json({ limit: "50mb" }));
 
 app.use(cors({
-    origin: 'http://localhost:8100',
-    methods: "GET, PUT"
+    origin: ['http://localhost:8100', 'http://localhost:4200', 'http://localhost:5000'],
+    methods: "GET, PUT, POST, DELETE"
 }))
 
 
@@ -72,11 +72,14 @@ grpcServer.server.addService(taskProto.TaskService.service, {
             callback(null, returnObject);
         })
     },
+    joinOrganizationUponCreation: async (call, callback) => {
+        console.log(call.request);
+        await User.findOneAndUpdate(call.request.userId, {organizationId: call.request.organizationId}).exec().then(res => {
+            callback(null, true);
+        })
+    }
 })
 
-//Revoke token
-//Refresh token
-//Authorize
 
 app.post("/register", async (req, res) => {
         try {
@@ -106,9 +109,10 @@ app.post("/register", async (req, res) => {
                 {user_id: user._id, email, roles, organization},
                 argv['secret'],
                 {
-                    expiresIn: "2h",
+                    expiresIn: "10h",
                 }
             );
+            user.hash = '';
             return res.status(201).json(user);
         } catch (err) {
             console.log(err);
@@ -130,7 +134,7 @@ app.post("/login", async (req, res) => {
         try {
             user =await User.findOne({ email });
             roles = user.roles || null;
-            organization = user.organization || null;
+            organization = user.organizationId;
         } catch (e) {
             console.log(e)
         }
@@ -141,10 +145,12 @@ app.post("/login", async (req, res) => {
                 {user_id: user._id, email, roles, organization},
                 argv['secret'],
                 {
-                    expiresIn: "2h",
+                    expiresIn: "1000d",
                 }
             );
             console.log(jwt.decode(user.token));
+            console.log(user);
+            user.hash = '';
             return res.status(200).json(user);
         }
 
@@ -182,7 +188,6 @@ function verifyToken(req: any, res: any, next: any) {
     try {
         const decoded = jwt.verify(token, argv['secret']);
         const readable = decoded as Token;
-        console.log(readable);
         if (readable.roles.includes("Member")) {
             req.user = decoded;
             return next();

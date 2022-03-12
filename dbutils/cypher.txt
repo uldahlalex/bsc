@@ -1,0 +1,42 @@
+MATCH (project:Project)<-[:CHILDREN*]-(organization:Organization)
+WHERE ID(organization)=54 AND ID(project)=4
+MATCH p=(project)-[:CHILDREN*]->(t)
+WITH COLLECT(p) AS ps
+CALL apoc.convert.toTree(ps) YIELD value
+RETURN value;
+
+
+
+MATCH p=(project:Project)<-[:CHILDREN*]-(organization:Organization)
+WHERE ID(organization)=54 AND ID(project)=4
+WITH COLLECT(p) AS ps
+CALL apoc.convert.toTree(ps) YIELD value
+RETURN value;
+
+
+
+
+MATCH (o:Organization)-[:CHILDREN]->(project:Project)
+WHERE ID(o)=54 AND ID(project)=4
+MATCH p=(project)-[:CHILDREN*]->(t:Task)
+WITH COLLECT(p) AS ps
+CALL apoc.convert.toTree(ps) YIELD value
+RETURN value;
+
+
+#BEST
+MATCH (o:Organization)
+WHERE ID(o)=54
+WITH *
+MATCH p=(project:Project)-[:CHILDREN]->(t:Task) WHERE ID(project)=4
+WITH COLLECT(p) AS ps
+CALL apoc.convert.toTree(ps) YIELD value
+RETURN value;
+
+
+MATCH (o:Organization)-[:CHILDREN]->(p:Project)
+WHERE ID(o)=54
+WITH p as projects
+WHERE ID(projects)=4
+MATCH (projects)-[:CHILDREN*]->(t:Task)
+return (t)
