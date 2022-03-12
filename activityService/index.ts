@@ -75,7 +75,7 @@ amqp.connect('amqp://localhost', function(error0, connection) {
     });
 });
 
-app.get('/users/:userId/recentActivity/:limit', verifyToken, emitToActivityService, async (req, res) => {
+app.get('/users/:userId/recentActivity/:limit', verifyToken, async (req, res) => {
     client.execute('SELECT * FROM actions;').then(result => {
         res.send(result.rows);
     })
@@ -85,11 +85,6 @@ server.listen(port, () => {
     console.log('now listening on port ' + port)
 })
 
-function emitToActivityService(req, res) {
-    return (req, res, next) => {
-        //taskChannel.publish()
-    }
-}
 
 
 function verifyToken(...role) {

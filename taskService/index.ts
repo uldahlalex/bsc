@@ -3,7 +3,7 @@ import express from 'express';
 import http from 'http';
 import minimist from 'minimist';
 import "reflect-metadata";
-import * as amqp from 'amqplib/callback_api';
+import amqp, {Channel} from 'amqplib/callback_api';
 import neo4j from 'neo4j-driver';
 import cors from 'cors';
 import jwt from "jsonwebtoken";
@@ -26,14 +26,14 @@ app.use(cors({
 app.use(express.json());
 
 let taskRepo;
-let taskChannel;
+let taskChannel: Channel;
 let instanceQ;
 
 amqp.connect('amqp://localhost', function(error0, connection) {
     if (error0) {
         throw error0;
     }
-    connection.createChannel(function(error1, channel) {
+    connection.createChannel(function(error1, channel: Channel) {
         if (error1) {
             throw error1;
         }
@@ -60,7 +60,9 @@ amqp.connect('amqp://localhost', function(error0, connection) {
             }, {
                 noAck: true
             });
+
         });
+        taskChannel = channel;
     });
 });
 /*
@@ -347,10 +349,24 @@ app.delete('/organizations/:organizationId/projects/:projectId/tasks/:taskId', a
     })
 })
 
+app.get('/emit', emitToActivityService("emit method"), async (req, res) => {
+    res.send('Sent');
+})
+
 server.listen(port, () => {
     console.log('now listening on port ' + port)
 })
 
+function emitToActivityService(...data) {
+    return (req, res, next) => {
+        let dto = {
+            params: req.params,
+            body: req.body
+        };
+        taskChannel.publish('topic_logs', 'topic.critical', Buffer.from(dto.toString()));
+        return next();
+    }
+}
 
 function verifyToken(...role) {
     return (req, res, next) => {
