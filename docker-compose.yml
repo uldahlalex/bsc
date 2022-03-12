@@ -53,3 +53,11 @@ services:
       - NEO4JLABS_PLUGINS=["apoc"]
      # - NEO4J_dbms_memory_pagecache_size=0
       - NEO4J_dbms_query__cache__size=0
+  activityStore:
+    image: cassandra:4.0
+    ports:
+      - 9042:9042
+    volumes:
+      - ./data:/cassandra:/var/lib/cassandra
+    environment:
+      - CASSANDRA_CLUSTER_NAME=citizix
