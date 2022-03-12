@@ -17,9 +17,9 @@ const PROTO_PATH = './protos/activity.proto'
 const TaskService = grpc.load(PROTO_PATH).ActivityService
 const grpcClient = new TaskService('localhost:50053', grpc.credentials.createInsecure());
 const client = new cassandra.Client({
-    contactPoints: ['h1', 'h2'],
+    contactPoints: ['localhost:9042'],
     localDataCenter: 'datacenter1',
-    keyspace: 'ks1'
+    keyspace: 'mykeyspace'
 });
 
 
@@ -64,16 +64,64 @@ amqp.connect('amqp://localhost', function(error0, connection) {
 
             channel.consume(q.queue, function(msg) {
                 console.log(" [x] %s:'%s'", msg.fields.routingKey, msg.content.toString());
-                client.execute('SELECT * FROM activity;').then(res => {
+                client.execute('SELECT * FROM actions;').then(res => {
                     console.log(res.rows)
                 })
             }, {
                 noAck: true
             });
         });
+        taskChannel = channel;
     });
 });
+
+app.get('/users/:userId/recentActivity/:limit', verifyToken, emitToActivityService, async (req, res) => {
+    client.execute('SELECT * FROM actions;').then(result => {
+        res.send(result.rows);
+    })
+})
 
 server.listen(port, () => {
     console.log('now listening on port ' + port)
 })
+
+function emitToActivityService(req, res) {
+    return (req, res, next) => {
+        //taskChannel.publish()
+    }
+}
+
+
+function verifyToken(...role) {
+    return (req, res, next) => {
+        console.log(role)
+        const token =
+            req.body.token || req.query.token || req.headers["x-access-token"];
+
+        if (!token) {
+            return res.status(403).send("A token is required for authentication");
+        }
+        try {
+            const decoded = jwt.verify(token, argv['secret']);
+            const readable = decoded as Token;
+            if (readable.roles.includes(role[0])) {
+                req.user = decoded;
+                return next();
+            } else {
+                return res.status(401).send('Only '+role+' allowed')
+            }
+        } catch (err) {
+            return res.status(401).send("Try again");
+        }
+        return next();
+    }
+
+}
+type Token = {
+    user_id: string
+    email: string
+    roles: [string],
+    organization: string
+    iat: number,
+    exp: number
+}
