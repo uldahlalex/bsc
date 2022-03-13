@@ -192,6 +192,7 @@ app.put('/organizations/:organizationId/projects/:projectId/tasks/:taskId/markTa
 })
 
 app.post('/organizations/:organizationId/projects', async(req, res) => {
+    console.log('reached')
     let session = driver.session();
     session.run('' +
         'MATCH (o: Organization) WHERE ID(o)=$organizationId\n' +
@@ -280,7 +281,7 @@ app.post('/organizations/:organizationId/projects/:projectId/tasks', async (req,
         'CREATE collect=(t:Task {' +
         'name: $name, ' +
         'description: $description, ' +
-        'createdAt: datetime(), ' +
+        'createdAt: datetime() ' +
         '})<-[:CHILDREN]-(project) ' +
         'WITH COLLECT(collect) AS ps\n' +
         'CALL apoc.convert.toTree(ps) YIELD value\n' +
@@ -288,7 +289,8 @@ app.post('/organizations/:organizationId/projects/:projectId/tasks', async (req,
         {
             organizationId: Number(req.params.organizationId),
             projectId: Number(req.params.projectId),
-            name: req.body.name
+            name: req.body.name,
+            description: req.body.description
         })
         .then((result: any)  => {
             session.close();
@@ -307,14 +309,19 @@ app.post('/organizations/:organizationId/projects/:projectId/tasks/:taskId/subta
         'WITH p as project \n' +
         'MATCH (project)-[:CHILDREN*]->(t:Task) WHERE ID(t)=$taskId\n' +
         'WITH t as task\n' +
-        'CREATE collect=(s:Task {name: $name })<-[:CHILDREN]-(task)\n' +
+        'CREATE collect=(t:Task {' +
+        'name: $name, ' +
+        'description: $description, ' +
+        'createdAt: datetime() ' +
+        '})<-[:CHILDREN]-(task)\n' +
         'WITH COLLECT(collect) AS ps\n' +
         'CALL apoc.convert.toTree(ps) YIELD value\n' +
         'RETURN value;', {
         organizationId: Number(req.params.organizationId),
         projectId: Number(req.params.projectId),
         taskId: Number(req.params.taskId),
-        name: req.body.name
+        name: req.body.name,
+        description: req.body.description
     }).then((result: any)  => {
         session.close();
         let dto = result.records[0]._fields[0];

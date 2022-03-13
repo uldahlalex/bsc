@@ -31,7 +31,8 @@ export class NewTaskComponent {
 
   newTask() {
     let task = {
-      name: this.taskName.value
+      name: this.taskName.value,
+      description: this.taskName.value
     }
     this.taskService.createNewTask(this.organizationId, this.projectId, task).subscribe(result => {
       if (result) {
@@ -43,7 +44,8 @@ export class NewTaskComponent {
 
   newSubtask() {
     let task = {
-      name: this.taskName.value
+      name: this.taskName.value,
+      description: this.taskName.value
     }
     this.taskService.createNewSubtask(this.organizationId, this.projectId, this.supertask._id.low, task).subscribe(result => {
       if (result) {

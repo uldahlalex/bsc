@@ -45,7 +45,7 @@ export class Tab2Page {
     }
   }
 
-  showProjects = false;
+  showProjects = true;
   toggleShowProjects() {
       this.showProjects = this.showProjects != true;
   }
@@ -54,8 +54,16 @@ export class Tab2Page {
     let organizationId = this.decoded_token.organization;
     let project = {
       name: "New project",
+      description: "My desc"
     }
-    this.taskService.newProject(organizationId,project);
+    this.taskService.newProject(organizationId,project).subscribe(sub => {
+      if(this.projects==undefined) {
+        this.projects = [];
+        this.projects.push(sub);
+      } else {
+        this.projects.push(sub);
+      }
+    })
   }
 }
 
