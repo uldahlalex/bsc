@@ -3,7 +3,7 @@ import express from 'express';
 import http from 'http';
 import minimist from 'minimist';
 import "reflect-metadata";
-import * as amqp from 'amqplib/callback_api';
+import amqp, {Channel} from 'amqplib/callback_api';
 import cors from 'cors';
 import jwt from "jsonwebtoken";
 import cassandra from 'cassandra-driver';
@@ -30,7 +30,7 @@ app.use(cors({
 app.use(express.json());
 
 let taskRepo;
-let taskChannel;
+let taskChannel: Channel;
 let instanceQ;
 
 /**
@@ -75,7 +75,7 @@ amqp.connect('amqp://localhost', function(error0, connection) {
     });
 });
 
-app.get('/users/:userId/recentActivity/:limit', verifyToken, async (req, res) => {
+app.get('/users/:userId/recentActivity/:limit', async (req, res) => {
     client.execute('SELECT * FROM actions;').then(result => {
         res.send(result.rows);
     })

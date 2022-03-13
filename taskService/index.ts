@@ -214,6 +214,20 @@ app.post('/organizations/:organizationId/projects', async(req, res) => {
 app.post('/organizations', async(req, res) => {
     let session = driver.session();
     session.run('' +
+        'CREATE p=(o:Organization {name: $name}) ' +
+        'WITH COLLECT(p) AS ps ' +
+        'CALL apoc.convert.toTree(ps) YIELD value ' +
+        'RETURN value;',{
+        name: req.body.name
+        }).then( (result: any) => {
+            session.close();
+            res.send(result.records[0]);
+    })
+})
+
+app.post('/organizations/createAndJoin', async(req, res) => {
+    let session = driver.session();
+    session.run('' +
         'CREATE (o:Organization {name: $name}) RETURN o;', {
         name: req.body.name
     }).then((result:any) => {

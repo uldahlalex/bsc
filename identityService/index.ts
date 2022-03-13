@@ -7,6 +7,7 @@ import mongoose from "mongoose";
 import express from "express";
 import grpc from 'grpc';
 import * as grpcServer from './grpc.server';
+import {read} from "fs";
 
 const taskProto = grpc.load('./protos/task.proto')
 const argv = minimist(process.argv.slice(1));
@@ -119,7 +120,28 @@ app.post("/register", async (req, res) => {
         }
     });
 
+app.patch('/joinOrganization', async (req, res) => {
 
+    const token =
+        req.body.token || req.query.token || req.headers["x-access-token"];
+    if (!token) {
+        console.log('Token needed')
+        return res.status(403).send("A token is required for authentication");
+    }
+    const decoded = jwt.verify(token, argv['secret']);
+    const readable = decoded as Token;
+    try {
+        await User
+            .findByIdAndUpdate(readable.user_id, {organizationId: req.body.organizationId}).exec().then(
+                result => {
+                    res.send(result)
+                }
+            )
+    } catch(e) {
+        console.log(e)
+    }
+
+})
 
 app.post("/login", async (req, res) => {
     try {
@@ -148,8 +170,6 @@ app.post("/login", async (req, res) => {
                     expiresIn: "1000d",
                 }
             );
-            console.log(jwt.decode(user.token));
-            console.log(user);
             user.hash = '';
             return res.status(200).json(user);
         }
@@ -184,7 +204,6 @@ httpServer.listen(port, () => {
 
 function verifyToken(...role) {
     return (req, res, next) => {
-        console.log(role)
         const token =
             req.body.token || req.query.token || req.headers["x-access-token"];
 

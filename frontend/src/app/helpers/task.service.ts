@@ -9,7 +9,8 @@ export class TaskService {
 
   constructor(private http: HttpClient) { }
 
-  baseUrl = 'http://localhost:3001/'
+  baseUrl = 'http://localhost:3001/';
+  identityUrl = 'http://localhost:3002/';
 
   getOrganizations() {
     return this.http.get<any[]>(this.baseUrl+'organizations');
@@ -32,8 +33,8 @@ export class TaskService {
   newProject(organizationId, project) {
     return this.http.post<any>(this.baseUrl+'organizations/'+organizationId+'/projects/', project);
   }
-  createNewOrganization(org, userId) {
-    return this.http.post<any>(this.baseUrl+'organizations/', {name: org.name,userId: userId});
+  createNewOrganization(org) {
+    return this.http.post<any>(this.baseUrl+'organizations/', org);
   }
   createNewTask(organizationId, projectId, task) {
     return this.http.post<any>(this.baseUrl+'organizations/'+organizationId+'/projects/'+projectId+'/tasks',task);
@@ -47,5 +48,7 @@ export class TaskService {
   deleteTasks(organizationId, projectId, taskId) {
     return this.http.delete<any>(this.baseUrl+'organizations/'+organizationId+'/projects/'+projectId+'/tasks/'+taskId);
   }
-
+  joinOrganization(organizationId) {
+    return this.http.patch<any>(this.identityUrl+'joinOrganization/', organizationId);
+  }
 }

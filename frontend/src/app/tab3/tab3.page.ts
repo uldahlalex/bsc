@@ -14,6 +14,7 @@ export class Tab3Page {
 
   organizationName = new FormControl('');
   decoded_token: Token;
+  user_org;
   organizations;
 
   constructor(private http: HttpClient,
@@ -23,15 +24,37 @@ export class Tab3Page {
     this.decoded_token = JSON.parse(localStorage.getItem('decoded_token'));
     taskService.getOrganizations().subscribe(sub => {
       this.organizations = sub;
+      console.log(sub);
+      sub.forEach(each => {
+        if(each._fields[0]._id.low == this.decoded_token.organization) {
+          console.log("Match")
+          this.user_org = each._fields[0];
+
+        }
+      })
+    console.log(this.user_org);
     })
   }
 
   newOrganization() {
-    let userId = this.decoded_token.user_id;
     let org = {
-      name: "Uldahl"
+      name: this.organizationName.value
     };
-    this.taskService.createNewOrganization(org, userId);
+    this.taskService.createNewOrganization(org).subscribe(sub => {
+      if (this.organizations != null) {
+        this.organizations.push(sub)
+      } else {
+        this.organizations = [];
+        this.organizations.push(sub);
+      }
+      }
+    )
+  }
+
+  joinOrganization(orgId) {
+    this.taskService.joinOrganization(orgId).subscribe(sub => {
+      console.log(sub);
+    })
   }
 
   logout() {
