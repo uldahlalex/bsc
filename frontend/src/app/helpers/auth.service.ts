@@ -39,6 +39,11 @@ export class AuthService {
     return !this.isLoggedIn();
   }
 
+
+  joinOrganization(organizationId) {
+    return this.http.put<any>('http://localhost:3002/joinOrganization/', {organizationId: organizationId, token: localStorage.getItem('id_token')});
+  }
+
 }
 
 export class Token {

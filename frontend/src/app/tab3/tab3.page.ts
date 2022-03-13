@@ -24,10 +24,8 @@ export class Tab3Page {
     this.decoded_token = JSON.parse(localStorage.getItem('decoded_token'));
     taskService.getOrganizations().subscribe(sub => {
       this.organizations = sub;
-      console.log(sub);
       sub.forEach(each => {
         if(each._fields[0]._id.low == this.decoded_token.organization) {
-          console.log("Match")
           this.user_org = each._fields[0];
 
         }
@@ -52,8 +50,13 @@ export class Tab3Page {
   }
 
   joinOrganization(orgId) {
-    this.taskService.joinOrganization(orgId).subscribe(sub => {
-      console.log(sub);
+    this.authService.joinOrganization(orgId).subscribe(sub => {
+      this.organizations.forEach(each => {
+        if(each._fields[0]._id.low == sub.organizationId) {
+          this.user_org = each._fields[0];
+        }
+      })
+      console.log(this.user_org);
     })
   }
 

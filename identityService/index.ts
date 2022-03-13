@@ -120,8 +120,7 @@ app.post("/register", async (req, res) => {
         }
     });
 
-app.patch('/joinOrganization', async (req, res) => {
-
+app.put('/joinOrganization', async (req, res) => {
     const token =
         req.body.token || req.query.token || req.headers["x-access-token"];
     if (!token) {
@@ -132,7 +131,7 @@ app.patch('/joinOrganization', async (req, res) => {
     const readable = decoded as Token;
     try {
         await User
-            .findByIdAndUpdate(readable.user_id, {organizationId: req.body.organizationId}).exec().then(
+            .findByIdAndUpdate(readable.user_id, {organizationId: req.body.organizationId}, {new: true}).exec().then(
                 result => {
                     res.send(result)
                 }
