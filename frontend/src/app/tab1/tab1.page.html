@@ -1,11 +1,11 @@
 
 <ion-content class="ion-padding">
 
-<ion-list>
+<ion-list *ngIf="activity!=undefined" >
   <ion-list-header>Your latest actions
   </ion-list-header>
-  <ion-item>
-    You did XYZ
+  <ion-item *ngFor="let a of activity">
+    {{a | json}}
   </ion-item>
 </ion-list>
 
