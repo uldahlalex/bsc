@@ -51,9 +51,11 @@ export class Tab3Page {
 
   joinOrganization(orgId) {
     this.authService.joinOrganization(orgId).subscribe(sub => {
+      //also revoke and place new token at this step
       this.organizations.forEach(each => {
         if(each._fields[0]._id.low == sub.organizationId) {
           this.user_org = each._fields[0];
+
         }
       })
       console.log(this.user_org);

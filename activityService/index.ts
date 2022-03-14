@@ -44,8 +44,8 @@ amqp.connect('amqp://localhost', function(error0, connection) {
         if (error1) {
             throw error1;
         }
-        var exchange = 'topic_logs';
-
+        var exchange = 'topic_logs'; //Exhanges route messages to queues using routing keys (binding = link between queue and exchange)
+        //channels are used for publishing or consuming messages from a queue
         channel.assertExchange(exchange, 'topic', {
             durable: false
         });

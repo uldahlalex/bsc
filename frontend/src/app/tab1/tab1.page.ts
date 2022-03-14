@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
-import {ActivityService} from "../helpers/activity.service";
-import {AuthService} from "../helpers/auth.service";
+import {Activity, ActivityService} from "../helpers/activity.service";
+import jwt_decode from "jwt-decode";
+import {FormControl} from "@angular/forms";
+
 @Component({
   selector: 'app-tab1',
   templateUrl: 'tab1.page.html',
@@ -8,17 +10,34 @@ import {AuthService} from "../helpers/auth.service";
 })
 export class Tab1Page {
 
-  activity;
+  userActivity: Activity[];
+  token: Token;
+  results = new FormControl(50);
 
-  constructor(private activityService: ActivityService, private authService: AuthService) {
-    this.getActivities();
-  }
+  constructor(private activityService: ActivityService) {
+    this.token = jwt_decode(localStorage.getItem('id_token'));
 
-  getActivities() {
-    this.activityService.getAcitivity(this.authService.decodedToken.user_id).subscribe(sub => {
-      this.activity = sub;
-      console.log(sub);
+    this.activityService.getUserActivity(this.token.user_id, this.results.value).subscribe(sub => {
+      this.userActivity = sub;
     })
+    /*this.activityService.getOrganizationActivity(this.token.organization, this.results.value).subscribe(sub => {
+      this.organizationActivity = sub;
+    })*/
   }
 
+  showUser = true;
+  toggleUser() {
+    this.showUser = !this.showUser;
+  }
+
+  filterReads = false;
+  toggleFilterReads() {
+    this.filterReads = !this.filterReads;
+  }
+
+}
+export class Token {
+  exp: number;
+  user_id: string;
+  organization: number;
 }
