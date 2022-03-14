@@ -7,6 +7,7 @@ import amqp, {Channel} from 'amqplib/callback_api';
 import neo4j from 'neo4j-driver';
 import cors from 'cors';
 import jwt from "jsonwebtoken";
+import {read} from "fs";
 
 const app = express();
 const server = http.createServer(app)
@@ -132,7 +133,7 @@ app.get('/organizations/:organizationId/projects/:projectId', async(req, res) =>
     })
 })
 
-app.get('/organizations/:organizationId/projects/:projectId/tasks', async (req, res) => {
+app.get('/organizations/:organizationId/projects/:projectId/tasks', emitToActivityService("hey"), async (req, res) => {
     let session = driver.session();
     session.run('' +
         'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
@@ -370,21 +371,28 @@ app.delete('/organizations/:organizationId/projects/:projectId/tasks/:taskId', a
     })
 })
 
-app.get('/emit', emitToActivityService("emit method"), async (req, res) => {
-    res.send('Sent');
-})
-
 server.listen(port, () => {
     console.log('now listening on port ' + port)
 })
 
-function emitToActivityService(...data) {
+function emitToActivityService(...message) {
     return (req, res, next) => {
+        //console.log(req);
+        const token =
+            req.body.token || req.query.token || req.headers["x-access-token"];
+        const decoded = jwt.verify(token, argv['secret']);
+        const readable = decoded as Token;
         let dto = {
-            params: req.params,
-            body: req.body
+            userid: readable.user_id,
+            organizationid: readable.organization,
+            //eventtime written upon persistence using CQL query
+            actiontype: req.method,
+            bodyitems: req.body,
+            endpoint: req.route.path,
+            service: 'task'
         };
-        taskChannel.publish('topic_logs', 'topic.critical', Buffer.from(dto.toString()));
+        console.log(dto);
+        taskChannel.publish('topic_logs', 'topic.critical', Buffer.from(JSON.stringify(dto.toString())));
         return next();
     }
 }

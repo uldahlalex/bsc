@@ -63,9 +63,12 @@ amqp.connect('amqp://localhost', function(error0, connection) {
             });
 
             channel.consume(q.queue, function(msg) {
-                console.log(" [x] %s:'%s'", msg.fields.routingKey, msg.content.toString());
+                console.log(" [x] %s:'%s'", msg.fields.routingKey);
+                let dto = JSON.stringify(msg.content);
+                console.log(dto.toString());
+
                 client.execute('SELECT * FROM actions;').then(res => {
-                    console.log(res.rows)
+
                 })
             }, {
                 noAck: true
