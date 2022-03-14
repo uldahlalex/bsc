@@ -15,6 +15,7 @@ export class AuthService {
   login(email:string, password:string ) {
     return this.http.post<any>('http://localhost:3002/login', {email, password})
       .subscribe(res => {
+        console.log(res);
         this.decodedToken = jwt_decode(res.token);
         console.log(this.decodedToken);
         localStorage.setItem('id_token', res.token);

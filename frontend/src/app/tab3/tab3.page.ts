@@ -34,7 +34,6 @@ export class Tab3Page {
 
         }
       })
-    console.log(this.user_org);
     })
   }
 
@@ -62,7 +61,6 @@ export class Tab3Page {
 
         }
       })
-      console.log(this.user_org);
     })
   }
 

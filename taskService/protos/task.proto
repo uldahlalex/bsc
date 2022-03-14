@@ -3,6 +3,15 @@ syntax = "proto3";
 service TaskService {
     rpc GetUserInfoForTasks(AuthorId) returns (UserInfo) { }
     rpc JoinOrganizationUponCreation(JoinOrgExchange) returns (JoinOrgExchangeConfirmation) { }
+    rpc AddUserDataToTaskListForProject(ListOfUserIdsInOrder) returns (ListOfUserDataInOrder) { }
+}
+
+message ListOfUserIdsInOrder {
+
+}
+
+message ListOfUserDataInOrder {
+
 }
 
 message AuthorId {

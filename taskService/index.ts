@@ -145,6 +145,50 @@ app.get('/organizations/:organizationId/projects/:projectId/tasks', emitToActivi
     } )
 })
 
+type Task = {
+    user_id: string
+    email: string
+    roles: [Task], //this is the key to working with the task object recursively when fetching user info??
+    organization: string
+    iat: number,
+    exp: number
+}
+
+app.get('/organizations/:organizationId/projects/:projectId/tasksWithUserdata', emitToActivityService('T'), async (req, res) => {
+    let session = driver.session();
+    session.run('' +
+        'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
+        'WITH o as organization\n' +
+        'MATCH (p:Project)<-[:CHILDREN]-(organization) WHERE ID(p)=$projectId\n' +
+        'WITH p as projects\n' +
+        'MATCH collect=(projects)-[:CHILDREN*]->(t:Task)\n' +
+        'WITH COLLECT(collect) AS ps\n' +
+        'CALL apoc.convert.toTree(ps) YIELD value\n' +
+        'RETURN value;', {
+        organizationId: Number(req.params.organizationId),
+        projectId: Number(req.params.projectId)
+    }).then( (result: any) => {
+        session.close();
+        try {
+            grpcClient.addUserDataToTaskListForProject(
+                {
+                    userList: [1,2,3]
+                }, (grpcError, grpcResult) => {
+                    if (!grpcError) {
+                        console.log('Successfully updated org ID for user')
+                        console.log(grpcResult)
+                        res.send(grpcResult)
+                    } else {
+                        //ROLLBACK
+                    }
+                })
+        } catch (e) {
+
+        }
+        res.send(result.records[0]._fields[0].children) //Should not be reached if
+    } )
+})
+
 app.put('/organizations/:organizationId/projects/:projectId/tasks/:taskId/markTaskAsDone', emitToActivityService('T'), async (req, res) => {
     let session = driver.session();
     session.run('' +
@@ -266,6 +310,7 @@ app.post('/organizations/createAndJoin', emitToActivityService('T'), async(req, 
 
 app.post('/organizations/:organizationId/projects/:projectId/tasks', emitToActivityService('T'), async (req, res) => {
     let session = driver.session();
+    const decoded = jwt.verify(req.body.token || req.query.token || req.headers["x-access-token"], argv['secret']) as Token;
     session.run('' +
         'MATCH (o:Organization) WHERE ID(o)=$organizationId \n' +
         'WITH o as organization \n' +
@@ -274,7 +319,8 @@ app.post('/organizations/:organizationId/projects/:projectId/tasks', emitToActiv
         'CREATE collect=(t:Task {' +
         'name: $name, ' +
         'description: $description, ' +
-        'createdAt: datetime() ' +
+        'createdAt: datetime(), ' +
+        'createdBy: $createdBy ' +
         '})<-[:CHILDREN]-(project) ' +
         'WITH COLLECT(collect) AS ps\n' +
         'CALL apoc.convert.toTree(ps) YIELD value\n' +
@@ -283,7 +329,8 @@ app.post('/organizations/:organizationId/projects/:projectId/tasks', emitToActiv
             organizationId: Number(req.params.organizationId),
             projectId: Number(req.params.projectId),
             name: req.body.name,
-            description: req.body.description
+            description: req.body.description,
+            createdBy: decoded.user_id
         })
         .then((result: any)  => {
             session.close();
@@ -295,6 +342,7 @@ app.post('/organizations/:organizationId/projects/:projectId/tasks', emitToActiv
 
 app.post('/organizations/:organizationId/projects/:projectId/tasks/:taskId/subtask', emitToActivityService('T'), async (req, res) => {
     let session = driver.session();
+    const decoded = jwt.verify(req.body.token || req.query.token || req.headers["x-access-token"], argv['secret']) as Token;
     session.run('' +
         'MATCH (o:Organization) WHERE ID(o)=$organizationId \n' +
         'WITH o as organization \n' +
@@ -305,7 +353,8 @@ app.post('/organizations/:organizationId/projects/:projectId/tasks/:taskId/subta
         'CREATE collect=(t:Task {' +
         'name: $name, ' +
         'description: $description, ' +
-        'createdAt: datetime() ' +
+        'createdAt: datetime(), ' +
+        'createdBy: $createdBy ' +
         '})<-[:CHILDREN]-(task)\n' +
         'WITH COLLECT(collect) AS ps\n' +
         'CALL apoc.convert.toTree(ps) YIELD value\n' +
@@ -314,7 +363,8 @@ app.post('/organizations/:organizationId/projects/:projectId/tasks/:taskId/subta
         projectId: Number(req.params.projectId),
         taskId: Number(req.params.taskId),
         name: req.body.name,
-        description: req.body.description
+        description: req.body.description,
+        createdBy: decoded.user_id
     }).then((result: any)  => {
         session.close();
         let dto = result.records[0]._fields[0];
