@@ -1,30 +1,71 @@
 <ion-toolbar>
   <ion-title *ngIf="!showUser">Activity for your organization</ion-title>
   <ion-title *ngIf="showUser">Activity for you</ion-title>
-  <ion-button size="small" (click)="toggleUser()" *ngIf="showUser" fill="clear"><ion-icon name="people-outline"></ion-icon>&nbsp;Show actions for your organization</ion-button>
-  <ion-button size="small" (click)="toggleUser()" *ngIf="!showUser" fill="clear"><ion-icon name="person-outline"></ion-icon>&nbsp;Show actions for you</ion-button>
+  <ion-button size="small" (click)="toggleUser()" *ngIf="showUser" fill="clear">
+    <ion-icon name="people-outline"></ion-icon>&nbsp;Show actions for your organization
+  </ion-button>
+  <ion-button size="small" (click)="toggleUser()" *ngIf="!showUser" fill="clear">
+    <ion-icon name="person-outline"></ion-icon>&nbsp;Show actions for you
+  </ion-button>
+
 </ion-toolbar>
 
 <ion-content class="ion-padding">
 
-<ion-grid *ngIf="userActivity!=undefined">
-  <ion-row *ngFor="let a of userActivity">
-    <ion-col>
-      {{a.eventtime}}
-    </ion-col>
-    <ion-col>
-      {{a.actiontype}}
-    </ion-col>
-    <ion-col>
-      {{a.service}}
-    </ion-col>
-    <ion-col>
-      {{a.bodyitems}}
-    </ion-col>
-    <ion-col>
-      {{a.endpoint}}
-    </ion-col>
-  </ion-row>
-</ion-grid>
+
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <ion-item lines="none">
+          <ion-toggle [(ngModel)]="filterReads"></ion-toggle>
+          Filter reads
+        </ion-item>
+      </ion-col>
+      <ion-col size="2">
+        <ion-item lines="none">
+          <ion-label position="floating"># Results</ion-label>
+          &nbsp;<ion-input placeholder="Results to show" type="number" [formControl]="results"></ion-input>
+        </ion-item>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <ion-grid *ngIf="activities!=undefined">
+
+    <ion-row>
+      <ion-col>
+        Time
+      </ion-col>
+      <ion-col>
+
+      </ion-col>
+    </ion-row>
+
+    <ion-row *ngFor="let a of activities">
+      <section style="display: contents;" *ngIf="!(a.actiontype=='GET' && filterReads)">
+        <ion-col size="2">
+          {{a.eventtime.toLocaleDateString()}}<br>
+          {{a.eventtime.toLocaleTimeString()}}
+
+        </ion-col>
+        <ion-col size="1">
+          {{a.actiontype}}
+        </ion-col>
+        <ion-col size="1">
+          {{a.service}}
+        </ion-col>
+        <ion-col>
+      <span *ngIf="a.actiontype!='GET'">
+        {{a.bodyitems}}
+      </span>
+        </ion-col>
+        <ion-col>
+          {{a.endpoint}}
+        </ion-col>
+      </section>
+
+    </ion-row>
+  </ion-grid>
 
 </ion-content>
+

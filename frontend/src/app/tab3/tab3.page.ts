@@ -3,6 +3,9 @@ import {HttpClient, HttpParams} from "@angular/common/http";
 import {AuthService, Token} from "../helpers/auth.service";
 import {TaskService} from "../helpers/task.service";
 import {FormControl} from "@angular/forms";
+import {PopoverController} from "@ionic/angular";
+import {EditTaskStatusComponent} from "../tree/minicomponents/editTaskStatus.component";
+import {AboutComponent} from "../tree/minicomponents/about.component";
 
 
 @Component({
@@ -19,7 +22,8 @@ export class Tab3Page {
 
   constructor(private http: HttpClient,
               private authService: AuthService,
-              private taskService: TaskService) {
+              private taskService: TaskService,
+              private popoverController: PopoverController) {
     this.authService.login('alex@uldahl.dk', '1234');
     this.decoded_token = JSON.parse(localStorage.getItem('decoded_token'));
     taskService.getOrganizations().subscribe(sub => {
@@ -64,6 +68,13 @@ export class Tab3Page {
 
   logout() {
     this.authService.logout();
+  }
+
+  async openAbout() {
+    const popover = await this.popoverController.create({
+      component: AboutComponent,
+    });
+    await popover.present();
   }
 }
 

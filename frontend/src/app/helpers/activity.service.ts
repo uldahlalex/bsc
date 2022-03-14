@@ -11,16 +11,18 @@ export class ActivityService {
 
   activityUrl = 'http://localhost:3003/';
 
-  getUserActivity(userId, numberOfRecords) {
-    return this.http.get(this.activityUrl+'users/'+userId+'/recentActivity/'+numberOfRecords).pipe(
+  getActivity(userId, numberOfRecords, forUser, organizationId) {
+    let query;
+    if(forUser==true) {
+      query = this.http.get(this.activityUrl+'recentActivity/'+numberOfRecords+'/forUser/'+forUser+'/'+userId);
+    } else {
+      query = this.http.get(this.activityUrl+'recentActivity/'+numberOfRecords+'/forUser/'+forUser+'/'+organizationId);
+    }
+    return query.pipe(
       map(((clients: Activity[]) => clients.map(client => {
         client.eventtime = new Date(client.eventtime)
         return client;
       }))))
-  }
-
-  getOrganizationActivity(organizationId, numberOfRecords) {
-    return this.http.get<any[]>(this.activityUrl+'organizations/'+organizationId+'/recentActivity/'+numberOfRecords);
   }
 }
 

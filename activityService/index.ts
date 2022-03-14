@@ -33,6 +33,17 @@ let taskRepo;
 let taskChannel: Channel;
 let instanceQ;
 
+export interface Activity {
+    actiontype: string;
+    bodyitems: string;
+    endpoint: string;
+    eventtime: Date;
+    organizationid: number;
+    service: string;
+    userid: string;
+}
+
+
 /**
  * PERSIST DATA TO CASSANDRA UPON AMQP MESSAGES
  */
@@ -63,13 +74,18 @@ amqp.connect('amqp://localhost', function(error0, connection) {
             });
 
             channel.consume(q.queue, function(msg) {
-                console.log(" [x] %s:'%s'", msg.fields.routingKey);
-                let dto = JSON.stringify(msg.content);
-                console.log(dto.toString());
-
-                client.execute('SELECT * FROM actions;').then(res => {
-
-                })
+                const activity = JSON.parse((msg.content.toString('utf8'))) as Activity;
+                activity.bodyitems = JSON.stringify(activity.bodyitems).toString();
+                const query = 'INSERT INTO actions (actiontype, bodyitems, endpoint, eventtime, organizationid, service, userid) VALUES (?, ?, ?, ?, ?, ?, ?);';
+                client.execute(query, [
+                    activity.actiontype,
+                    activity.bodyitems,
+                    activity.endpoint,
+                    new Date(),
+                    activity.organizationid,
+                    activity.service,
+                    activity.userid
+                ]);
             }, {
                 noAck: true
             });
@@ -77,9 +93,32 @@ amqp.connect('amqp://localhost', function(error0, connection) {
         taskChannel = channel;
     });
 });
+function uint16 (n) {
+    return n & 0xFFFF;
+}
 
-app.get('/users/:userId/recentActivity/:limit', async (req, res) => {
-    client.execute('SELECT * FROM actions;').then(result => {
+
+/**
+ * JWT bliver alligevel attached ved alle requests fra front-end, så at injecte userId er måske kontraproduktivt?
+ * UID ikke heltal
+ */
+app.get('/recentActivity/:numberOfRecords/forUser/:forUser/:entityId', verifyToken('Member'), async (req, res) => {
+    let query;
+    let entityId;
+    const decoded = jwt.verify(req.body.token || req.query.token || req.headers["x-access-token"], argv['secret']) as Token;
+    if(req.params.forUser=='true') {
+        entityId = decoded.user_id
+        query = 'SELECT * FROM actions WHERE userid = ? LIMIT ?;';
+    } else {
+        entityId = Number(req.params.entityId);
+        query = 'SELECT * FROM actions WHERE organizationid = ? LIMIT ?;';
+    }
+    let limit = Number(req.params.numberOfRecords);
+
+    client.execute(query, [
+        entityId,
+        limit,
+    ], {prepare: true}).then(result => {
         res.send(result.rows);
     })
 })
@@ -92,7 +131,6 @@ server.listen(port, () => {
 
 function verifyToken(...role) {
     return (req, res, next) => {
-        console.log(role)
         const token =
             req.body.token || req.query.token || req.headers["x-access-token"];
 

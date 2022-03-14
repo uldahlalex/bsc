@@ -1,6 +1,7 @@
 <ion-toolbar>
   <ion-title *ngIf="user_org!=undefined">{{user_org.name}}</ion-title>
-  <ion-button slot="end" fill="clear" (click)="logout()"><ion-icon name="log-out-outline"></ion-icon>&nbsp;Logout</ion-button>
+  <ion-button size="small" slot="end" fill="clear" (click)="logout()"><ion-icon name="log-out-outline"></ion-icon>&nbsp;Logout</ion-button>
+  <ion-button size="small" slot="start" fill="clear" (click)="openAbout()"><ion-icon name="information-circle-outline"></ion-icon>&nbsp;About</ion-button>
 </ion-toolbar>
 
 <ion-content [fullscreen]="true">

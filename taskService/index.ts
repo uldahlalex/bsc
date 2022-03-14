@@ -56,12 +56,6 @@ amqp.connect('amqp://localhost', function(error0, connection) {
                 channel.bindQueue(q.queue, exchange, key);
             });
 
-            channel.consume(q.queue, function(msg) {
-                console.log(" [x] %s:'%s'", msg.fields.routingKey, msg.content.toString());
-            }, {
-                noAck: true
-            });
-
         });
         taskChannel = channel;
     });
@@ -85,8 +79,7 @@ app.get('/tasks/something', async (req, res) => {
     taskChannel.publish("topic_logs", "yada.critical", Buffer.from('not topic message - but very critical'))
 })
  */
-app.get('/organizations', async(req, res, next) => {
-
+app.get('/organizations', emitToActivityService('T'), async(req, res, next) => {
     let session = driver.session();
     session.run('' +
         'MATCH collect=(o:Organization)\n' +
@@ -98,7 +91,7 @@ app.get('/organizations', async(req, res, next) => {
         })
 })
 
-app.get('/organizations/:organizationId/projects', async(req, res) => {
+app.get('/organizations/:organizationId/projects', emitToActivityService('T'), async(req, res) => {
     let session = driver.session();
     session.run('' +
         'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
@@ -114,7 +107,7 @@ app.get('/organizations/:organizationId/projects', async(req, res) => {
     })
 })
 
-app.get('/organizations/:organizationId/projects/:projectId', async(req, res) => {
+app.get('/organizations/:organizationId/projects/:projectId', emitToActivityService('T'), async(req, res) => {
     let session = driver.session();
     session.run('' +
         'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
@@ -133,7 +126,7 @@ app.get('/organizations/:organizationId/projects/:projectId', async(req, res) =>
     })
 })
 
-app.get('/organizations/:organizationId/projects/:projectId/tasks', emitToActivityService("hey"), async (req, res) => {
+app.get('/organizations/:organizationId/projects/:projectId/tasks', emitToActivityService('T'), async (req, res) => {
     let session = driver.session();
     session.run('' +
         'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
@@ -152,7 +145,7 @@ app.get('/organizations/:organizationId/projects/:projectId/tasks', emitToActivi
     } )
 })
 
-app.put('/organizations/:organizationId/projects/:projectId/tasks/:taskId/markTaskAsDone', async (req, res) => {
+app.put('/organizations/:organizationId/projects/:projectId/tasks/:taskId/markTaskAsDone', emitToActivityService('T'), async (req, res) => {
     let session = driver.session();
     session.run('' +
         'MATCH (o:Organization) WHERE ID(o)=$organizationId \n' +
@@ -172,7 +165,7 @@ app.put('/organizations/:organizationId/projects/:projectId/tasks/:taskId/markTa
     })
 })
 
-app.put('/organizations/:organizationId/projects/:projectId/tasks/:taskId/markTaskAsUnDone', async (req, res) => {
+app.put('/organizations/:organizationId/projects/:projectId/tasks/:taskId/markTaskAsUnDone', emitToActivityService('T'), async (req, res) => {
     let session = driver.session();
     session.run('' +
         'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
@@ -192,8 +185,7 @@ app.put('/organizations/:organizationId/projects/:projectId/tasks/:taskId/markTa
     })
 })
 
-app.post('/organizations/:organizationId/projects', async(req, res) => {
-    console.log('reached')
+app.post('/organizations/:organizationId/projects', emitToActivityService('T'), async(req, res) => {
     let session = driver.session();
     session.run('' +
         'MATCH (o: Organization) WHERE ID(o)=$organizationId\n' +
@@ -213,7 +205,7 @@ app.post('/organizations/:organizationId/projects', async(req, res) => {
     })
 })
 
-app.post('/organizations', async(req, res) => {
+app.post('/organizations', emitToActivityService('T'), async(req, res) => {
     let session = driver.session();
     session.run('' +
         'CREATE p=(o:Organization {name: $name}) ' +
@@ -227,7 +219,7 @@ app.post('/organizations', async(req, res) => {
     })
 })
 
-app.post('/organizations/createAndJoin', async(req, res) => {
+app.post('/organizations/createAndJoin', emitToActivityService('T'), async(req, res) => {
     let session = driver.session();
     session.run('' +
         'CREATE (o:Organization {name: $name}) RETURN o;', {
@@ -272,7 +264,7 @@ app.post('/organizations/createAndJoin', async(req, res) => {
     })
 })
 
-app.post('/organizations/:organizationId/projects/:projectId/tasks', async (req, res) => {
+app.post('/organizations/:organizationId/projects/:projectId/tasks', emitToActivityService('T'), async (req, res) => {
     let session = driver.session();
     session.run('' +
         'MATCH (o:Organization) WHERE ID(o)=$organizationId \n' +
@@ -301,7 +293,7 @@ app.post('/organizations/:organizationId/projects/:projectId/tasks', async (req,
         })
 })
 
-app.post('/organizations/:organizationId/projects/:projectId/tasks/:taskId/subtask', async (req, res) => {
+app.post('/organizations/:organizationId/projects/:projectId/tasks/:taskId/subtask', emitToActivityService('T'), async (req, res) => {
     let session = driver.session();
     session.run('' +
         'MATCH (o:Organization) WHERE ID(o)=$organizationId \n' +
@@ -331,7 +323,7 @@ app.post('/organizations/:organizationId/projects/:projectId/tasks/:taskId/subta
     })
 })
 
-app.delete('/organizations/:organizationId/projects/:projectId/tasks/:taskId/subtask', async(req, res) => {
+app.delete('/organizations/:organizationId/projects/:projectId/tasks/:taskId/subtask', emitToActivityService('T'), async(req, res) => {
     let session = driver.session();
     session.run('' +
         'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
@@ -351,7 +343,7 @@ app.delete('/organizations/:organizationId/projects/:projectId/tasks/:taskId/sub
     })
 })
 
-app.delete('/organizations/:organizationId/projects/:projectId/tasks/:taskId', async(req, res) => {
+app.delete('/organizations/:organizationId/projects/:projectId/tasks/:taskId', emitToActivityService('T'), async(req, res) => {
     let session = driver.session();
     session.run('' +
         'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
@@ -376,30 +368,27 @@ server.listen(port, () => {
 })
 
 function emitToActivityService(...message) {
+
     return (req, res, next) => {
-        //console.log(req);
         const token =
             req.body.token || req.query.token || req.headers["x-access-token"];
-        const decoded = jwt.verify(token, argv['secret']);
-        const readable = decoded as Token;
+        const readable = jwt.verify(token, argv['secret']) as Token;
         let dto = {
             userid: readable.user_id,
             organizationid: readable.organization,
-            //eventtime written upon persistence using CQL query
+            //eventtime: new Date(),
             actiontype: req.method,
             bodyitems: req.body,
             endpoint: req.route.path,
             service: 'task'
         };
-        console.log(dto);
-        taskChannel.publish('topic_logs', 'topic.critical', Buffer.from(JSON.stringify(dto.toString())));
+        taskChannel.publish('topic_logs', 'topic.critical', Buffer.from(JSON.stringify(dto)));
         return next();
     }
 }
 
 function verifyToken(...role) {
     return (req, res, next) => {
-        console.log(role)
         const token =
             req.body.token || req.query.token || req.headers["x-access-token"];
 

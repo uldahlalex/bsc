@@ -51,11 +51,12 @@
             <ion-col size="7">
               <ion-button color="dark" *ngIf="task.description">
                 <ion-icon name="create-outline"></ion-icon>
-              </ion-button>&nbsp;<b></b>{{task.description}}
+              </ion-button>&nbsp;{{task.description}}
             </ion-col>
             <ion-col  size="5">
                 <ion-button style="float: right" (click)="openAddTaskPopover(projectId, true, task)">
-                  <ion-icon name="add-outline"></ion-icon></ion-button>
+                  <ion-icon name="add-outline"></ion-icon>
+                </ion-button>
             </ion-col>
           </ion-row>
           <ion-row>
@@ -67,6 +68,17 @@
             </ion-col>
           </ion-row>
         </ion-grid>
+        <ion-toolbar>
+          <ion-button fill="clear" (click)="expandCard(task)">
+            <ion-icon name="expand-outline"></ion-icon>
+          </ion-button>&nbsp;
+          <ion-footer *ngIf="task.showAllProperties">
+            <ion-button disabled="true" style="border-radius: 15px;" size="large" color="light" fill="solid">
+              <ion-icon size="large" name="person-circle-outline"></ion-icon>Made by you
+            </ion-button>
+          </ion-footer>
+        </ion-toolbar>
+
 
       </ion-card-content>
 

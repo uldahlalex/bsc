@@ -10,29 +10,25 @@ import {FormControl} from "@angular/forms";
 })
 export class Tab1Page {
 
-  userActivity: Activity[];
+  activities: Activity[];
   token: Token;
-  results = new FormControl(50);
+  results = new FormControl(100);
+  filterReads = true;
 
   constructor(private activityService: ActivityService) {
     this.token = jwt_decode(localStorage.getItem('id_token'));
-
-    this.activityService.getUserActivity(this.token.user_id, this.results.value).subscribe(sub => {
-      this.userActivity = sub;
-    })
-    /*this.activityService.getOrganizationActivity(this.token.organization, this.results.value).subscribe(sub => {
-      this.organizationActivity = sub;
-    })*/
+    this.fetchActivity();
   }
 
-  showUser = true;
+  fetchActivity() {
+    this.activityService.getActivity(this.token.user_id, this.results.value, this.showUser, this.token.organization).subscribe(sub => {
+      this.activities = sub;
+    })
+  }
+
+  showUser = false;
   toggleUser() {
     this.showUser = !this.showUser;
-  }
-
-  filterReads = false;
-  toggleFilterReads() {
-    this.filterReads = !this.filterReads;
   }
 
 }

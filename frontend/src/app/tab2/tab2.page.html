@@ -1,11 +1,14 @@
 <ion-toolbar>
-  <ion-button *ngIf="showProjects==false" (click)="toggleShowProjects()" fill="clear" slot="start">
+  <ion-title>
+    Projects & Tasks
+  </ion-title>
+  <ion-button size="small" *ngIf="showProjects==false" (click)="toggleShowProjects()" fill="clear" slot="start">
     <ion-icon name="apps-outline"></ion-icon>&nbsp;Show all projects
   </ion-button>
-  <ion-button *ngIf="showProjects==true" (click)="toggleShowProjects()" fill="clear" slot="start">
+  <ion-button size="small" *ngIf="showProjects==true" (click)="toggleShowProjects()" fill="clear" slot="start">
     <ion-icon name="apps-outline"></ion-icon>&nbsp;Hide all projects
   </ion-button>
-  <ion-button slot="end" fill="clear" (click)="newProject()"><ion-icon name="add-outline"></ion-icon>Add new project</ion-button>
+  <ion-button size="small" slot="end" fill="clear" (click)="newProject()"><ion-icon name="add-outline"></ion-icon>Add new project</ion-button>
 </ion-toolbar>
 
 
