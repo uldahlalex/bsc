@@ -164,13 +164,14 @@ app.get('/organizations/:organizationId/projects/:projectId/tasksWithUserdata', 
         tasks.forEach(t => {
             ids.push(t.createdBy);
         })
+        console.log(ids);
         session.close();
 
              grpcClient.addUserDataToTaskListForProject(
                 {
                     userList: ids
                 }, (grpcError, grpcResult) => {
-                    console.log('recieved')
+                    console.log("Returned")
                     console.log(grpcResult)
                     if (!grpcError) {
                         console.log(grpcResult)

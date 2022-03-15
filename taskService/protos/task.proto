@@ -1,7 +1,6 @@
 syntax = "proto3";
 
 service TaskService {
-    rpc GetUserInfoForTasks(AuthorId) returns (UserInfo) { }
     rpc JoinOrganizationUponCreation(JoinOrgExchange) returns (JoinOrgExchangeConfirmation) { }
     rpc AddUserDataToTaskListForProject(ListOfUserIdsInOrder) returns (ListOfUserDataInOrder) { }
 }
@@ -11,23 +10,17 @@ message ListOfUserIdsInOrder {
 }
 
 message ListOfUserDataInOrder {
-    repeated UserInfo users = 1;
+    repeated string first_name = 1;
 }
 
 message AuthorId {
     string authorId = 1;
 }
 
-message UserInfo {
-    string _id = 1;
-    string first_name = 2;
-    string last_name = 3;
-    string email = 4;
-    repeated Role roles = 5;
-}
+message User {
 
-message Role {
-    repeated string role = 1;
+    string first_name = 1;
+
 }
 
 message JoinOrgExchange {

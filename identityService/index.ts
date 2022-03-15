@@ -57,14 +57,34 @@ app.use(cors({
     methods: "GET, PUT, POST, DELETE"
 }))
 
+export interface User {
+    _id: string,
+    first_name: string,
+    last_name: string,
+    email: string,
+    hash: string,
+    roles: [string],
+    __v: number,
+    organizationId: number
+}
+
 
 // @ts-ignore
 grpcServer.server.addService(taskProto.TaskService.service, {
     addUserDataToTaskListForProject: async (call, callback) => {
-        console.log('reached')
-        const [records] = await Promise.all([User.find().where('_id').in(call.request.userList).exec()]);
-        console.log(records)
-        callback(null, records);
+
+        let names = []
+        await User.find({}, 'first_name')
+            .where('_id').in(call.request.userList).exec().then( (res: any) => {
+                res.forEach(r => {
+                    console.log(r.first_name);
+                    names.push(r.first_name)
+                })
+
+            })
+
+
+        callback(null, names);
 }})
 
 
