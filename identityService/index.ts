@@ -25,17 +25,17 @@ type Token = {
 }
 const User = mongoose.model("user",
     new mongoose.Schema({
-    first_name: { type: String, default: null },
-    last_name: { type: String, default: null },
-    email: { type: String, unique: true },
-    hash: {type: String },
-    id: {type: mongoose.Schema.Types.ObjectId},
-    token: {type: String},
-    organizationId: {type: Number },
-    roles: [String]
-}));
+        first_name: {type: String, default: null},
+        last_name: {type: String, default: null},
+        email: {type: String, unique: true},
+        hash: {type: String},
+        id: {type: mongoose.Schema.Types.ObjectId},
+        token: {type: String},
+        organizationId: {type: Number},
+        roles: [String]
+    }));
 
-if(argv['secret']==undefined) {
+if (argv['secret'] == undefined) {
     console.log('No secret defined. Program will close with exit code 1')
     process.exit(1);
 }
@@ -43,14 +43,14 @@ if(argv['secret']==undefined) {
 //mongoose.connect("mongodb://alex:q1w2e3r4@localhost:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false")
 mongoose.connect("mongodb://root:example@localhost:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false")
     .then(
-    () => {
-        console.log('Connected to MongoDB')
+        () => {
+            console.log('Connected to MongoDB')
         },
-    err => {
-        console.log(err)
-    }
-);
-app.use(express.json({ limit: "50mb" }));
+        err => {
+            console.log(err)
+        }
+    );
+app.use(express.json({limit: "50mb"}));
 
 app.use(cors({
     origin: ['http://localhost:8100', 'http://localhost:4200', 'http://localhost:5000'],
@@ -62,9 +62,7 @@ export interface User {
     first_name: string,
     last_name: string,
     email: string,
-    hash: string,
     roles: [string],
-    __v: number,
     organizationId: number
 }
 
@@ -73,60 +71,64 @@ export interface User {
 grpcServer.server.addService(taskProto.TaskService.service, {
     addUserDataToTaskListForProject: async (call, callback) => {
 
-        let names = []
-        await User.find({}, 'first_name')
-            .where('_id').in(call.request.userList).exec().then( (res: any) => {
+        let users: any[] = []
+        await User.find()
+            .where('_id').in(call.request.userList).exec().then((res: any) => {
                 res.forEach(r => {
-                    console.log(r.first_name);
-                    names.push(r.first_name)
+                    let u:any = {};
+                    u._id = r._id.toString();
+                    u.first_name = r.first_name;
+                    u.last_name = r.last_name;
+                    u.email = r.email;
+                    u.roles = r.roles;
+                    u.organizationId = r.organizationId
+                    users.push(u)
                 })
 
             })
-
-
-        callback(null, names);
-}})
-
-
+        console.log(users);
+        callback(null, users);
+    }
+})
 
 
 app.post("/register", async (req, res) => {
-        try {
-            const { first_name, last_name, email, password } = req.body;
+    try {
+        const {first_name, last_name, email, password} = req.body;
 
-            if (!(email && password && first_name && last_name)) {
-                res.status(400).send("Invalid request");
-            }
-
-            if (await User.findOne({ email })) {
-                return res.status(409).send("User Already Exist. Please Login");
-            }
-
-            const encryptedPassword = await bcrypt.hash(password, 10);
-            const roles = ["Member"];
-            const organization = undefined;
-            const user = await User.create({
-                first_name,
-                last_name,
-                email: email.toLowerCase(),
-                hash: encryptedPassword,
-                roles : roles,
-                organization: organization
-            });
-
-            user.token = jwt.sign(
-                {user_id: user._id, email, roles, organization},
-                argv['secret'],
-                {
-                    expiresIn: "10h",
-                }
-            );
-            user.hash = '';
-            return res.status(201).json(user);
-        } catch (err) {
-            console.log(err);
+        if (!(email && password && first_name && last_name)) {
+            res.status(400).send("Invalid request");
         }
-    });
+
+        if (await User.findOne({email})) {
+            return res.status(409).send("User Already Exist. Please Login");
+        }
+
+        const encryptedPassword = await bcrypt.hash(password, 10);
+        const roles = ["Member"];
+        const organization = undefined;
+        const user = await User.create({
+            first_name,
+            last_name,
+            email: email.toLowerCase(),
+            hash: encryptedPassword,
+            roles: roles,
+            organization: organization
+        });
+
+        user.token = jwt.sign(
+            {user_id: user._id, email, roles, organization},
+            argv['secret'],
+            {
+                expiresIn: "10h",
+            }
+        );
+        user.hash = '';
+        return res.status(201).json(user);
+    } catch (err) {
+        console.log(err);
+    }
+});
 
 app.put('/joinOrganization', async (req, res) => {
     const token =
@@ -144,7 +146,7 @@ app.put('/joinOrganization', async (req, res) => {
                     res.send(result)
                 }
             )
-    } catch(e) {
+    } catch (e) {
         console.log(e)
     }
 
@@ -152,7 +154,7 @@ app.put('/joinOrganization', async (req, res) => {
 
 app.post("/login", async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const {email, password} = req.body;
         if (!(email && password)) {
             res.status(400).send("All input is required");
         }
@@ -161,7 +163,7 @@ app.post("/login", async (req, res) => {
         let user = null;
 
         try {
-            user =await User.findOne({ email });
+            user = await User.findOne({email});
             roles = user.roles || null;
             organization = user.organizationId;
         } catch (e) {
@@ -225,7 +227,7 @@ function verifyToken(...role) {
                 req.user = decoded;
                 return next();
             } else {
-                return res.status(401).send('Only '+role+' allowed')
+                return res.status(401).send('Only ' + role + ' allowed')
             }
         } catch (err) {
             return res.status(401).send("Try again");
