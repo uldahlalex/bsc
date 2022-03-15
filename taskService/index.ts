@@ -30,11 +30,11 @@ let taskRepo;
 let taskChannel: Channel;
 let instanceQ;
 
-amqp.connect('amqp://localhost', function(error0, connection) {
+amqp.connect('amqp://localhost', function (error0, connection) {
     if (error0) {
         throw error0;
     }
-    connection.createChannel(function(error1, channel: Channel) {
+    connection.createChannel(function (error1, channel: Channel) {
         if (error1) {
             throw error1;
         }
@@ -46,13 +46,13 @@ amqp.connect('amqp://localhost', function(error0, connection) {
 
         channel.assertQueue('', {
             exclusive: true
-        }, function(error2, q) {
+        }, function (error2, q) {
             if (error2) {
                 throw error2;
             }
             console.log(' [*] Waiting for logs. To exit press CTRL+C');
             const args = ["#", "topic.*", "*.critical"];
-            args.forEach(function(key) {
+            args.forEach(function (key) {
                 channel.bindQueue(q.queue, exchange, key);
             });
 
@@ -79,7 +79,7 @@ app.get('/tasks/something', async (req, res) => {
     taskChannel.publish("topic_logs", "yada.critical", Buffer.from('not topic message - but very critical'))
 })
  */
-app.get('/organizations', emitToActivityService('T'), async(req, res, next) => {
+app.get('/organizations', emitToActivityService('T'), async (req, res, next) => {
     let session = driver.session();
     session.run('' +
         'MATCH collect=(o:Organization)\n' +
@@ -91,7 +91,7 @@ app.get('/organizations', emitToActivityService('T'), async(req, res, next) => {
         })
 })
 
-app.get('/organizations/:organizationId/projects', emitToActivityService('T'), async(req, res) => {
+app.get('/organizations/:organizationId/projects', emitToActivityService('T'), async (req, res) => {
     let session = driver.session();
     session.run('' +
         'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
@@ -101,13 +101,13 @@ app.get('/organizations/:organizationId/projects', emitToActivityService('T'), a
         'CALL apoc.convert.toTree(ps) YIELD value\n' +
         'RETURN value', {
         organizationId: Number(req.params.organizationId),
-    }).then((result:any) => {
+    }).then((result: any) => {
         session.close();
         res.send(result.records[0]._fields[0].children);
     })
 })
 
-app.get('/organizations/:organizationId/projects/:projectId', emitToActivityService('T'), async(req, res) => {
+app.get('/organizations/:organizationId/projects/:projectId', emitToActivityService('T'), async (req, res) => {
     let session = driver.session();
     session.run('' +
         'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
@@ -118,7 +118,7 @@ app.get('/organizations/:organizationId/projects/:projectId', emitToActivityServ
         'RETURN value;', {
         organizationId: Number(req.params.organizationId),
         projectId: Number(req.params.projectId),
-    }).then((result:any) => {
+    }).then((result: any) => {
         session.close();
         let dto = result.records[0]._fields[0];
         dto.children = null;
@@ -139,10 +139,10 @@ app.get('/organizations/:organizationId/projects/:projectId/tasks', emitToActivi
         'RETURN value;', {
         organizationId: Number(req.params.organizationId),
         projectId: Number(req.params.projectId)
-    }).then( (result: any) => {
+    }).then((result: any) => {
         session.close();
         res.send(result.records[0]._fields[0].children)
-    } )
+    })
 })
 
 app.get('/organizations/:organizationId/projects/:projectId/tasksWithUserdata', async (req, res) => {
@@ -158,34 +158,62 @@ app.get('/organizations/:organizationId/projects/:projectId/tasksWithUserdata', 
         'RETURN value;', {
         organizationId: Number(req.params.organizationId),
         projectId: Number(req.params.projectId)
-    }).then( (result: any) => {
-        let tasks: Task[] = result.records[0]._fields[0].children;
-        let ids = [];
-        tasks.forEach(t => {
-            ids.push(t.createdBy);
-        })
-        console.log(ids);
+    }).then((result: any) => {
+        let project = result.records[0]._fields[0];
+
+        let ids: string[] = traverseProjectForAllTaskCreatedBy(project);
+
         session.close();
-
-             grpcClient.addUserDataToTaskListForProject(
-                {
-                    userList: ids
-                }, (grpcError, grpcResult) => {
-                    console.log("Returned")
-                    console.log(grpcResult)
-                    if (!grpcError) {
-                        console.log(grpcResult)
-
-                    } else {
-                        //ROLLBACK
-                    }
-                })
-
-            res.send(tasks) //Should not be reached if
-
-
-    } )
+        grpcClient.addUserDataToTaskListForProject(
+            {
+                userList: ids
+            }, (grpcError, grpcResult) => {
+                if (!grpcError) {
+                    console.log('GRPC RESULT');
+                    console.log(grpcResult);
+                    let result = joinUserDetailsAndTasks(grpcResult.users, project);
+                    res.send(result);
+                } else {
+                    //ROLLBACK
+                }
+            })
+    })
 })
+
+function joinUserDetailsAndTasks(userDetailsArray: any[], project) {
+    console.log(userDetailsArray)
+    let count = 0;
+    innerTraverse(project);
+    function innerTraverse(t) {
+        if (t.children != undefined) {
+            t.children.forEach(each => {
+                each.user = userDetailsArray[count]
+                if (each.children != undefined) {
+                    innerTraverse(each);
+                }
+            })
+        }
+    }
+    return project;
+}
+
+function traverseProjectForAllTaskCreatedBy(project): string[] {
+    let ids = [];
+    innerTraverse(project)
+    function innerTraverse(t) {
+        if (t.children != undefined) {
+            t.children.forEach(each => {
+                ids.push(each.createdBy);
+                if (each.children != undefined) {
+                    innerTraverse(each);
+                }
+            })
+        }
+    }
+    console.log(ids);
+    return ids;
+}
+
 
 app.put('/organizations/:organizationId/projects/:projectId/tasks/:taskId/markTaskAsDone', emitToActivityService('T'), async (req, res) => {
     let session = driver.session();
@@ -202,8 +230,8 @@ app.put('/organizations/:organizationId/projects/:projectId/tasks/:taskId/markTa
         projectId: Number(req.params.projectId),
         taskId: Number(req.params.taskId)
     }).then(result => {
-            session.close();
-            res.send(true);
+        session.close();
+        res.send(true);
     })
 })
 
@@ -227,7 +255,7 @@ app.put('/organizations/:organizationId/projects/:projectId/tasks/:taskId/markTa
     })
 })
 
-app.post('/organizations/:organizationId/projects', emitToActivityService('T'), async(req, res) => {
+app.post('/organizations/:organizationId/projects', emitToActivityService('T'), async (req, res) => {
     let session = driver.session();
     session.run('' +
         'MATCH (o: Organization) WHERE ID(o)=$organizationId\n' +
@@ -239,7 +267,7 @@ app.post('/organizations/:organizationId/projects', emitToActivityService('T'), 
         organizationId: Number(req.params.organizationId),
         name: req.body.name,
         description: req.body.description
-    }).then((result:any) => {
+    }).then((result: any) => {
         session.close();
         let dto = result.records[0]._fields[0];
         dto.children = null;
@@ -247,26 +275,26 @@ app.post('/organizations/:organizationId/projects', emitToActivityService('T'), 
     })
 })
 
-app.post('/organizations', emitToActivityService('T'), async(req, res) => {
+app.post('/organizations', emitToActivityService('T'), async (req, res) => {
     let session = driver.session();
     session.run('' +
         'CREATE p=(o:Organization {name: $name}) ' +
         'WITH COLLECT(p) AS ps ' +
         'CALL apoc.convert.toTree(ps) YIELD value ' +
-        'RETURN value;',{
+        'RETURN value;', {
         name: req.body.name
-        }).then( (result: any) => {
-            session.close();
-            res.send(result.records[0]);
+    }).then((result: any) => {
+        session.close();
+        res.send(result.records[0]);
     })
 })
 
-app.post('/organizations/createAndJoin', emitToActivityService('T'), async(req, res) => {
+app.post('/organizations/createAndJoin', emitToActivityService('T'), async (req, res) => {
     let session = driver.session();
     session.run('' +
         'CREATE (o:Organization {name: $name}) RETURN o;', {
         name: req.body.name
-    }).then((result:any) => {
+    }).then((result: any) => {
         session.close();
         try {
             grpcClient.joinOrganizationUponCreation(
@@ -284,12 +312,12 @@ app.post('/organizations/createAndJoin', emitToActivityService('T'), async(req, 
                             'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
                             'DETACH DELETE (o);', {
                             organizationId: result.records[0]._fields[0].identity.low
-                        }).then( result => {
+                        }).then(result => {
                             res.send('Error adding user to organization; No organization added')
                         })
                     }
                 })
-        } catch(e) {
+        } catch (e) {
             //ROLLBACK
             console.error(e)
             let session = driver.session();
@@ -297,7 +325,7 @@ app.post('/organizations/createAndJoin', emitToActivityService('T'), async(req, 
                 'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
                 'DETACH DELETE (o);', {
                 organizationId: result.records[0]._fields[0].identity.low
-            }).then( result => {
+            }).then(result => {
                 res.send('Error adding user to organization; No organization added')
             })
         }
@@ -330,7 +358,7 @@ app.post('/organizations/:organizationId/projects/:projectId/tasks', emitToActiv
             description: req.body.description,
             createdBy: decoded.user_id
         })
-        .then((result: any)  => {
+        .then((result: any) => {
             session.close();
             let dto = result.records[0]._fields[0];
             dto.children = null;
@@ -363,7 +391,7 @@ app.post('/organizations/:organizationId/projects/:projectId/tasks/:taskId/subta
         name: req.body.name,
         description: req.body.description,
         createdBy: decoded.user_id
-    }).then((result: any)  => {
+    }).then((result: any) => {
         session.close();
         let dto = result.records[0]._fields[0];
         dto.children = null;
@@ -371,7 +399,7 @@ app.post('/organizations/:organizationId/projects/:projectId/tasks/:taskId/subta
     })
 })
 
-app.delete('/organizations/:organizationId/projects/:projectId/tasks/:taskId/subtask', emitToActivityService('T'), async(req, res) => {
+app.delete('/organizations/:organizationId/projects/:projectId/tasks/:taskId/subtask', emitToActivityService('T'), async (req, res) => {
     let session = driver.session();
     session.run('' +
         'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
@@ -391,7 +419,7 @@ app.delete('/organizations/:organizationId/projects/:projectId/tasks/:taskId/sub
     })
 })
 
-app.delete('/organizations/:organizationId/projects/:projectId/tasks/:taskId', emitToActivityService('T'), async(req, res) => {
+app.delete('/organizations/:organizationId/projects/:projectId/tasks/:taskId', emitToActivityService('T'), async (req, res) => {
     let session = driver.session();
     session.run('' +
         'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
@@ -450,7 +478,7 @@ function verifyToken(...role) {
                 req.user = decoded;
                 return next();
             } else {
-                return res.status(401).send('Only '+role+' allowed')
+                return res.status(401).send('Only ' + role + ' allowed')
             }
         } catch (err) {
             return res.status(401).send("Try again");
@@ -459,6 +487,7 @@ function verifyToken(...role) {
     }
 
 }
+
 type Token = {
     user_id: string
     email: string

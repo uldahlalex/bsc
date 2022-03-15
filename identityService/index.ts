@@ -84,7 +84,6 @@ grpcServer.server.addService(taskProto.TaskService.service, {
                     u.organizationId = r.organizationId
                     users.push(u)
                 })
-
             })
         console.log(users);
         callback(null, users);
