@@ -19,10 +19,10 @@ export class ActivityService {
       query = this.http.get(this.activityUrl+'recentActivity/'+numberOfRecords+'/forUser/'+forUser+'/'+organizationId);
     }
     return query.pipe(
-      map(((clients: Activity[]) => clients.map(client => {
+      map((clients: Activity[]) => clients.map(client => {
         client.eventtime = new Date(client.eventtime)
         return client;
-      }))))
+      })))
   }
 }
 

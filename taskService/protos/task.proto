@@ -23,7 +23,7 @@ message UserInfo {
     string first_name = 2;
     string last_name = 3;
     string email = 4;
-    //repeated Role roles = 5;
+    repeated Role roles = 5;
 }
 
 message Role {

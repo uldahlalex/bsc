@@ -174,7 +174,7 @@ app.get('/organizations/:organizationId/projects/:projectId/tasksWithUserdata', 
                     console.log(grpcResult)
                     if (!grpcError) {
                         console.log(grpcResult)
-                        res.send(grpcResult)
+
                     } else {
                         //ROLLBACK
                     }

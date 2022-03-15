@@ -61,22 +61,12 @@ app.use(cors({
 // @ts-ignore
 grpcServer.server.addService(taskProto.TaskService.service, {
     addUserDataToTaskListForProject: async (call, callback) => {
-        console.log(call.request);
-        /*
-        await User.findOneAndUpdate(call.request.userId, {organizationId: call.request.organizationId}).exec().then(res => {
-            callback(null, true);
-        })
-        */
-        let u = {
-            _id: "abc",
-            first_name: "bob",
-            last_name: "yada",
-            email: "bob@yada.de"
-        }
-        callback(null, [u, u]);
-    }
+        console.log('reached')
+        const [records] = await Promise.all([User.find().where('_id').in(call.request.userList).exec()]);
+        console.log(records)
+        callback(null, records);
+}})
 
-})
 
 
 
