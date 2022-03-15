@@ -70,21 +70,22 @@ export interface User {
 // @ts-ignore
 grpcServer.server.addService(taskProto.TaskService.service, {
     addUserDataToTaskListForProject: async (call, callback) => {
-
+        console.log('reached');
         let users: any[] = []
-        await User.find()
-            .where('_id').in(call.request.userList).exec().then((res: any) => {
-                res.forEach(r => {
-                    let u:any = {};
-                    u._id = r._id.toString();
-                    u.first_name = r.first_name;
-                    u.last_name = r.last_name;
-                    u.email = r.email;
-                    u.roles = r.roles;
-                    u.organizationId = r.organizationId
-                    users.push(u)
-                })
+        for (let i = 0; i < call.request.userList.length; i++) {
+            await User.findById(call.request.userList[i]).exec().then((r: any) => {
+                console.log(r);
+                let u: any = {};
+                u._id = r._id.toString();
+                u.first_name = r.first_name;
+                u.last_name = r.last_name;
+                u.email = r.email;
+                u.roles = r.roles;
+                u.organizationId = r.organizationId
+                users.push(u)
+
             })
+        }
         console.log(users);
         callback(null, users);
     }

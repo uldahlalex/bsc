@@ -188,6 +188,7 @@ function joinUserDetailsAndTasks(userDetailsArray: any[], project) {
         if (t.children != undefined) {
             t.children.forEach(each => {
                 each.user = userDetailsArray[count]
+                count++;
                 if (each.children != undefined) {
                     innerTraverse(each);
                 }
