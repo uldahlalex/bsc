@@ -7,7 +7,7 @@ import mongoose from "mongoose";
 import express from "express";
 import grpc from 'grpc';
 import * as grpcServer from './grpc.server';
-import {read} from "fs";
+import {initGrpcServer} from "./grpc.server";
 
 const taskProto = grpc.load('./protos/task.proto')
 const argv = minimist(process.argv.slice(1));
@@ -60,26 +60,24 @@ app.use(cors({
 
 // @ts-ignore
 grpcServer.server.addService(taskProto.TaskService.service, {
-    getUserInfoForTasks: async (call, callback) => {
-        console.log(call.request)
-        await User.findById(call.request.authorId).exec().then(res => {
-            let returnObject = {
-                _id: res._id.toString(),
-                first_name: res.first_name,
-                last_name: res.last_name,
-                email: res.email
-            }
-            console.log(returnObject);
-            callback(null, returnObject);
-        })
-    },
-    joinOrganizationUponCreation: async (call, callback) => {
+    addUserDataToTaskListForProject: async (call, callback) => {
         console.log(call.request);
+        /*
         await User.findOneAndUpdate(call.request.userId, {organizationId: call.request.organizationId}).exec().then(res => {
             callback(null, true);
         })
+        */
+        let u = {
+            _id: "abc",
+            first_name: "bob",
+            last_name: "yada",
+            email: "bob@yada.de"
+        }
+        callback(null, [u, u]);
     }
+
 })
+
 
 
 app.post("/register", async (req, res) => {
@@ -198,6 +196,7 @@ app.use("*", (req, res) => {
 });
 
 httpServer.listen(port, () => {
+    grpcServer.initGrpcServer();
     console.log('now listening on port ' + port)
 })
 

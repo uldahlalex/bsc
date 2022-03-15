@@ -7,11 +7,11 @@ service TaskService {
 }
 
 message ListOfUserIdsInOrder {
-
+    repeated string userList = 1;
 }
 
 message ListOfUserDataInOrder {
-
+    repeated UserInfo users = 1;
 }
 
 message AuthorId {
@@ -23,6 +23,11 @@ message UserInfo {
     string first_name = 2;
     string last_name = 3;
     string email = 4;
+    //repeated Role roles = 5;
+}
+
+message Role {
+    repeated string role = 1;
 }
 
 message JoinOrgExchange {

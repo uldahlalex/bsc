@@ -7,7 +7,7 @@ import amqp, {Channel} from 'amqplib/callback_api';
 import neo4j from 'neo4j-driver';
 import cors from 'cors';
 import jwt from "jsonwebtoken";
-import {read} from "fs";
+import {Task} from './models';
 
 const app = express();
 const server = http.createServer(app)
@@ -145,16 +145,7 @@ app.get('/organizations/:organizationId/projects/:projectId/tasks', emitToActivi
     } )
 })
 
-type Task = {
-    user_id: string
-    email: string
-    roles: [Task], //this is the key to working with the task object recursively when fetching user info??
-    organization: string
-    iat: number,
-    exp: number
-}
-
-app.get('/organizations/:organizationId/projects/:projectId/tasksWithUserdata', emitToActivityService('T'), async (req, res) => {
+app.get('/organizations/:organizationId/projects/:projectId/tasksWithUserdata', async (req, res) => {
     let session = driver.session();
     session.run('' +
         'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
@@ -168,24 +159,30 @@ app.get('/organizations/:organizationId/projects/:projectId/tasksWithUserdata', 
         organizationId: Number(req.params.organizationId),
         projectId: Number(req.params.projectId)
     }).then( (result: any) => {
+        let tasks: Task[] = result.records[0]._fields[0].children;
+        let ids = [];
+        tasks.forEach(t => {
+            ids.push(t.createdBy);
+        })
         session.close();
-        try {
-            grpcClient.addUserDataToTaskListForProject(
+
+             grpcClient.addUserDataToTaskListForProject(
                 {
-                    userList: [1,2,3]
+                    userList: ids
                 }, (grpcError, grpcResult) => {
+                    console.log('recieved')
+                    console.log(grpcResult)
                     if (!grpcError) {
-                        console.log('Successfully updated org ID for user')
                         console.log(grpcResult)
                         res.send(grpcResult)
                     } else {
                         //ROLLBACK
                     }
                 })
-        } catch (e) {
 
-        }
-        res.send(result.records[0]._fields[0].children) //Should not be reached if
+            res.send(tasks) //Should not be reached if
+
+
     } )
 })
 
