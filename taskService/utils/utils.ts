@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import minimist from 'minimist';
 import {Token} from "./models";
 const argv = minimist(process.argv.slice(1));
-import * as amqpClient from './amqp';
+import * as amqpClient from '../inter-service/amqp';
 import amqp from "amqplib/callback_api";
 
 export function joinUserDetailsAndTasks(userDetailsArray: any[], project) {
@@ -38,11 +38,13 @@ export function traverseProjectForAllTaskCreatedBy(project): string[] {
     return ids;
 }
 
+export function getToken(req): Token {
+    return jwt.verify(req.body.token || req.query.token || req.headers["x-access-token"], argv['secret']) as Token;
+}
+
 export function authorize(...role) {
     return (req, res, next) => {
-        const token =
-            req.body.token || req.query.token || req.headers["x-access-token"];
-
+        const token = getToken(req);
         if (!token) {
             return res.status(403).send("A token is required for authentication");
         }
@@ -58,18 +60,15 @@ export function authorize(...role) {
         } catch (err) {
             return res.status(401).send("Try again");
         }
-        return next();
     }
 }
 
 export function emitToActivityService(...message) {
     return (req, res, next) => {
-        const token =
-            req.body.token || req.query.token || req.headers["x-access-token"];
-        const readable = jwt.verify(token, argv['secret']) as Token;
+        const token = getToken(req);
         let dto = {
-            userid: readable.user_id,
-            organizationid: readable.organization,
+            userid: token.user_id,
+            organizationid: token.organization,
             actiontype: req.method,
             bodyitems: req.body,
             endpoint: req.route.path,
