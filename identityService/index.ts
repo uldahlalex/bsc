@@ -3,94 +3,26 @@ import http from "http";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import cors from 'cors';
-import mongoose from "mongoose";
 import express from "express";
-import grpc from 'grpc';
-import * as grpcServer from './grpc.server';
-import {initGrpcServer} from "./grpc.server";
+import * as grpcServer from './inter-service/grpc.server';
+import {User} from "./utils/models";
+import {authorize, getToken} from "./utils/utils";
 
-const taskProto = grpc.load('./protos/task-identity.proto')
 const argv = minimist(process.argv.slice(1));
 const port = argv['port'] || 3002;
 const app = express();
 const httpServer = http.createServer(app);
-
-type Token = {
-    user_id: string
-    email: string
-    roles: [string],
-    organization: string
-    iat: number,
-    exp: number
-}
-const User = mongoose.model("user",
-    new mongoose.Schema({
-        first_name: {type: String, default: null},
-        last_name: {type: String, default: null},
-        email: {type: String, unique: true},
-        hash: {type: String},
-        id: {type: mongoose.Schema.Types.ObjectId},
-        token: {type: String},
-        organizationId: {type: Number},
-        roles: [String]
-    }));
 
 if (argv['secret'] == undefined) {
     console.log('No secret defined. Program will close with exit code 1')
     process.exit(1);
 }
 
-//mongoose.connect("mongodb://alex:q1w2e3r4@localhost:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false")
-mongoose.connect("mongodb://root:example@localhost:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false")
-    .then(
-        () => {
-            console.log('Connected to MongoDB')
-        },
-        err => {
-            console.log(err)
-        }
-    );
 app.use(express.json({limit: "50mb"}));
-
 app.use(cors({
     origin: ['http://localhost:8100', 'http://localhost:4200', 'http://localhost:5000'],
     methods: "GET, PUT, POST, DELETE"
 }))
-
-export interface User {
-    _id: string,
-    first_name: string,
-    last_name: string,
-    email: string,
-    roles: [string],
-    organizationId: number
-}
-
-
-// @ts-ignore
-grpcServer.server.addService(taskProto.TaskService.service, {
-    addUserDataToTaskListForProject: async (call, callback) => {
-        console.log('reached');
-        let users: any[] = []
-        for (let i = 0; i < call.request.userList.length; i++) {
-            await User.findById(call.request.userList[i]).exec().then((r: any) => {
-                console.log(r);
-                let u: any = {};
-                u._id = r._id.toString();
-                u.first_name = r.first_name;
-                u.last_name = r.last_name;
-                u.email = r.email;
-                u.roles = r.roles;
-                u.organizationId = r.organizationId
-                users.push(u)
-
-            })
-        }
-        console.log(users);
-        callback(null, users);
-    }
-})
-
 
 app.post("/register", async (req, res) => {
     try {
@@ -131,17 +63,10 @@ app.post("/register", async (req, res) => {
 });
 
 app.put('/joinOrganization', async (req, res) => {
-    const token =
-        req.body.token || req.query.token || req.headers["x-access-token"];
-    if (!token) {
-        console.log('Token needed')
-        return res.status(403).send("A token is required for authentication");
-    }
-    const decoded = jwt.verify(token, argv['secret']);
-    const readable = decoded as Token;
+    const token = getToken(req);
     try {
         await User
-            .findByIdAndUpdate(readable.user_id, {organizationId: req.body.organizationId}, {new: true}).exec().then(
+            .findByIdAndUpdate(token.user_id, {organizationId: req.body.organizationId}, {new: true}).exec().then(
                 result => {
                     res.send(result)
                 }
@@ -188,7 +113,7 @@ app.post("/login", async (req, res) => {
         console.log(err);
     }
 });
-app.get("/test", verifyToken("Member"), (req, res) => {
+app.get("/test", authorize("Member"), (req, res) => {
     return res.status(200).send("Welcome. Token accepted");
 });
 
@@ -212,27 +137,3 @@ httpServer.listen(port, () => {
     console.log('now listening on port ' + port)
 })
 
-function verifyToken(...role) {
-    return (req, res, next) => {
-        const token =
-            req.body.token || req.query.token || req.headers["x-access-token"];
-
-        if (!token) {
-            return res.status(403).send("A token is required for authentication");
-        }
-        try {
-            const decoded = jwt.verify(token, argv['secret']);
-            const readable = decoded as Token;
-            if (readable.roles.includes(role[0])) {
-                req.user = decoded;
-                return next();
-            } else {
-                return res.status(401).send('Only ' + role + ' allowed')
-            }
-        } catch (err) {
-            return res.status(401).send("Try again");
-        }
-        return next();
-    }
-
-}

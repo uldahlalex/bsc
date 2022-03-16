@@ -48,10 +48,7 @@ export function authorize(...role) {
             return res.status(403).send("A token is required for authentication");
         }
         try {
-            const decoded = jwt.verify(token, argv['secret']);
-            const readable = decoded as Token;
-            if (readable.roles.includes(role[0])) {
-                req.user = decoded;
+            if (token.roles.includes(role[0])) {
                 return next();
             } else {
                 return res.status(401).send('Only ' + role + ' allowed')
