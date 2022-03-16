@@ -64,3 +64,12 @@ export interface TimeZoneOffsetSeconds {
     low: number
     high: number
 }
+
+export interface Token {
+    user_id: string
+    email: string
+    roles: [string],
+    organization: string
+    iat: number,
+    exp: number
+}
