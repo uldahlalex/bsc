@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import {User} from "../utils/models";
+
 //mongoose.connect("mongodb://alex:q1w2e3r4@localhost:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false")
 mongoose.connect("mongodb://root:example@localhost:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false")
     .then(
@@ -11,6 +11,17 @@ mongoose.connect("mongodb://root:example@localhost:27017/?authSource=admin&readP
         }
     );
 
+export const User = mongoose.model("user",
+    new mongoose.Schema({
+        first_name: {type: String, default: null},
+        last_name: {type: String, default: null},
+        email: {type: String, unique: true},
+        hash: {type: String},
+        id: {type: mongoose.Schema.Types.ObjectId},
+        token: {type: String},
+        organizationId: {type: Number},
+        roles: [String]
+    }));
 
 export async function getUserInfosFromListOfIds(ids: []): Promise<any[]> {
     let users: any[] = []
@@ -27,4 +38,12 @@ export async function getUserInfosFromListOfIds(ids: []): Promise<any[]> {
         })
     }
     return users;
+}
+
+
+    export function findUser(email): boolean {
+        return !!User.findOne({email});
+    }
+export async function login(email) {
+    return User.findOne({email});
 }

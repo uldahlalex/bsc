@@ -5,8 +5,9 @@ import bcrypt from "bcryptjs";
 import cors from 'cors';
 import express from "express";
 import * as grpcServer from './inter-service/grpc.server';
-import {User} from "./utils/models";
-import {authorize, getToken} from "./utils/utils";
+import {authorize} from "./utils/utils";
+import * as mongooseRead from './infrastructure/infrastructure.reads';
+import * as mongooseWrite from './infrastructure/infrastructure.writes';
 
 const argv = minimist(process.argv.slice(1));
 const port = argv['port'] || 3002;
@@ -32,21 +33,20 @@ app.post("/register", async (req, res) => {
             res.status(400).send("Invalid request");
         }
 
-        if (await User.findOne({email})) {
+        if (mongooseRead.findUser(email)) {
             return res.status(409).send("User Already Exist. Please Login");
         }
 
         const encryptedPassword = await bcrypt.hash(password, 10);
         const roles = ["Member"];
         const organization = undefined;
-        const user = await User.create({
+        const user = await mongooseWrite.registerUser(
             first_name,
             last_name,
-            email: email.toLowerCase(),
-            hash: encryptedPassword,
-            roles: roles,
-            organization: organization
-        });
+            email.toLowerCase(),
+            encryptedPassword,
+            roles,
+            organization);
 
         user.token = jwt.sign(
             {user_id: user._id, email, roles, organization},
@@ -63,17 +63,7 @@ app.post("/register", async (req, res) => {
 });
 
 app.put('/joinOrganization', async (req, res) => {
-    const token = getToken(req);
-    try {
-        await User
-            .findByIdAndUpdate(token.user_id, {organizationId: req.body.organizationId}, {new: true}).exec().then(
-                result => {
-                    res.send(result)
-                }
-            )
-    } catch (e) {
-        console.log(e)
-    }
+    mongooseWrite.joinOrganization(req, res);
 
 })
 
@@ -88,7 +78,7 @@ app.post("/login", async (req, res) => {
         let user = null;
 
         try {
-            user = await User.findOne({email});
+            user = mongooseRead.login(email)
             roles = user.roles || null;
             organization = user.organizationId;
         } catch (e) {
