@@ -8,6 +8,8 @@ import neo4j from 'neo4j-driver';
 import cors from 'cors';
 import jwt from "jsonwebtoken";
 import * as utils from "./utils";
+import * as readCypher from './infrastructure.reads';
+import * as writeCypher from './infrastructure.writes';
 
 const app = express();
 const server = http.createServer(app)
@@ -79,51 +81,18 @@ app.get('/tasks/something', async (req, res) => {
     taskChannel.publish("topic_logs", "yada.critical", Buffer.from('not topic message - but very critical'))
 })
  */
-app.get('/organizations', emitToActivityService('T'), async (req, res, next) => {
-    let session = driver.session();
-    session.run('' +
-        'MATCH collect=(o:Organization)\n' +
-        'WITH COLLECT(collect) AS ps\n' +
-        'CALL apoc.convert.toTree(ps) YIELD value\n' +
-        'RETURN value;')
-        .then((result: any) => {
-            res.send(result.records)
-        })
+
+app.get('/organizations', emitToActivityService('T'), async (req, res) => {
+    res.send(readCypher.getOrganizations())
 })
 
 app.get('/organizations/:organizationId/projects', emitToActivityService('T'), async (req, res) => {
-    let session = driver.session();
-    session.run('' +
-        'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
-        'WITH o as organization\n' +
-        'MATCH collect=(organization)-[:CHILDREN]->(p:Project)\n' +
-        'WITH COLLECT(collect) AS ps\n' +
-        'CALL apoc.convert.toTree(ps) YIELD value\n' +
-        'RETURN value', {
-        organizationId: Number(req.params.organizationId),
-    }).then((result: any) => {
-        session.close();
-        res.send(result.records[0]._fields[0].children);
-    })
+    res.send(readCypher.getProjectsForOrganization(req))
+
 })
 
 app.get('/organizations/:organizationId/projects/:projectId', emitToActivityService('T'), async (req, res) => {
-    let session = driver.session();
-    session.run('' +
-        'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
-        'WITH o as organization\n' +
-        'MATCH collect=(p:Project)<-[:CHILDREN]-(organization) WHERE ID(p)=$projectId\n' +
-        'WITH COLLECT(collect) AS ps\n' +
-        'CALL apoc.convert.toTree(ps) YIELD value\n' +
-        'RETURN value;', {
-        organizationId: Number(req.params.organizationId),
-        projectId: Number(req.params.projectId),
-    }).then((result: any) => {
-        session.close();
-        let dto = result.records[0]._fields[0];
-        dto.children = null;
-        res.send(dto);
-    })
+   res.send(readCypher.getProjectFromOrganization(req));
 })
 
 app.get('/organizations/:organizationId/projects/:projectId/tasks', emitToActivityService('T'), async (req, res) => {
