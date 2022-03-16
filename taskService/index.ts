@@ -7,7 +7,7 @@ import amqp, {Channel} from 'amqplib/callback_api';
 import neo4j from 'neo4j-driver';
 import cors from 'cors';
 import jwt from "jsonwebtoken";
-import {Task} from './models';
+import * as utils from "./utils";
 
 const app = express();
 const server = http.createServer(app)
@@ -160,60 +160,23 @@ app.get('/organizations/:organizationId/projects/:projectId/tasksWithUserdata', 
         projectId: Number(req.params.projectId)
     }).then((result: any) => {
         let project = result.records[0]._fields[0];
-
-        let ids: string[] = traverseProjectForAllTaskCreatedBy(project);
-
+        let ids: string[] = utils.traverseProjectForAllTaskCreatedBy(project);
         session.close();
         grpcClient.addUserDataToTaskListForProject(
             {
                 userList: ids
             }, (grpcError, grpcResult) => {
                 if (!grpcError) {
-                    console.log('GRPC RESULT');
-                    console.log(grpcResult);
-                    let result = joinUserDetailsAndTasks(grpcResult.users, project);
-                    res.send(result);
+                    let result = utils.joinUserDetailsAndTasks(grpcResult.users, project);
+                    res.send(result.children);
                 } else {
-                    //ROLLBACK
+                    res.send(project.children);
                 }
             })
     })
 })
 
-function joinUserDetailsAndTasks(userDetailsArray: any[], project) {
-    console.log(userDetailsArray)
-    let count = 0;
-    innerTraverse(project);
-    function innerTraverse(t) {
-        if (t.children != undefined) {
-            t.children.forEach(each => {
-                each.user = userDetailsArray[count]
-                count++;
-                if (each.children != undefined) {
-                    innerTraverse(each);
-                }
-            })
-        }
-    }
-    return project;
-}
 
-function traverseProjectForAllTaskCreatedBy(project): string[] {
-    let ids = [];
-    innerTraverse(project)
-    function innerTraverse(t) {
-        if (t.children != undefined) {
-            t.children.forEach(each => {
-                ids.push(each.createdBy);
-                if (each.children != undefined) {
-                    innerTraverse(each);
-                }
-            })
-        }
-    }
-    console.log(ids);
-    return ids;
-}
 
 
 app.put('/organizations/:organizationId/projects/:projectId/tasks/:taskId/markTaskAsDone', emitToActivityService('T'), async (req, res) => {
