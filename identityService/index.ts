@@ -9,7 +9,7 @@ import grpc from 'grpc';
 import * as grpcServer from './grpc.server';
 import {initGrpcServer} from "./grpc.server";
 
-const taskProto = grpc.load('./protos/task.proto')
+const taskProto = grpc.load('./protos/task-identity.proto')
 const argv = minimist(process.argv.slice(1));
 const port = argv['port'] || 3002;
 const app = express();

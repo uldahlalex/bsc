@@ -1,7 +1,6 @@
 syntax = "proto3";
 
-service TaskService {
-    rpc JoinOrganizationUponCreation(JoinOrgExchange) returns (JoinOrgExchangeConfirmation) { }
+service TaskIdentityJoin {
     rpc AddUserDataToTaskListForProject(ListOfUserIdsInOrder) returns (ListOfUserDataInOrder) { }
 }
 
@@ -13,10 +12,6 @@ message ListOfUserDataInOrder {
     repeated User users = 1;
 }
 
-message AuthorId {
-    string authorId = 1;
-}
-
 message User {
     string _id = 1;
     string first_name = 2;
@@ -24,13 +19,4 @@ message User {
     string email = 4;
     repeated string roles = 5;
     int32 organizationId = 6;
-}
-
-message JoinOrgExchange {
-    string userId = 1;
-    int32 organizationId = 2;
-}
-
-message JoinOrgExchangeConfirmation {
-    bool accepted = 1;
 }

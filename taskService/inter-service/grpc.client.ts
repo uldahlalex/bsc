@@ -1,14 +1,15 @@
+import * as utils from '../utils/utils';
 const grpc = require('grpc')
-const PROTO_PATH = './protos/task.proto'
-const TaskService = grpc.load(PROTO_PATH).TaskService
-const grpcClient = new TaskService('localhost:50051', grpc.credentials.createInsecure());
+const PROTO_PATH = __dirname + '/protos/task-identity.proto'
+const taskIdentityJoinProto = grpc.load(PROTO_PATH).TaskIdentityJoin
+const taskIdentityJoinProtoInstance = new taskIdentityJoinProto('localhost:50051', grpc.credentials.createInsecure());
 
-export function addUserDataToTaskListForProject(args) {
-    grpcClient.addUserDataToTaskListForProject(args, (grpcError, grpcResult) => {
-        if (!grpcError) {
-            
-        } else {
-
-        }
-    });
+export function addUserDataToTaskListForProject(project, res) {
+    let ids: string[] = utils.traverseProjectForAllTaskCreatedBy(project);
+    return taskIdentityJoinProtoInstance.addUserDataToTaskListForProject(
+        {
+            userList: ids
+        }, (grpcError, grpcResult) => {
+                res.send(utils.joinUserDetailsAndTasks(grpcResult.users, project).children);
+        });
 }

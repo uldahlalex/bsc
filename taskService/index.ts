@@ -8,7 +8,7 @@ import * as utils from "./utils/utils";
 import * as readCypher from './infrastructure/infrastructure.reads';
 import * as writeCypher from './infrastructure/infrastructure.writes';
 import * as grpcClient from './inter-service/grpc.client';
-import * as grpcServer from './inter-service/grpc.server';
+//import * as grpcServer from './inter-service/grpc.server';
 
 const app = express();
 const server = http.createServer(app)
@@ -63,22 +63,14 @@ app.get('/organizations/:organizationId/projects/:projectId/tasks', utils.emitTo
 })
 
 app.get('/organizations/:organizationId/projects/:projectId/tasksWithUserdata', async (req, res) => {
-    readCypher.getTasksForProjectWithUserData(req).then(result => {
+    readCypher.getTasksForProjectWithUserData(req).then(async result => {
         if (result == undefined) {
             res.status(404).send("Resource not found");
         } else {
-            let ids: string[] = utils.traverseProjectForAllTaskCreatedBy(result);
-            grpcClient.addUserDataToTaskListForProject({userList: ids});
-
-                     /*   res.send(joinedResult.children);
-                    } else {
-                        res.send(result.children);
-                    }
-                })
+            grpcClient.addUserDataToTaskListForProject(result, res);
         }
-    })*/
-            res.send('');
-}})})
+    })
+})
 
 app.put('/organizations/:organizationId/projects/:projectId/tasks/:taskId/markTaskAsDone', utils.emitToActivityService('T'), async (req, res) => {
     writeCypher.markTaskAsDone(req).then(result => {

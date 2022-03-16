@@ -3,7 +3,6 @@ import minimist from 'minimist';
 import {Token} from "./models";
 const argv = minimist(process.argv.slice(1));
 import * as amqpClient from '../inter-service/amqp';
-import amqp from "amqplib/callback_api";
 
 export function joinUserDetailsAndTasks(userDetailsArray: any[], project) {
     let count = 0;
