@@ -8,6 +8,7 @@ import * as utils from "./utils/utils";
 import * as readCypher from './infrastructure/infrastructure.reads';
 import * as writeCypher from './infrastructure/infrastructure.writes';
 import * as grpcClient from './inter-service/grpc.client';
+import * as grpcServer from './inter-service/grpc.server';
 
 const app = express();
 const server = http.createServer(app)
@@ -153,6 +154,7 @@ app.delete('/organizations/:organizationId/projects/:projectId/tasks/:taskId', u
 })
 
 server.listen(port, () => {
+    grpcServer.initGrpcServer();
     console.log('now listening on port ' + port)
 })
 

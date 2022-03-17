@@ -5,7 +5,8 @@ import bcrypt from "bcryptjs";
 import cors from 'cors';
 import express from "express";
 import * as grpcServer from './inter-service/grpc.server';
-import {authorize} from "./utils/utils";
+import * as grpcClient from './inter-service/grpc.client';
+import {authorize, getToken} from "./utils/utils";
 import * as mongooseRead from './infrastructure/infrastructure.reads';
 import * as mongooseWrite from './infrastructure/infrastructure.writes';
 import * as mongo from './infrastructure/infrastructure.shared';
@@ -105,6 +106,21 @@ app.post("/login", async (req, res) => {
         console.log(err);
     }
 });
+
+app.delete('/delete', async (req, res) => {
+    if (!mongooseRead.findUser(req.body.email)) {
+        return res.status(409).send("User doesn't exist");
+    }
+    //let deletedDocToRollbackIfFail = await mongooseWrite.deleteUser(req.body.user_id);
+
+    grpcClient.notifyActivity("abc").then(result => {
+        res.send(result);
+    })
+
+
+    //res.send();
+})
+
 app.get("/test", authorize("Member"), (req, res) => {
     return res.status(200).send("Welcome. Token accepted");
 });

@@ -26,3 +26,10 @@ export async function joinOrganization(req, res) {
     }
 }
 
+export function deleteUser(id): Object {
+    return mongo.MongoUser.findByIdAndDelete(id).exec().then(res => {
+        console.log(res);
+        return res;
+    })
+}
+
