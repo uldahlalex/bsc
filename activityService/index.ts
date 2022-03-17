@@ -6,6 +6,7 @@ import "reflect-metadata";
 import cors from 'cors';
 import * as utils from './utils/utils';
 import * as cqlWriter from './infrastructure/infrastructure.writes';
+import * as grpcServer from './inter-service/grpc.server';
 
 const app = express();
 const server = http.createServer(app)
@@ -41,5 +42,6 @@ app.get('/recentActivity/:numberOfRecords/forUser/:forUser/:entityId', utils.aut
 })
 
 server.listen(port, () => {
+    grpcServer.initGrpcServer();
     console.log('now listening on port ' + port)
 })

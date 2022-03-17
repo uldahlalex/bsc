@@ -11,6 +11,8 @@ export function initGrpcServer() {
 
 server.addService(deleteSagaProto.DeleteSaga.service, {
     notifyActivityService: async (call, callback) => {
+        console.log(call.request)
+        console.log('Task service reached')
             callback(null, true);
     }
 })
