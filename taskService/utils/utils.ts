@@ -38,7 +38,7 @@ export function traverseProjectForAllTaskCreatedBy(project): string[] {
 }
 
 export function getToken(req): Token {
-    return jwt.verify(req.body.token || req.query.token || req.headers["x-access-token"], argv['secret']) as Token;
+    return jwt.decode(req.body.token || req.query.token || req.headers["x-access-token"], argv['secret']) as Token;
 }
 
 export function authorize(...role) {

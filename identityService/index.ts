@@ -8,6 +8,7 @@ import * as grpcServer from './inter-service/grpc.server';
 import {authorize} from "./utils/utils";
 import * as mongooseRead from './infrastructure/infrastructure.reads';
 import * as mongooseWrite from './infrastructure/infrastructure.writes';
+import * as mongo from './infrastructure/infrastructure.shared';
 
 const argv = minimist(process.argv.slice(1));
 const port = argv['port'] || 3002;
@@ -24,6 +25,7 @@ app.use(cors({
     origin: ['http://localhost:8100', 'http://localhost:4200', 'http://localhost:5000'],
     methods: "GET, PUT, POST, DELETE"
 }))
+mongo.init();
 
 app.post("/register", async (req, res) => {
     try {
@@ -78,7 +80,7 @@ app.post("/login", async (req, res) => {
         let user = null;
 
         try {
-            user = mongooseRead.login(email)
+            user = await mongooseRead.login(email)
             roles = user.roles || null;
             organization = user.organizationId;
         } catch (e) {

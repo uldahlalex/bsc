@@ -5,10 +5,6 @@ import * as amqpClient from '../inter-service/amqp'
 
 const argv = minimist(process.argv.slice(1));
 
-export function getToken(req): Token {
-    return jwt.verify(req.body.token || req.query.token || req.headers["x-access-token"], argv['secret']) as Token;
-}
-
 export function authorize(...role) {
     return (req, res, next) => {
         const token = getToken(req);
@@ -41,4 +37,8 @@ export function emitToActivityService(...message) {
         amqpClient.publish('topic_logs', 'topic.critical', Buffer.from(JSON.stringify(dto)))
         return next();
     }
+}
+
+export function getToken(req): Token {
+    return jwt.verify(req.body.token || req.query.token || req.headers["x-access-token"], argv['secret']) as Token;
 }
