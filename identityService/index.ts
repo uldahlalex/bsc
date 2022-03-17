@@ -113,13 +113,10 @@ app.delete('/delete', async (req, res) => {
     }
     //let deletedDocToRollbackIfFail = await mongooseWrite.deleteUser(req.body.user_id);
 
-    grpcClient.notifyActivity("abc").then(result => {
+    await grpcClient.notifyActivity("abc").then(result => {
         res.send(result);
     })
 
-
-
-    //res.send();
 })
 
 app.get("/test", authorize("Member"), (req, res) => {
