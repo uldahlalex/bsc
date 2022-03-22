@@ -6,7 +6,7 @@ import cors from 'cors';
 import express from "express";
 import * as grpcServer from './inter-service/grpc.server';
 import * as grpcClient from './inter-service/grpc.client';
-import {authorize, getToken} from "./utils/utils";
+import {authorize} from "./utils/utils";
 import * as mongooseRead from './infrastructure/infrastructure.reads';
 import * as mongooseWrite from './infrastructure/infrastructure.writes';
 import * as mongo from './infrastructure/infrastructure.shared';

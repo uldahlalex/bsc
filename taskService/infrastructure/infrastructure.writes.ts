@@ -1,8 +1,6 @@
-import neo4j from 'neo4j-driver';
+import * as shared from './infrastructure.shared';
 import {getToken} from "../utils/utils";
-
-const driver = neo4j.driver('bolt://localhost',
-    neo4j.auth.basic('neo4j', 'test'));
+let driver = shared.neo4Driver;
 
 export function markTaskAsDone(req) {
     let session = driver.session();

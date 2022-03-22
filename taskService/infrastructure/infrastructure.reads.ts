@@ -1,7 +1,6 @@
-import neo4j from 'neo4j-driver';
+import * as shared from './infrastructure.shared';
+let driver = shared.neo4Driver;
 
-const driver = neo4j.driver('bolt://localhost',
-    neo4j.auth.basic('neo4j', 'test'));
 
 export function getOrganizations() {
     let session = driver.session();

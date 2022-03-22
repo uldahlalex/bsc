@@ -80,7 +80,6 @@ export class Tab3Page {
 
   logIn() {
     this.authService.login(this.emailForm.value, this.passwordForm.value)
-    window.location.reload();
   }
 }
 
