@@ -1,6 +1,18 @@
 import amqp, {Channel} from "amqplib/callback_api";
 import {Activity} from "../utils/models";
 import * as cqlWriter from '../infrastructure/infrastructure.writes';
+import minimist from 'minimist';
+
+const argv = minimist(process.argv.slice(1));
+const pass = argv['amqpPass'];
+const user = argv['amqpUser'];
+let url;
+
+if (user && pass) {
+    url = 'amqps://fttqsedw:'+pass+'@kangaroo.rmq.cloudamqp.com/'+user;
+} else {
+    url = 'amqp://localhost'
+}
 
 let taskRepo;
 let taskChannel: Channel;
@@ -10,7 +22,7 @@ let instanceQ;
  * PERSIST DATA TO CASSANDRA UPON AMQP MESSAGES
  */
 export function init() {
-    amqp.connect('amqp://localhost', function(error0, connection) {
+    amqp.connect(url, function(error0, connection) {
         if (error0) {
             throw error0;
         }

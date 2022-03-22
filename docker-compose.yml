@@ -17,17 +17,6 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: example
     volumes:
       - ./db:/data/mongodb/data
-#  taskStore:
-#    image: postgres:14.1-alpine
-#    restart: 'unless-stopped'
-#    network_mode: "bridge"
-#    environment:
-#      - POSTGRES_USER=postgres
-#      - POSTGRES_PASSWORD=postgres
-#    ports:
-#      - '5432:5432'
-#    volumes:
-#      - ./data/postgresql/data
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: 'rabbitmq'

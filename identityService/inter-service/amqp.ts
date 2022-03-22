@@ -1,10 +1,23 @@
 import amqp, {Channel} from "amqplib/callback_api";
+import minimist from 'minimist';
+
+const argv = minimist(process.argv.slice(1));
+const pass = argv['amqpPass'];
+const user = argv['amqpUser'];
+let url;
+
+if (user && pass) {
+    url = 'amqps://fttqsedw:'+pass+'@kangaroo.rmq.cloudamqp.com/'+user;
+} else {
+    url = 'amqp://localhost'
+}
+
 
 let taskRepo;
 let taskChannel: Channel;
 let instanceQ;
 
-amqp.connect('amqp://localhost', function (error0, connection) {
+amqp.connect(url, function (error0, connection) {
     if (error0) {
         throw error0;
     }
