@@ -13,10 +13,10 @@ const server = http.createServer(app)
 const argv = minimist(process.argv.slice(1));
 const port = argv['port'] || 3003;
 
-app.use(cors({
+app.use(cors(/*{
     origin: ['http://localhost:8100', 'http://localhost:4200', 'http://localhost:5000'],
     methods: "GET, PUT"
-}));
+}*/));
 app.use(express.json());
 
 /**

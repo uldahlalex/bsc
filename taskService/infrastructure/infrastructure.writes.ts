@@ -1,5 +1,4 @@
 import neo4j from 'neo4j-driver';
-import {Token} from "../utils/models";
 import {getToken} from "../utils/utils";
 
 const driver = neo4j.driver('bolt://localhost',

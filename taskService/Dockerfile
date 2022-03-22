@@ -13,5 +13,5 @@ COPY . /app
 RUN npm install
 RUN npm run build
 
-
+#Add shell script or inject variables into here
 CMD ["node", "./dist/index.js"]

@@ -22,10 +22,10 @@ if (argv['secret'] == undefined) {
 }
 
 app.use(express.json({limit: "50mb"}));
-app.use(cors({
+app.use(cors(/*{
     origin: ['http://localhost:8100', 'http://localhost:4200', 'http://localhost:5000'],
     methods: "GET, PUT, POST, DELETE"
-}))
+}*/))
 mongo.init();
 
 app.post("/register", async (req, res) => {

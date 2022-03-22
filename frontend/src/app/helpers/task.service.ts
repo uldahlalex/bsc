@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import {HttpClient} from "@angular/common/http";
-import {AuthInterceptor} from "./auth.service";
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +8,7 @@ export class TaskService {
 
   constructor(private http: HttpClient) { }
 
-  baseUrl = 'http://localhost:3001/';
+  baseUrl = 'http://localhost:5000/task/';
   identityUrl = 'http://localhost:3002/';
 
   getOrganizations() {

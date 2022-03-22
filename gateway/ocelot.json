@@ -10,7 +10,7 @@
             }
         ],
         "UpstreamPathTemplate": "/identity/{method}",
-        "UpstreamHttpMethod": [ "Get", "Post" ]
+        "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
         },
         {
             "DownstreamPathTemplate": "/{method}",
@@ -22,7 +22,7 @@
                 }
             ],
             "UpstreamPathTemplate": "/task/{method}",
-            "UpstreamHttpMethod": [ "Get" ]
+            "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
         }
     ],
     "GlobalConfiguration": {

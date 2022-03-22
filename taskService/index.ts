@@ -16,10 +16,10 @@ const argv = minimist(process.argv.slice(1));
 const port = argv['port'] || 3001;
 
 app.use(express.json());
-app.use(cors({
-    origin: ['http://localhost:8100', 'http://localhost:4200', 'http://localhost:5000'],
-    methods: "GET, PUT"
-}));
+app.use(cors(
+    {origin: ['http://localhost:8100', 'http://localhost:4200', 'http://localhost:5000'],
+    methods: "GET, PUT, POST, DELETE"}
+));
 
 app.get('/organizations', utils.emitToActivityService('T'), async (req, res) => {
     readCypher.getOrganizations().then(result => {

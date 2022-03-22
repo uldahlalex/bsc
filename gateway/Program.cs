@@ -28,11 +28,7 @@ namespace OcelotBasic
                     .AddEnvironmentVariables();
             })
             .ConfigureServices(s => {
-                s.AddCors(options => {
-                    options.AddPolicy(name: "My Policy", builder => {
-                        builder.WithOrigins("http://localhost:8100");
-                    });
-                });
+                s.AddCors();
                 s.AddOcelot();
             })
             .ConfigureLogging((hostingContext, logging) =>
@@ -41,12 +37,19 @@ namespace OcelotBasic
             })
             .UseIISIntegration()
             .Configure(app =>
-            {
+            {app.UseRouting();
+
+            // global cors policy
+            app.UseCors(x => x
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(origin => true) // allow any origin
+                .AllowCredentials()); // allow credentials
+
+            app.UseAuthentication();
+            app.UseAuthorization();
                 app.UseOcelot().Wait();
-                app.UseCors(app =>
-                        app.WithOrigins("http://localhost:8100").AllowCredentials()
-                               .AllowAnyMethod()
-                               .AllowAnyHeader());
+                
             })
             .Build()
             .Run();
