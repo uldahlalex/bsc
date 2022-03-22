@@ -76,6 +76,10 @@ export class TreeComponent {
       }
     )
   }
+
+  expandCard(task) {
+    task.showAllProperties = !task.showAllProperties;
+  }
 }
 
 

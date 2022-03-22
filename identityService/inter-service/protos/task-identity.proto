@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+service TaskIdentityJoin {
+    rpc AddUserDataToTaskListForProject(ListOfUserIdsInOrder) returns (ListOfUserDataInOrder) { }
+}
+
+message ListOfUserIdsInOrder {
+    repeated string userList = 1;
+}
+
+message ListOfUserDataInOrder {
+    repeated User users = 1;
+}
+
+message User {
+    string _id = 1;
+    string first_name = 2;
+    string last_name = 3;
+    string email = 4;
+    repeated string roles = 5;
+    int32 organizationId = 6;
+}

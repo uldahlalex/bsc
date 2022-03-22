@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+service DeleteSaga {
+  rpc NotifyActivityService(UserIdMessage) returns (DeleteConfirmationMessage) { }
+}
+
+message UserIdMessage {
+  string userId = 1;
+}
+
+message DeleteConfirmationMessage {
+  bool isDeleted = 1;
+}

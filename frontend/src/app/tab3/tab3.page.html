@@ -1,24 +1,68 @@
+<ion-toolbar>
+  <ion-title *ngIf="user_org!=undefined">{{user_org.name}}</ion-title>
+  <ion-button size="small" slot="end" fill="clear" *ngIf="decoded_token" (click)="logout()">
+    <ion-icon name="log-out-outline"></ion-icon>&nbsp;Logout
+  </ion-button>
+  <ion-button size="small" slot="start" fill="clear" (click)="openAbout()">
+    <ion-icon name="information-circle-outline"></ion-icon>&nbsp;About
+  </ion-button>
+</ion-toolbar>
+
 <ion-content [fullscreen]="true">
 
-  <ion-card *ngIf="decoded_token.organization!=undefined" class="ion-padding">
-    <ion-card-title>Organization name</ion-card-title>
-  </ion-card>
 
-  <ion-list class="ion-padding">
+  <ion-list class="ion-padding" *ngIf="decoded_token">
     <ion-list-header>New organization?</ion-list-header>
     <ion-item>
-      <ion-label position="floating">Organization name</ion-label>
-      <ion-input [formControl]="organizationName"></ion-input>
+
+      <ion-input placeholder="Organization name" [formControl]="organizationName"></ion-input>
+      <ion-button slot="end" expand="block" fill="outline" (click)="newOrganization()">Create organization</ion-button>
     </ion-item>
     <br>
-    <ion-button expand="block" fill="outline" (click)="newOrganization()">Create and join organization</ion-button>
 
-    <ion-card *ngFor="let o of organizations">
-      {{o._fields[0].name}}
-      {{o._fields[0]._id.low}}
-    </ion-card>
-  </ion-list>
 
-  <ion-button (click)="logout()">Logout</ion-button>
+    <ion-list>
+      <ion-item *ngFor="let o of organizations">
+        {{o._fields[0].name}}
+        <ion-button *ngIf="user_org._id.low!=o._fields[0]._id.low" fill="outline" slot="end"
+                    (click)="joinOrganization(o._fields[0]._id.low)">Join
+        </ion-button>
+        <ion-button color="success" disabled="true" *ngIf="user_org._id.low==o._fields[0]._id.low" fill="outline"
+                    slot="end">Your organization
+        </ion-button>
+      </ion-item>
+    </ion-list>
 
+  </ion-list><br>
+  <div style="text-align: center;" *ngIf="!decoded_token">
+
+  <b style="text-align: center">Sign in to continue</b>
+  <ion-grid class="ion-padding">
+    <ion-row>
+      <ion-col>
+        <ion-item>
+          <ion-input [formControl]="emailForm" placeholder="email">
+          </ion-input>
+        </ion-item>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-item>
+          <ion-input [formControl]="passwordForm" placeholder="password" type="password"></ion-input>
+        </ion-item>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col></ion-col>
+      <ion-col>
+        <ion-button (click)="logIn()" expand="block">
+          Sign in
+        </ion-button>
+      </ion-col>
+      <ion-col></ion-col>
+    </ion-row>
+  </ion-grid>
+
+  </div>
 </ion-content>

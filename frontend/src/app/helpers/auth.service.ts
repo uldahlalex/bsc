@@ -16,7 +16,6 @@ export class AuthService {
     return this.http.post<any>('http://localhost:3002/login', {email, password})
       .subscribe(res => {
         this.decodedToken = jwt_decode(res.token);
-        console.log(this.decodedToken);
         localStorage.setItem('id_token', res.token);
         localStorage.setItem('expires_at', String(this.decodedToken.exp))
         localStorage.setItem('decoded_token', JSON.stringify(this.decodedToken))
@@ -26,6 +25,7 @@ export class AuthService {
   logout() {
     localStorage.removeItem("id_token");
     localStorage.removeItem("expires_at");
+    localStorage.removeItem('decoded_token');
   }
 
   public isLoggedIn() {
@@ -37,6 +37,11 @@ export class AuthService {
 
   isLoggedOut() {
     return !this.isLoggedIn();
+  }
+
+
+  joinOrganization(organizationId) {
+    return this.http.put<any>('http://localhost:3002/joinOrganization/', {organizationId: organizationId, token: localStorage.getItem('id_token')});
   }
 
 }

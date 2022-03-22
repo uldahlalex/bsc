@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { Tab3Page } from './tab3.page';
 import { Tab3PageRoutingModule } from './tab3-routing.module';
+import {AboutComponent} from "../tree/minicomponents/about.component";
 
 @NgModule({
     imports: [
@@ -14,6 +15,6 @@ import { Tab3PageRoutingModule } from './tab3-routing.module';
         Tab3PageRoutingModule,
         ReactiveFormsModule,
     ],
-  declarations: [Tab3Page]
+  declarations: [Tab3Page, AboutComponent]
 })
 export class Tab3PageModule {}

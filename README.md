@@ -1,15 +1,19 @@
-
 # BSc
+## SRTS
 
 Monorepo containing source code for BSc project
 
 **Microdatabases for Microservices**
 ## Installation
 
-Execute using Docker
-
+Run containers using Docker
 ```bash
   docker-compose up
+```
+
+Run services in locally git bash script (requires npm install for all services)
+```bash
+  ./dev.sh
 ```
     
 ## Authors
