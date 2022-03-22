@@ -8,4 +8,4 @@ volumes
 data
 neostore
 plugins
-prod.sh
+prod.**.sh

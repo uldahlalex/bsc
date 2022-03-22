@@ -4,18 +4,14 @@
 Monorepo containing source code for BSc project
 
 **Microdatabases for Microservices**
-## Installation
+## Installation & Execution Locally
 
-Run containers using Docker
+1) Run containers using Docker
 ```bash
   docker-compose up
 ```
 
-Run services in locally git bash script (requires npm install for all services)
-```bash
-  ./dev.sh
-```
-    
+2) Run services in locally git bash script (requires nodejs) by executing dev.{{service}}.sh scripts in root folder
 ## Authors
 
 - [Alex Uldahl Pedersen](https://www.github.com/uldahlalex)
