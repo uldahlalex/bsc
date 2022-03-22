@@ -10,4 +10,4 @@ neostore
 plugins
 prod.**.sh
 secure-conect-activity.zip
-activityService/infrastructure/secure-connect-activity.zip
+activityService/secure-connect-activity.zip

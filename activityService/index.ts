@@ -7,6 +7,7 @@ import cors from 'cors';
 import * as utils from './utils/utils';
 import * as cqlWriter from './infrastructure/infrastructure.writes';
 import * as grpcServer from './inter-service/grpc.server';
+import * as amqpClient from './inter-service/amqp';
 
 const app = express();
 const server = http.createServer(app)
@@ -18,6 +19,8 @@ app.use(cors(/*{
     methods: "GET, PUT"
 }*/));
 app.use(express.json());
+
+amqpClient.init();
 
 /**
  * JWT bliver alligevel attached ved alle requests fra front-end, så at injecte userId er måske kontraproduktivt?
@@ -37,6 +40,7 @@ app.get('/recentActivity/:numberOfRecords/forUser/:forUser/:entityId', utils.aut
     let limit = Number(req.params.numberOfRecords);
 
     cqlWriter.getRecords(query, entityId, limit).then(result => {
+        console.log(result.rows);
         res.send(result.rows);
     })
 })
