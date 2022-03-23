@@ -35,7 +35,7 @@ app.post("/register", async (req, res) => {
         if (!(email && password && first_name && last_name)) {
             res.status(400).send("Invalid request");
         }
-        if (mongooseRead.findUser(email)!=undefined) {
+        if (await mongooseRead.findUser(email)!=undefined) {
             return res.status(409).send("User Already Exist. Please Login");
         }
         const encryptedPassword = await bcrypt.hash(password, 10);
@@ -108,10 +108,18 @@ app.delete('/delete', async (req, res) => {
     if (!user) {
         return res.status(409).send("User doesn't exist");
     }
-    let deletedDocToRollbackIfFail = await mongooseWrite.deleteUser(req.body.user_id);
+    let rb: any = await mongooseWrite.deleteUser(req.body.email);
 
-    await grpcClient.deleteSaga("abc").then(result => {
-        res.send(result);
+    await grpcClient.deleteSaga("abc").then(async result => {
+        if (result.isDeleted == false) {
+            await mongooseWrite.registerUser(
+              rb.first_name, rb.last_name, rb.email, rb.hash, rb.roles, rb.organization, rb._id)
+                .then(result => {
+                res.send('Rollback performed')
+            })
+        } else {
+            res.send(result);
+        }
     })
 
 })

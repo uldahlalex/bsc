@@ -15,9 +15,15 @@ export function initGrpcServer() {
 server.addService(deleteSagaProto.DeleteSaga.service, {
     deleteSagaService: async (call, callback) => {
         console.log(call.request.userId);
-        callback(null, false); //For dev: starting with a failed deletion of activities
-        /*grpcClient.deleteSaga("abc").then(result => {
-            callback(null, result);
-        })*/
+        //Only start sending the next SAGA step after a deletion query with returned RB data is ready
+        await grpcClient.deleteSaga("abc").then(async result => {
+            if (result.isDeleted == true) {
+                callback(null, true);
+            } else {
+                //Rollback here
+                callback(null, false)
+            }
+
+        })
     }
 })

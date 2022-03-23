@@ -1,15 +1,28 @@
 import {getToken} from "../utils/utils";
 import * as mongo from './infrastructure.shared';
 
-export async function registerUser(first_name, last_name, email, hash, roles, organization)  {
-    return await mongo.MongoUser.create({
-        first_name: first_name,
-        last_name: last_name,
-        email: email,
-        hash: hash,
-        roles: roles,
-        organization: organization
-    });
+export async function registerUser(first_name, last_name, email, hash, roles, organization, _id?)  {
+    if(_id) {
+        return await mongo.MongoUser.create({
+            _id: _id,
+            first_name: first_name,
+            last_name: last_name,
+            email: email,
+            hash: hash,
+            roles: roles,
+            organization: organization
+        });
+    } else {
+        return await mongo.MongoUser.create({
+            first_name: first_name,
+            last_name: last_name,
+            email: email,
+            hash: hash,
+            roles: roles,
+            organization: organization
+        });
+    }
+
 }
 
 export async function joinOrganization(req, res) {
@@ -26,8 +39,9 @@ export async function joinOrganization(req, res) {
     }
 }
 
-export function deleteUser(id): Object {
-    return mongo.MongoUser.findByIdAndDelete(id).exec().then(res => {
+export function deleteUser(email): Object {
+    return mongo.MongoUser.findOneAndDelete({email: email}).exec().then(res => {
+        console.log(res);
         return res;
     })
 }
