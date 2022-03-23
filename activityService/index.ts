@@ -6,6 +6,7 @@ import "reflect-metadata";
 import cors from 'cors';
 import * as utils from './utils/utils';
 import * as cqlWriter from './infrastructure/infrastructure.writes';
+import * as cqlReader from './infrastructure/infrastructure.reads';
 import * as grpcServer from './inter-service/grpc.server';
 import * as amqpClient from './inter-service/amqp';
 
@@ -22,10 +23,6 @@ app.use(express.json());
 
 amqpClient.init();
 
-/**
- * JWT bliver alligevel attached ved alle requests fra front-end, så at injecte userId er måske kontraproduktivt?
- * UID ikke heltal
- */
 app.get('/recentActivity/:numberOfRecords/forUser/:forUser/:entityId', utils.authorize('Member'), async (req, res) => {
     let query;
     let entityId;
@@ -39,8 +36,7 @@ app.get('/recentActivity/:numberOfRecords/forUser/:forUser/:entityId', utils.aut
     }
     let limit = Number(req.params.numberOfRecords);
 
-    cqlWriter.getRecords(query, entityId, limit).then(result => {
-        console.log(result.rows);
+    cqlReader.getRecords(query, entityId, limit).then(result => {
         res.send(result.rows);
     })
 })

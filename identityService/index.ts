@@ -66,8 +66,8 @@ app.post("/register", async (req, res) => {
 });
 
 app.put('/joinOrganization', async (req, res) => {
-    mongooseWrite.joinOrganization(req, res);
-
+    let result = await mongooseWrite.joinOrganization(req, res);
+    res.send(result);
 })
 
 app.post("/login", async (req, res) => {

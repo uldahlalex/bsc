@@ -154,6 +154,26 @@ app.delete('/organizations/:organizationId/projects/:projectId/tasks/:taskId', u
     })
 })
 
+app.delete('/organizations/:organizationId/projects/:projectId', utils.emitToActivityService('T'), async(req, res) => {
+    writeCypher.deleteProject(req).then(result => {
+        if(result==undefined) {
+            res.status(418).send('Could not delete project')
+        } else {
+            res.send(result);
+        }
+    })
+})
+
+app.delete('/organizations/:organizationId', utils.emitToActivityService('T'), async(req, res) => {
+    writeCypher.deleteOrganization(req).then(result => {
+        if(result==undefined) {
+            res.status(418).send('Could not delete organization')
+        } else {
+            res.send(result);
+        }
+    })
+})
+
 server.listen(port, () => {
     grpcServer.initGrpcServer();
     console.log('now listening on port ' + port)

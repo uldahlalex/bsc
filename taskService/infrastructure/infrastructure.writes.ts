@@ -141,6 +141,10 @@ export function createSubtask(req) {
     })
 }
 
+/**
+ * Preferred using delete task + subtasks over only subtasks, but this may be situational
+ * @param req
+ */
 export function deleteSubtasks(req) {
     let session = driver.session();
     return session.run('' +
@@ -181,57 +185,33 @@ export function deleteTask(req) {
     })
 }
 
-
-
-
-
-
-
-
-
-
-/*
-app.post('/organizations/createAndJoin', utils.emitToActivityService('T'), async (req, res) => {
+export function deleteProject(req) {
     let session = driver.session();
-    session.run('' +
-        'CREATE (o:Organization {name: $name}) RETURN o;', {
-        name: req.body.name
-    }).then((result: any) => {
+    return session.run('' +
+        'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
+        'WITH o as organization \n' +
+        'MATCH (organization)-[:CHILDREN]->(p:Project) WHERE ID(p)=$projectId\n' +
+        'WITH p as project \n' +
+        'MATCH (project)-[:CHILDREN*]->(t:Task)\n' +
+        'DETACH DELETE t, project;', {
+        organizationId: Number(req.params.organizationId),
+        projectId: Number(req.params.projectId),
+    }).then(result => {
         session.close();
-        try {
-            grpcClient.joinOrganizationUponCreation(
-                {
-                    userId: req.body.userId,
-                    organizationId: result.records[0]._fields[0].identity.low
-                }, (grpcError, grpcResult) => {
-                    if (!grpcError) {
-                        console.log('Successfully updated org ID for user')
-                    } else {
-                        //ROLLBACK
-                        console.error(grpcError)
-                        let session = driver.session();
-                        session.run('' +
-                            'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
-                            'DETACH DELETE (o);', {
-                            organizationId: result.records[0]._fields[0].identity.low
-                        }).then(result => {
-                            res.send('Error adding user to organization; No organization added')
-                        })
-                    }
-                })
-        } catch (e) {
-            //ROLLBACK
-            console.error(e)
-            let session = driver.session();
-            session.run('' +
-                'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
-                'DETACH DELETE (o);', {
-                organizationId: result.records[0]._fields[0].identity.low
-            }).then(result => {
-                res.send('Error adding user to organization; No organization added')
-            })
-        }
-
-        res.send(result.records[0]._fields)
+        return result;
     })
-})*/
+}
+
+export function deleteOrganization(req) {
+    let session = driver.session();
+    return session.run('' +
+        'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
+        'WITH o as organization \n' +
+        'MATCH (organization)-[:CHILDREN*]->(p)\n' +
+        'DETACH DELETE p, organization;', {
+        organizationId: Number(req.params.organizationId),
+    }).then(result => {
+        session.close();
+        return result;
+    })
+}

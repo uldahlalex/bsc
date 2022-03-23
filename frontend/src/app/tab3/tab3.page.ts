@@ -81,5 +81,12 @@ export class Tab3Page {
   logIn() {
     this.authService.login(this.emailForm.value, this.passwordForm.value)
   }
+
+  deleteOrganization(organizationId) {
+    console.log(this.organizations);
+    this.taskService.deleteOrganization(organizationId).subscribe(sub => {
+      this.organizations = this.organizations.filter(org => org._fields[0]._id.low == !organizationId)
+    })
+  }
 }
 

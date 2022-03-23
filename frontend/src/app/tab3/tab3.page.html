@@ -27,9 +27,13 @@
         <ion-button *ngIf="user_org._id.low!=o._fields[0]._id.low" fill="outline" slot="end"
                     (click)="joinOrganization(o._fields[0]._id.low)">Join
         </ion-button>
+        <ion-button color="danger" *ngIf="user_org._id.low==o._fields[0]._id.low" fill="outline"
+                    slot="end" (click)="deleteOrganization(o._fields[0]._id.low)">Delete organization
+        </ion-button>
         <ion-button color="success" disabled="true" *ngIf="user_org._id.low==o._fields[0]._id.low" fill="outline"
                     slot="end">Your organization
         </ion-button>
+
       </ion-item>
     </ion-list>
 

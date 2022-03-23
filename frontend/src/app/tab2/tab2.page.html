@@ -17,9 +17,12 @@
     <ion-grid>
       <ion-row *ngFor="let p of projects">
         <ion-col>
-          <ion-card class="ion-padding" [routerLink]="'/tabs/projects/'+p._id.low">
+          <ion-item class="ion-padding" [routerLink]="'/tabs/projects/'+p._id.low">
             <ion-title>{{p.name}}</ion-title>
-          </ion-card>
+            <ion-button color="danger" fill="outline"
+                        slot="end" (click)="deleteProject(p._id.low)">Delete project
+            </ion-button>
+          </ion-item>
         </ion-col>
       </ion-row>
     </ion-grid>
