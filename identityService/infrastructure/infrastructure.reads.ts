@@ -17,10 +17,8 @@ export async function getUserInfosFromListOfIds(ids: []): Promise<any[]> {
     return users;
 }
 
-
-    export function findUser(email): boolean {
-        return !!mongo.MongoUser.findOne({email});
-    }
-export async function login(email) {
-    return mongo.MongoUser.findOne({email});
+export function findUser(email) {
+    return mongo.MongoUser.findOne({email: email}).exec().then(res => {
+        return res;
+    });
 }

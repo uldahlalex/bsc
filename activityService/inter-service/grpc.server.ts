@@ -13,10 +13,11 @@ export function initGrpcServer() {
 
 
 server.addService(deleteSagaProto.DeleteSaga.service, {
-    notifyActivityService: async (call, callback) => {
+    deleteSagaService: async (call, callback) => {
         console.log(call.request.userId);
-        grpcClient.notifyActivity("abc").then(result => {
+        callback(null, false); //For dev: starting with a failed deletion of activities
+        /*grpcClient.deleteSaga("abc").then(result => {
             callback(null, result);
-        })
+        })*/
     }
 })

@@ -35,11 +35,9 @@ app.post("/register", async (req, res) => {
         if (!(email && password && first_name && last_name)) {
             res.status(400).send("Invalid request");
         }
-
-        if (mongooseRead.findUser(email)) {
+        if (mongooseRead.findUser(email)!=undefined) {
             return res.status(409).send("User Already Exist. Please Login");
         }
-
         const encryptedPassword = await bcrypt.hash(password, 10);
         const roles = ["Member"];
         const organization = undefined;
@@ -81,14 +79,12 @@ app.post("/login", async (req, res) => {
         let user = null;
 
         try {
-            user = await mongooseRead.login(email)
+            user = await mongooseRead.findUser(email)
             roles = user.roles || null;
             organization = user.organizationId;
         } catch (e) {
             console.log(e)
         }
-
-
         if (user && (await bcrypt.compare(password, user.hash))) {
             user.token = jwt.sign(
                 {user_id: user._id, email, roles, organization},
@@ -108,12 +104,13 @@ app.post("/login", async (req, res) => {
 });
 
 app.delete('/delete', async (req, res) => {
-    if (!mongooseRead.findUser(req.body.email)) {
+    let user = await mongooseRead.findUser(req.body.email);
+    if (!user) {
         return res.status(409).send("User doesn't exist");
     }
-    //let deletedDocToRollbackIfFail = await mongooseWrite.deleteUser(req.body.user_id);
+    let deletedDocToRollbackIfFail = await mongooseWrite.deleteUser(req.body.user_id);
 
-    await grpcClient.notifyActivity("abc").then(result => {
+    await grpcClient.deleteSaga("abc").then(result => {
         res.send(result);
     })
 

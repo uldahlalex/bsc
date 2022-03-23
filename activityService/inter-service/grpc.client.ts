@@ -3,9 +3,9 @@ const PROTO_PATH = __dirname + '/protos/delete-saga.proto'
 const deleteSagaProto = grpc.load(PROTO_PATH).DeleteSaga
 const deleteSagaProtoInstance = new deleteSagaProto('localhost:50052', grpc.credentials.createInsecure());
 
-export function notifyActivity(id): Promise<any>{
+export function deleteSaga(id): Promise<any>{
     return new Promise( (resolve) => {
-        return deleteSagaProtoInstance.notifyActivityService(
+        return deleteSagaProtoInstance.deleteSagaService(
             {
                 userId: id
             }, async (grpcError, grpcResult) => {
