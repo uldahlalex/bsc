@@ -109,8 +109,11 @@ app.delete('/delete', async (req, res) => {
         return res.status(409).send("User doesn't exist");
     }
     let rb: any = await mongooseWrite.deleteUser(req.body.email);
+    if (!rb) {
+        //end the function here, and don't execute the gRPC calls here if deletion fails
+    }
 
-    await grpcClient.deleteSaga("abc").then(async result => {
+    await grpcClient.deleteSaga(rb._id).then(async result => {
         if (result.isDeleted == false) {
             await mongooseWrite.registerUser(
               rb.first_name, rb.last_name, rb.email, rb.hash, rb.roles, rb.organization, rb._id)

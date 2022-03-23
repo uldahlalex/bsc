@@ -1,5 +1,8 @@
 import * as shared from './infrastructure.shared';
 
+
+
+
 const client = shared.cassandraClient;
 
 export function insertAction(activity) {
@@ -13,4 +16,14 @@ export function insertAction(activity) {
         activity.service,
         activity.userid
     ]).then(() => {});
+}
+
+export function deleteAllActionsForUser(userId) {
+    return client.execute('DELETE FROM actions where userid = ?', [
+        userId
+    ], {prepare: true});
+}
+
+export function rollBack(actions: any) {
+
 }
