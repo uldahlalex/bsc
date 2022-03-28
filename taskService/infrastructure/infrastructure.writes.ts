@@ -125,9 +125,9 @@ export function createSubtask(userId, organizationId, projectId, taskId, name, d
         'WITH COLLECT(collect) AS ps\n' +
         'CALL apoc.convert.toTree(ps) YIELD value\n' +
         'RETURN value;', {
-        organizationId: userId,//Number(req.params.organizationId),
-        projectId: organizationId,//Number(req.params.projectId),
-        taskId: projectId,//Number(req.params.taskId),
+        organizationId: organizationId,//Number(req.params.organizationId),
+        projectId: projectId,//Number(req.params.projectId),
+        taskId: taskId,//Number(req.params.taskId),
         name: name,//req.body.name,
         description: description,//req.body.description,
         createdBy: userId//token.user_id

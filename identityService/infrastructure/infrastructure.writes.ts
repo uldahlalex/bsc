@@ -1,16 +1,18 @@
 import {getToken} from "../utils/utils";
 import * as mongo from './infrastructure.shared';
+import mongoose from "mongoose";
 
 export async function registerUser(first_name, last_name, email, hash, roles, organization, _id?)  {
     if(_id) {
+        var id = new mongoose.Types.ObjectId(_id);
         return await mongo.MongoUser.create({
-            _id: _id,
+            _id: id,
             first_name: first_name,
             last_name: last_name,
             email: email,
             hash: hash,
             roles: roles,
-            organization: organization
+            organizationId: organization
         });
     } else {
         return await mongo.MongoUser.create({
@@ -19,7 +21,7 @@ export async function registerUser(first_name, last_name, email, hash, roles, or
             email: email,
             hash: hash,
             roles: roles,
-            organization: organization
+            organizationId: organization
         });
     }
 

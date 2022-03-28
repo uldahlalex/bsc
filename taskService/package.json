@@ -13,6 +13,7 @@
     "build": "tsc -p ."
   },
   "dependencies": {
+    "@faker-js/faker": "^6.0.0",
     "@grpc/grpc-js": "^1.5.5",
     "@grpc/proto-loader": "^0.6.9",
     "amqplib": "^0.8.0",

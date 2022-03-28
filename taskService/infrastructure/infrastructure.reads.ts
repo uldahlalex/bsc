@@ -14,6 +14,30 @@ export function getOrganizations() {
     })
 }
 
+export function getProjectByName(projectName) {
+    let session = driver.session();
+    return session.run(
+        'MATCH (o:Project) WHERE (o.name=$projectName)\n' +
+        'RETURN (o);', {
+            projectName: projectName
+        }).then((result: any) => {
+        session.close();
+        return result.records;
+    })
+}
+
+export function getOrganizationByName(organizationName) {
+    let session = driver.session();
+    return session.run(
+        'MATCH (o:Organization) WHERE (o.name=$organizationName)\n' +
+        'RETURN (o);', {
+            organizationName: organizationName
+        }).then((result: any) => {
+        session.close();
+        return result.records;
+    })
+}
+
 export function getProjectsForOrganization(organizationId) {
     let session = driver.session();
     return session.run(

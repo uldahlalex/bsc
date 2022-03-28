@@ -1,17 +1,18 @@
 <ion-content>
 
-  <ion-text *ngIf="projectMetaData as project">
-    {{projectMetaData | json}}
-  </ion-text>
+
 
   <ion-grid class="ion-padding">
     <ion-row>
       <ion-col size="10">
-        <ion-button>Expand all</ion-button>
-        <ion-button>Show XYZ</ion-button>
+        <ion-text *ngIf="projectMetaData as project">
+          <b>Project started: </b> {{project.createdAt.year.low}}-{{project.createdAt.month.low}}-{{project.createdAt.day.low}}
+          <br>
+          <b>Project description: </b> {{project.description}}
+        </ion-text>
       </ion-col>
       <ion-col size="2">
-        <ion-button (click)="openAddTaskPopover(projectId, false)">Add task</ion-button>
+        <ion-button fill="outline" size="small" (click)="openAddTaskPopover(projectId, false)">Add task</ion-button>
       </ion-col>
     </ion-row>
   </ion-grid>
@@ -28,6 +29,9 @@
         <ion-button *ngIf="task.done != true" (click)="openEditTaskPopover(task)" style="border-radius: 15px;" size="large" color="light" fill="solid" slot="start">
           <ion-icon size="large" color="primary" name="hourglass-outline"></ion-icon>
           &nbsp;In progress
+        </ion-button>
+        <ion-button slot="end" disabled="true" style="border-radius: 15px;" size="large" color="light" fill="solid">
+          <ion-icon size="large" name="person-circle-outline"></ion-icon>Made by&nbsp;<b>{{task.user.first_name}}</b>
         </ion-button>
 
         <ion-title slot="start">{{task.name}}</ion-title>
@@ -73,9 +77,7 @@
             <ion-icon name="expand-outline"></ion-icon>
           </ion-button>&nbsp;
           <ion-footer *ngIf="task.showAllProperties">
-            <ion-button disabled="true" style="border-radius: 15px;" size="large" color="light" fill="solid">
-              <ion-icon size="large" name="person-circle-outline"></ion-icon>Made by you
-            </ion-button>
+
           </ion-footer>
         </ion-toolbar>
 

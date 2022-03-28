@@ -21,7 +21,7 @@ export class TaskService {
     return this.http.get<any>(this.baseUrl+'organizations/'+organizationId+'/projects/'+projectId);
   }
   getTasks(organizationId, projectId) {
-    return this.http.get<any[]>(this.baseUrl+'organizations/'+organizationId+'/projects/'+projectId+'/tasks');
+    return this.http.get<any[]>(this.baseUrl+'organizations/'+organizationId+'/projects/'+projectId+'/tasksWithUserData');
   }
   markTaskAsDone(organizationId, projectId, taskId) {
     return this.http.put<any>(this.baseUrl+'organizations/'+organizationId+'/projects/'+projectId+'/tasks/'+taskId+'/markTaskAsDone', {});

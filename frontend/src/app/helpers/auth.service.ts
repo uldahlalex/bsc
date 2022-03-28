@@ -19,6 +19,7 @@ export class AuthService {
         localStorage.setItem('id_token', res.token);
         localStorage.setItem('expires_at', String(this.decodedToken.exp))
         localStorage.setItem('decoded_token', JSON.stringify(this.decodedToken))
+        window.location.reload();
       });
   }
 
@@ -26,6 +27,7 @@ export class AuthService {
     localStorage.removeItem("id_token");
     localStorage.removeItem("expires_at");
     localStorage.removeItem('decoded_token');
+    window.location.reload();
   }
 
   public isLoggedIn() {

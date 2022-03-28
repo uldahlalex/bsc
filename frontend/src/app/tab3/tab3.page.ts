@@ -28,15 +28,18 @@ export class Tab3Page {
               private taskService: TaskService,
               private popoverController: PopoverController) {
     this.decoded_token = JSON.parse(localStorage.getItem('decoded_token'));
-    taskService.getOrganizations().subscribe(sub => {
-      this.organizations = sub;
-      sub.forEach(each => {
-        if(each._fields[0]._id.low == this.decoded_token.organization) {
-          this.user_org = each._fields[0];
+    if(localStorage.getItem('id_token')) {
+      taskService.getOrganizations().subscribe(sub => {
+        this.organizations = sub;
+        sub.forEach(each => {
+          if(each._fields[0]._id.low == this.decoded_token.organization) {
+            this.user_org = each._fields[0];
 
-        }
+          }
+        })
       })
-    })
+    }
+
   }
 
   newOrganization() {
@@ -68,7 +71,7 @@ export class Tab3Page {
 
   logout() {
     this.authService.logout();
-    window.location.reload();
+
   }
 
   async openAbout() {
@@ -79,7 +82,8 @@ export class Tab3Page {
   }
 
   logIn() {
-    this.authService.login(this.emailForm.value, this.passwordForm.value)
+    this.authService.login(this.emailForm.value, this.passwordForm.value);
+
   }
 
   deleteOrganization(organizationId) {

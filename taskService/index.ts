@@ -11,6 +11,7 @@ import * as grpcClient from './inter-service/grpc.client';
 import * as grpcServer from './inter-service/grpc.server';
 import * as sharedCypher from './infrastructure/infrastructure.shared';
 import {getToken} from "./utils/utils";
+import * as seeder from './utils/seeder';
 
 const app = express();
 const server = http.createServer(app)
@@ -117,7 +118,10 @@ app.post('/organizations', utils.emitToActivityService('T'), async (req, res) =>
 
 app.post('/organizations/:organizationId/projects/:projectId/tasks', utils.emitToActivityService('T'), async (req, res) => {
     let userId = getToken(req).user_id;
+    console.log(userId);
+
     writeCypher.createTaskForProject(userId, Number(req.params.organizationId), Number(req.params.projectId), req.body.name, req.body.description).then(result => {
+        console.log(result);
         if (result == undefined) {
             res.status(418).send("Task creation not possible");
         } else {
@@ -179,6 +183,7 @@ app.delete('/organizations/:organizationId', utils.emitToActivityService('T'), a
 
 server.listen(port, () => {
     grpcServer.initGrpcServer();
+    seeder.seed();
     console.log('now listening on port ' + port)
 })
 

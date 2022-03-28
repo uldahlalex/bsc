@@ -25,10 +25,13 @@ export class TreeComponent {
     this.decoded_token = JSON.parse(localStorage.getItem('decoded_token'))
     this.taskService.getTasks(this.decoded_token.organization, this.projectId).subscribe(sub => {
       this.tasks = sub;
+      console.log(sub);
     })
     this.taskService.getProjectMetadata(this.decoded_token.organization, this.projectId).subscribe(sub => {
       this.projectMetaData = sub;
+      console.log(sub);
     })
+
   }
 
   expand(child) {
