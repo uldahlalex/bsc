@@ -3,7 +3,7 @@ import {getToken} from "../utils/utils";
 
 let driver = shared.neo4Driver;
 
-export function markTaskAsDone(req) {
+export function markTaskAsDone(organizationId, projectId, taskId) {
     let session = driver.session();
     return session.run(
         'MATCH (o:Organization) WHERE ID(o)=$organizationId \n' +
@@ -14,16 +14,16 @@ export function markTaskAsDone(req) {
         'WITH t as task \n' +
         'SET task.done = true \n' +
         'RETURN task;', {
-        organizationId: Number(req.params.organizationId),
-        projectId: Number(req.params.projectId),
-        taskId: Number(req.params.taskId)
+        organizationId: organizationId,//Number(req.params.organizationId),
+        projectId: projectId,//Number(req.params.projectId),
+        taskId: taskId//Number(req.params.taskId)
     }).then(result => {
         session.close();
         return result.records.length > 0;
     })
 }
 
-export function markTaskAsUndone(req) {
+export function markTaskAsUndone(organizationId, projectId, taskId) {
     let session = driver.session();
     return session.run(
         'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
@@ -34,16 +34,16 @@ export function markTaskAsUndone(req) {
         'with t as task\n' +
         'SET task.done = false\n' +
         'RETURN task;', {
-        organizationId: Number(req.params.organizationId),
-        projectId: Number(req.params.projectId),
-        taskId: Number(req.params.taskId)
+        organizationId: organizationId,//Number(req.params.organizationId),
+        projectId: projectId,//Number(req.params.projectId),
+        taskId: taskId//Number(req.params.taskId)
     }).then(result => {
       session.close();
       return result.records.length > 0
     })
 }
 
-export function createProjectForOrganization(req) {
+export function createProjectForOrganization(organizationId, name, description) {
     let session = driver.session();
     return session.run(
         'MATCH (o: Organization) WHERE ID(o)=$organizationId\n' +
@@ -52,9 +52,9 @@ export function createProjectForOrganization(req) {
         'WITH COLLECT(p) AS ps\n' +
         'CALL apoc.convert.toTree(ps) YIELD value\n' +
         'RETURN value;', {
-        organizationId: Number(req.params.organizationId),
-        name: req.body.name,
-        description: req.body.description
+        organizationId: organizationId,//Number(req.params.organizationId),
+        name: name, //req.body.name,
+        description: description//req.body.description
     }).then((result: any) => {
         session.close();
         let dto = result.records[0]._fields[0];
@@ -63,22 +63,21 @@ export function createProjectForOrganization(req) {
     })
 }
 
-export function createOrganization(req) {
+export function createOrganization(name) {
     let session = driver.session();
     return session.run('' +
         'CREATE p=(o:Organization {name: $name}) ' +
         'WITH COLLECT(p) AS ps ' +
         'CALL apoc.convert.toTree(ps) YIELD value ' +
         'RETURN value;', {
-        name: req.body.name
+        name: name//req.body.name
     }).then((result: any) => {
         session.close();
         return result.records[0];
     })
 }
 
-export function createTaskForProject(req) {
-    const token = getToken(req);
+export function createTaskForProject(userId, organizationId, projectId, name, description) {
     let session = driver.session();
     return session.run('' +
         'MATCH (o:Organization) WHERE ID(o)=$organizationId \n' +
@@ -93,13 +92,12 @@ export function createTaskForProject(req) {
         '})<-[:CHILDREN]-(project) ' +
         'WITH COLLECT(collect) AS ps\n' +
         'CALL apoc.convert.toTree(ps) YIELD value\n' +
-        'RETURN value;',
-        {
-            organizationId: Number(req.params.organizationId),
-            projectId: Number(req.params.projectId),
-            name: req.body.name,
-            description: req.body.description,
-            createdBy: token.user_id
+        'RETURN value;', {
+            organizationId: organizationId,//Number(req.params.organizationId),
+            projectId: projectId,//Number(req.params.projectId),
+            name: name,//req.body.name,
+            description: description,//req.body.description,
+            createdBy: userId//token.user_id
         })
         .then((result: any) => {
             session.close();
@@ -109,9 +107,8 @@ export function createTaskForProject(req) {
         })
 }
 
-export function createSubtask(req) {
+export function createSubtask(userId, organizationId, projectId, taskId, name, description) {
     let session = driver.session();
-    const token = getToken(req);
     return session.run('' +
         'MATCH (o:Organization) WHERE ID(o)=$organizationId \n' +
         'WITH o as organization \n' +
@@ -128,12 +125,12 @@ export function createSubtask(req) {
         'WITH COLLECT(collect) AS ps\n' +
         'CALL apoc.convert.toTree(ps) YIELD value\n' +
         'RETURN value;', {
-        organizationId: Number(req.params.organizationId),
-        projectId: Number(req.params.projectId),
-        taskId: Number(req.params.taskId),
-        name: req.body.name,
-        description: req.body.description,
-        createdBy: token.user_id
+        organizationId: userId,//Number(req.params.organizationId),
+        projectId: organizationId,//Number(req.params.projectId),
+        taskId: projectId,//Number(req.params.taskId),
+        name: name,//req.body.name,
+        description: description,//req.body.description,
+        createdBy: userId//token.user_id
     }).then((result: any) => {
         session.close();
         let dto = result.records[0]._fields[0];
@@ -146,7 +143,7 @@ export function createSubtask(req) {
  * Preferred using delete task + subtasks over only subtasks, but this may be situational
  * @param req
  */
-export function deleteSubtasks(req) {
+export function deleteSubtasks(organizationId, projectId, taskId) {
     let session = driver.session();
     return session.run('' +
         'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
@@ -157,16 +154,16 @@ export function deleteSubtasks(req) {
         'WITH t as task\n' +
         'MATCH (task)-[:CHILDREN*]->(n)\n' +
         'DETACH DELETE n;', {
-        organizationId: Number(req.params.organizationId),
-        projectId: Number(req.params.projectId),
-        taskId: Number(req.params.taskId),
+        organizationId: organizationId,//Number(req.params.organizationId),
+        projectId: projectId,//Number(req.params.projectId),
+        taskId: taskId//Number(req.params.taskId),
     }).then(result => {
         session.close();
         return true
     })
 }
 
-export function deleteTask(req) {
+export function deleteTask(organizationId, projectId, taskId) {
     let session = driver.session();
     return session.run('' +
         'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
@@ -177,16 +174,16 @@ export function deleteTask(req) {
         'WITH t as task\n' +
         'MATCH (task)-[:CHILDREN*]->(n)\n' +
         'DETACH DELETE n, task;', {
-        organizationId: Number(req.params.organizationId),
-        projectId: Number(req.params.projectId),
-        taskId: Number(req.params.taskId),
+        organizationId: organizationId,//Number(req.params.organizationId),
+        projectId: projectId,//(Number(req.params.projectId),
+        taskId: taskId//Number(req.params.taskId),
     }).then(result => {
         session.close();
         return result;
     })
 }
 
-export function deleteProject(req) {
+export function deleteProject(organizationId, projectId) {
     let session = driver.session();
     return session.run('' +
         'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
@@ -195,22 +192,22 @@ export function deleteProject(req) {
         'WITH p as project \n' +
         'MATCH (project)-[:CHILDREN*]->(t:Task)\n' +
         'DETACH DELETE t, project;', {
-        organizationId: Number(req.params.organizationId),
-        projectId: Number(req.params.projectId),
+        organizationId: organizationId,//Number(req.params.organizationId),
+        projectId: projectId//Number(req.params.projectId),
     }).then(result => {
         session.close();
         return result;
     })
 }
 
-export function deleteOrganization(req) {
+export function deleteOrganization(organizationId) {
     let session = driver.session();
     return session.run('' +
         'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
         'WITH o as organization \n' +
         'MATCH (organization)-[:CHILDREN*]->(p)\n' +
         'DETACH DELETE p, organization;', {
-        organizationId: Number(req.params.organizationId),
+        organizationId: organizationId//Number(req.params.organizationId),
     }).then(result => {
         session.close();
         return result;
