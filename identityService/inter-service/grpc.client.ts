@@ -10,7 +10,6 @@ export function deleteSaga(id): Promise<any>{
                 userId: id
             }, async (grpcError, grpcResult) => {
                 let dto = await grpcResult;
-                console.log(dto);
                 resolve(grpcResult);
             })
     })

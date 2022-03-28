@@ -10,6 +10,7 @@ import {authorize} from "./utils/utils";
 import * as mongooseRead from './infrastructure/infrastructure.reads';
 import * as mongooseWrite from './infrastructure/infrastructure.writes';
 import * as mongo from './infrastructure/infrastructure.shared';
+import * as seeder from './utils/seeder';
 
 const argv = minimist(process.argv.slice(1));
 const port = argv['port'] || 3002;
@@ -17,8 +18,8 @@ const app = express();
 const httpServer = http.createServer(app);
 
 if (argv['secret'] == undefined) {
-    console.log('No secret defined. Program will close with exit code 1')
-    process.exit(1);
+    argv['secret']='secret';
+    console.log('No secret defined. Program will use default development secret for demo database')
 }
 
 app.use(express.json({limit: "50mb"}));
@@ -90,7 +91,7 @@ app.post("/login", async (req, res) => {
                 {user_id: user._id, email, roles, organization},
                 argv['secret'],
                 {
-                    expiresIn: "1000d",
+                    expiresIn: "10h",
                 }
             );
             user.hash = '';
@@ -108,23 +109,24 @@ app.delete('/delete', async (req, res) => {
     if (!user) {
         return res.status(409).send("User doesn't exist");
     }
-    let rb: any = await mongooseWrite.deleteUser(req.body.email);
-    if (!rb) {
-        //end the function here, and don't execute the gRPC calls here if deletion fails
+    let returnValue;
+    let rollbackValue: any = await mongooseWrite.deleteUser(req.body.email);
+    if (!rollbackValue) {
+        returnValue = 'No deletion performed, could not find user';
     }
-
-    await grpcClient.deleteSaga(rb._id).then(async result => {
-        if (result.isDeleted == false) {
-            await mongooseWrite.registerUser(
-              rb.first_name, rb.last_name, rb.email, rb.hash, rb.roles, rb.organization, rb._id)
-                .then(result => {
-                res.send('Rollback performed')
-            })
-        } else {
-            res.send(result);
-        }
-    })
-
+        await grpcClient.deleteSaga(rollbackValue._id.toString()).then( async result => {
+            if (result.isDeleted == false) {
+                await mongooseWrite.registerUser(
+                    rollbackValue.first_name, rollbackValue.last_name, rollbackValue.email, rollbackValue.hash, rollbackValue.roles, rollbackValue.organization, rollbackValue._id)
+                    .then(result => {
+                        returnValue = 'User has not been deleted due to transaction problems. ' +
+                            'A rollback has occured.';
+                    })
+            } else {
+                returnValue = 'User with data has been safely deleted';
+            }
+        })
+    res.send(returnValue);
 })
 
 app.get("/test", authorize("Member"), (req, res) => {
@@ -148,6 +150,7 @@ app.use("*", (req, res) => {
 
 httpServer.listen(port, () => {
     grpcServer.initGrpcServer();
+    seeder.writeUser();
     console.log('now listening on port ' + port)
 })
 

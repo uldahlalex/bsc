@@ -5,7 +5,6 @@ import minimist from 'minimist';
 import "reflect-metadata";
 import cors from 'cors';
 import * as utils from './utils/utils';
-import * as cqlWriter from './infrastructure/infrastructure.writes';
 import * as cqlReader from './infrastructure/infrastructure.reads';
 import * as grpcServer from './inter-service/grpc.server';
 import * as amqpClient from './inter-service/amqp';

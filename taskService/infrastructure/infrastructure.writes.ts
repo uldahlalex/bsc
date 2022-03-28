@@ -1,5 +1,6 @@
 import * as shared from './infrastructure.shared';
 import {getToken} from "../utils/utils";
+
 let driver = shared.neo4Driver;
 
 export function markTaskAsDone(req) {
@@ -210,6 +211,20 @@ export function deleteOrganization(req) {
         'MATCH (organization)-[:CHILDREN*]->(p)\n' +
         'DETACH DELETE p, organization;', {
         organizationId: Number(req.params.organizationId),
+    }).then(result => {
+        session.close();
+        return result;
+    })
+}
+
+export function deleteAllTasksForUser(userId) {
+    let session = driver.session();
+    return session.run('' +
+        'MATCH (t: Task) WHERE t.createdBy = "623b40e9387b8a9cf2230e50"\n' +
+        'WITH t as tasks\n' +
+        'MATCH (tasks)-[:CHILDREN*]->(p)\n' +
+        'DETACH DELETE p, tasks', {
+        userId: userId,
     }).then(result => {
         session.close();
         return result;

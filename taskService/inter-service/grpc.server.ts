@@ -1,5 +1,6 @@
 const grpc = require('grpc');
 const deleteSagaProto = grpc.load(__dirname+'/protos/delete-saga.proto')
+import * as mongoWriter from '../infrastructure/infrastructure.writes';
 
 export var server = new grpc.Server()
 
@@ -10,10 +11,13 @@ export function initGrpcServer() {
 }
 
 server.addService(deleteSagaProto.DeleteSaga.service, {
-    notifyActivityService: async (call, callback) => {
-        console.log('Task service reached')
-        //Delete query and callback true if successful delete. If unsuccessful delete callback false
-            callback(null, true);
+    deleteSagaService: async (call, callback) => {
+        let deletion = mongoWriter.deleteAllTasksForUser(call.request.userId);
+        if(deletion) {
+            callback(null, true)
+        } else {
+            callback(null, false)
+        }
     }
 })
 

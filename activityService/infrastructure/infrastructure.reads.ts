@@ -11,7 +11,7 @@ export function getRecords(query, entityId, limit) {
 }
 
 export function getAllActionsForUser(userId) {
-    return client.execute('SELECT * FROM activity.actions WHERE userid = ?', [
+    return client.execute('SELECT * FROM actions WHERE userid = ?;', [
         userId
     ], {prepare: true});
 }

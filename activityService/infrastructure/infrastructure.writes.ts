@@ -1,9 +1,10 @@
 import * as shared from './infrastructure.shared';
+import * as cassandra from 'cassandra-driver';
 
 
 
 
-const client = shared.cassandraClient;
+const client: cassandra.Client = shared.cassandraClient;
 
 export function insertAction(activity) {
     const query = 'INSERT INTO actions (actiontype, bodyitems, endpoint, eventtime, organizationid, service, userid) VALUES (?, ?, ?, ?, ?, ?, ?);';
@@ -18,12 +19,22 @@ export function insertAction(activity) {
     ]).then(() => {});
 }
 
-export function deleteAllActionsForUser(userId) {
-    return client.execute('DELETE FROM actions where userid = ?', [
+export function deleteAllActionsForUser(userId): boolean | cassandra.types.Row[] {
+    let res;
+    client.execute('DELETE FROM actions where userid = ?', [
         userId
-    ], {prepare: true});
+    ], {prepare: true},  (err, result) => {
+        if(err) {
+            res = false;
+        } else {
+            res = result.rows;
+        }
+    });
+    return res;
 }
 
 export function rollBack(actions: any) {
-
+    return client.execute('INSERT INTO actions JSON \'?\';', [
+        actions
+    ], {prepare: true})
 }
