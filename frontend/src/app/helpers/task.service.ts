@@ -8,8 +8,8 @@ export class TaskService {
 
   constructor(private http: HttpClient) { }
 
-  baseUrl = 'http://localhost:5000/task/';
-  identityUrl = 'http://localhost:3002/';
+  baseUrl = 'http://172.17.0.0:5000/task/';
+  identityUrl = 'http://172.17.0.0:3002/';
 
   getOrganizations() {
     return this.http.get<any[]>(this.baseUrl+'organizations');

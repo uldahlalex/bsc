@@ -1,15 +1,12 @@
-# Step 1: Build the app in image 'builder'
-FROM node:16.10-alpine AS builder
-ARG ANGULAR
-WORKDIR /usr/src/app
-COPY . .
-RUN npm i && npm i -g @angular/cli && ng build
+FROM node:16.10-alpine as build-step
+RUN mkdir -p /app
+WORKDIR /app
+COPY package.json /app
+RUN npm install
+COPY . /app
+RUN npm run build --prod
 
 # Step 2: Use build output from 'builder'
-FROM nginx:stable-alpine
-LABEL version="1.0"
-
-COPY nginx.conf /etc/nginx/nginx.conf
-
-WORKDIR /usr/share/nginx/html
-COPY --from=builder /usr/src/app/dist/frontend/ .
+FROM nginx:1.20.1
+COPY --from=build-step /app/dist/frontend /usr/share/nginx/html
+EXPOSE 4200:80

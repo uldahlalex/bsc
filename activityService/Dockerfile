@@ -14,6 +14,6 @@ RUN npm run build
 
 COPY ./inter-service/protos/delete-saga.proto ./dist/inter-service/protos/
 
-#EXPOSE 3001
+EXPOSE 3003
 
 CMD ["node", "./dist/index.js"]
