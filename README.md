@@ -17,7 +17,7 @@ Run databases and AMQP broker using docker:
 ```bash
   docker-compose -f docker-compose-dev.yml up -d
 ```
-And then execute the dev.<service>.sh files
+And then execute the dev.{{service name}}.sh files
 
 
 ## Authors
