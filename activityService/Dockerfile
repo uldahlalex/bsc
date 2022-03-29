@@ -12,7 +12,6 @@ COPY . /app
 RUN npm install
 RUN npm run build
 
-COPY ./inter-service/protos/task-identity.proto ./dist/inter-service/protos/
 COPY ./inter-service/protos/delete-saga.proto ./dist/inter-service/protos/
 
 #EXPOSE 3001

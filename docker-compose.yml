@@ -1,4 +1,4 @@
-version: '4'
+version: '3.8'
 
 # This is a compose file for running the system locally,
 # and therefore requires running microservices independently.
@@ -7,46 +7,69 @@ version: '4'
 # For a complete setup w/ all microservices, execute the docker-compose-deploy.yml
 
 services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: 'rabbitmq'
+    restart: 'on-failure'
+    volumes:
+      - ./.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+      - ./.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    network_mode: "host"
+
   identityStore:
+    network_mode: "host"
     image: mongo
-    restart: 'unless-stopped'
-    ports:
-      - '27017:27017'
+    restart: 'on-failure'
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
     volumes:
       - ./db:/data/mongodb/data
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
-    container_name: 'rabbitmq'
-    ports:
-      - 5672:5672
-      - 15672:15672
-    volumes:
-      - ./.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
-      - ./.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+  identityService:
+    image: identity
+    build: ./identityService
+    depends_on:
+      - identityStore
+      - rabbitmq
+    network_mode: "host"
+
   taskStore:
     container_name: taskStore
     image: neo4j:4.0
     volumes:
       - ./data:/data
       - ./plugins:/plugins
-    ports:
-      - "7474:7474"
-      - "7687:7687"
+    network_mode: "host"
     environment:
       - NEO4J_apoc_export_file_enabled=true
       - NEO4J_apoc_import_file_enabled=true
       - NEO4J_apoc_import_file_use__neo4j__config=true
       - NEO4JLABS_PLUGINS=["apoc"]
-     # - NEO4J_dbms_memory_pagecache_size=0
       - NEO4J_dbms_query__cache__size=0
+  taskService:
+    image: task
+    build: ./taskService
+    depends_on:
+      - taskStore
+      - rabbitmq
+    network_mode: "host"
+
   activityStore:
     image: cassandra:4.0
-    ports:
-      - 9042:9042
+    network_mode: "host"
     volumes:
-      - ./data:/cassandra:/var/lib/cassandra
+      - ./data:/cassandra/var/lib/cassandra
     environment:
       - CASSANDRA_CLUSTER_NAME=citizix
+  activityService:
+    image: activity
+    build: ./activityService
+    depends_on:
+      - activityStore
+      - rabbitmq
+    network_mode: "host"
+
+networks:
+  host:
+    name: host
+    external: true
