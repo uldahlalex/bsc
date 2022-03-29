@@ -8,36 +8,45 @@
     <ion-icon name="person-outline"></ion-icon>&nbsp;Show actions for you
   </ion-button>
 
+
+  <ion-item color="transparent" slot="end" lines="none">
+    <ion-toggle [(ngModel)]="filterReads"></ion-toggle>
+    Filter reads
+
+  </ion-item>
+
 </ion-toolbar>
 
 <ion-content class="ion-padding">
 
 
-  <ion-grid>
-    <ion-row>
-      <ion-col>
-        <ion-item lines="none">
-          <ion-toggle [(ngModel)]="filterReads"></ion-toggle>
-          Filter reads
-        </ion-item>
-      </ion-col>
-      <ion-col size="2">
-        <ion-item lines="none">
-          <ion-label position="floating"># Results</ion-label>
-          &nbsp;<ion-input placeholder="Results to show" type="number" [formControl]="results"></ion-input>
-        </ion-item>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
 
   <ion-grid *ngIf="activities!=undefined">
+<ion-row>
+  <ion-col size="10">
 
+  </ion-col>
+  <ion-col size="2">
+    <ion-label position="floating"># Results</ion-label>
+    <ion-input placeholder="Results to show" type="number" [formControl]="results"></ion-input>
+  </ion-col>
+
+</ion-row>
     <ion-row>
-      <ion-col>
-        Time
+      <ion-col size="2">
+        <b>Time</b>
       </ion-col>
-      <ion-col>
-
+      <ion-col size="1">
+        <b>Type</b>
+      </ion-col>
+      <ion-col size="1">
+        <b>Service</b>
+      </ion-col>
+      <ion-col size="4">
+        <b>Body items</b>
+      </ion-col>
+      <ion-col size="4">
+        <b>Endpoint</b>
       </ion-col>
     </ion-row>
 
@@ -54,12 +63,12 @@
         <ion-col size="1">
           {{a.service}}
         </ion-col>
-        <ion-col>
+        <ion-col size="4">
       <span *ngIf="a.actiontype!='GET'">
         {{a.bodyitems}}
       </span>
         </ion-col>
-        <ion-col>
+        <ion-col size="4">
           {{a.endpoint}}
         </ion-col>
       </section>

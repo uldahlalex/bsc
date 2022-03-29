@@ -36,7 +36,6 @@ export class NewTaskComponent {
     }
     this.taskService.createNewTask(this.organizationId, this.projectId, task).subscribe(result => {
       if (result) {
-        console.log(result);
         this.popoverController.dismiss(result);
       }
     })

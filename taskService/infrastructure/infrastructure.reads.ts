@@ -1,7 +1,5 @@
-import neo4j from 'neo4j-driver';
-
-const driver = neo4j.driver('bolt://localhost',
-    neo4j.auth.basic('neo4j', 'test'));
+import * as shared from './infrastructure.shared';
+let driver = shared.neo4Driver;
 
 export function getOrganizations() {
     let session = driver.session();
@@ -15,7 +13,31 @@ export function getOrganizations() {
     })
 }
 
-export function getProjectsForOrganization(req) {
+export function getProjectByName(projectName) {
+    let session = driver.session();
+    return session.run(
+        'MATCH (o:Project) WHERE (o.name=$projectName)\n' +
+        'RETURN (o);', {
+            projectName: projectName
+        }).then((result: any) => {
+        session.close();
+        return result.records;
+    })
+}
+
+export function getOrganizationByName(organizationName) {
+    let session = driver.session();
+    return session.run(
+        'MATCH (o:Organization) WHERE (o.name=$organizationName)\n' +
+        'RETURN (o);', {
+            organizationName: organizationName
+        }).then((result: any) => {
+        session.close();
+        return result.records;
+    })
+}
+
+export function getProjectsForOrganization(organizationId) {
     let session = driver.session();
     return session.run(
         'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
@@ -24,14 +46,14 @@ export function getProjectsForOrganization(req) {
         'WITH COLLECT(collect) AS ps\n' +
         'CALL apoc.convert.toTree(ps) YIELD value\n' +
         'RETURN value', {
-            organizationId: Number(req.params.organizationId),
+            organizationId: organizationId//Number(req.params.organizationId),
         }).then((result: any) => {
         session.close();
         return result.records[0]._fields[0].children
     })
 }
 
-export function getProjectFromOrganization(req) {
+export function getProjectFromOrganization(organizationId, projectId) {
     let session = driver.session();
     return session.run(
         'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
@@ -40,8 +62,8 @@ export function getProjectFromOrganization(req) {
         'WITH COLLECT(collect) AS ps\n' +
         'CALL apoc.convert.toTree(ps) YIELD value\n' +
         'RETURN value;', {
-            organizationId: Number(req.params.organizationId),
-            projectId: Number(req.params.projectId),
+            organizationId: organizationId,//Number(req.params.organizationId),
+            projectId: projectId//Number(req.params.projectId),
         }).then((result: any) => {
         session.close();
         let dto = result.records[0]._fields[0];
@@ -50,7 +72,7 @@ export function getProjectFromOrganization(req) {
     })
 }
 
-export function getTasksForProject(req){
+export function getTasksForProject(organizationId, projectId){
     let session = driver.session();
     return session.run('' +
         'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
@@ -61,15 +83,15 @@ export function getTasksForProject(req){
         'WITH COLLECT(collect) AS ps\n' +
         'CALL apoc.convert.toTree(ps) YIELD value\n' +
         'RETURN value;', {
-        organizationId: Number(req.params.organizationId),
-        projectId: Number(req.params.projectId)
+        organizationId: organizationId,//Number(req.params.organizationId),
+        projectId: projectId//Number(req.params.projectId)
     }).then((result: any) => {
         session.close();
         return result.records[0]._fields[0].children
     })
 }
 
-export function getTasksForProjectWithUserData(req) {
+export function getTasksForProjectWithUserData(organizationId, projectId) {
     let session = driver.session();
     return session.run('' +
         'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
@@ -80,8 +102,8 @@ export function getTasksForProjectWithUserData(req) {
         'WITH COLLECT(collect) AS ps\n' +
         'CALL apoc.convert.toTree(ps) YIELD value\n' +
         'RETURN value;', {
-        organizationId: Number(req.params.organizationId),
-        projectId: Number(req.params.projectId)
+        organizationId: organizationId,//Number(req.params.organizationId),
+        projectId: projectId//Number(req.params.projectId)
     }).then((result: any) => {
         session.close();
         return result.records[0]._fields[0];

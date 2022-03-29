@@ -8,4 +8,6 @@ volumes
 data
 neostore
 plugins
-prod.sh
+prod.**.sh
+secure-conect-activity.zip
+activityService/secure-connect-activity.zip

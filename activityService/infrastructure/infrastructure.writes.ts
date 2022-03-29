@@ -1,9 +1,10 @@
-import cassandra from "cassandra-driver";
-const client = new cassandra.Client({
-    contactPoints: ['localhost:9042'],
-    localDataCenter: 'datacenter1',
-    keyspace: 'mykeyspace'
-});
+import * as shared from './infrastructure.shared';
+import * as cassandra from 'cassandra-driver';
+
+
+
+
+const client: cassandra.Client = shared.cassandraClient;
 
 export function insertAction(activity) {
     const query = 'INSERT INTO actions (actiontype, bodyitems, endpoint, eventtime, organizationid, service, userid) VALUES (?, ?, ?, ?, ?, ?, ?);';
@@ -15,12 +16,25 @@ export function insertAction(activity) {
         activity.organizationid,
         activity.service,
         activity.userid
-    ]).then(r => console.log('Persisted activity'));
+    ]).then(() => {});
 }
 
-export function getRecords(query, entityId, limit) {
-    return client.execute(query, [
-        entityId,
-        limit,
-    ], {prepare: true});
+export function deleteAllActionsForUser(userId): boolean | cassandra.types.Row[] {
+    let res;
+    client.execute('DELETE FROM actions where userid = ?', [
+        userId
+    ], {prepare: true},  (err, result) => {
+        if(err) {
+            res = false;
+        } else {
+            res = result.rows;
+        }
+    });
+    return res;
+}
+
+export function rollBack(actions: any) {
+    return client.execute('INSERT INTO actions JSON \'?\';', [
+        actions
+    ], {prepare: true})
 }

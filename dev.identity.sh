@@ -4,4 +4,4 @@
 
 cd identityService
 npm install
-ts-node index.ts --secret=secret
+ts-node index.ts

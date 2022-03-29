@@ -25,10 +25,13 @@ export class TreeComponent {
     this.decoded_token = JSON.parse(localStorage.getItem('decoded_token'))
     this.taskService.getTasks(this.decoded_token.organization, this.projectId).subscribe(sub => {
       this.tasks = sub;
+
     })
     this.taskService.getProjectMetadata(this.decoded_token.organization, this.projectId).subscribe(sub => {
       this.projectMetaData = sub;
+
     })
+
   }
 
   expand(child) {
@@ -59,17 +62,21 @@ export class TreeComponent {
     popover.onDidDismiss().then(
       (returnedTask) => {
         if (isSubtask) {
-          console.log(returnedTask.data);
-          console.log(supertask.children);
+
           if(supertask.children==undefined) {
             supertask.children = []
           }
+          returnedTask.data.user = {
+            first_name: 'Test'
+          }
           supertask.children.push(returnedTask.data);
         } else {
-          console.log(returnedTask.data);
-          console.log(this.tasks);
+
           if (this.tasks==undefined) {
             this.tasks = []
+          }
+          returnedTask.data.user = {
+            first_name: 'Test'
           }
           this.tasks.push(returnedTask.data)
         }

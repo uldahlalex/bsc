@@ -1,6 +1,8 @@
 const grpc = require('grpc');
-const deleteSagaProto = grpc.load(__dirname+'/protos/delete-saga.proto')
+const deleteSagaProto = grpc.load(__dirname + '/protos/delete-saga.proto')
 import * as grpcClient from './grpc.client';
+import * as cqlWriter from '../infrastructure/infrastructure.writes';
+import * as cqlReader from '../infrastructure/infrastructure.reads';
 
 export var server = new grpc.Server()
 
@@ -10,13 +12,25 @@ export function initGrpcServer() {
     server.start()
 }
 
-
-
 server.addService(deleteSagaProto.DeleteSaga.service, {
-    notifyActivityService: async (call, callback) => {
-        console.log(call.request.userId);
-        grpcClient.notifyActivity("abc").then(result => {
-            callback(null, result);
+    deleteSagaService: async (call, callback) => {
+        let rollbackValue = await cqlReader.getAllActionsForUser(call.request.userId).then(result => {
+            return result.rows;
         })
+        let callbackValue;
+        let deletion = cqlWriter.deleteAllActionsForUser(call.request.userId);
+        if(deletion==false) {
+            callbackValue = false;
+        } else {
+            await grpcClient.deleteSaga(call.request.userId).then(result => {
+                if (result.isDeleted == false) {
+                    cqlWriter.rollBack(rollbackValue);
+                    callbackValue = false;
+                } else {
+                    callbackValue = true;
+                }
+        })
+        callback(null, callbackValue);
     }
-})
+}})
+

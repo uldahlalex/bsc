@@ -4,18 +4,22 @@
 Monorepo containing source code for BSc project
 
 **Microdatabases for Microservices**
-## Installation
+## Installation & Execution Locally
 
 Run containers using Docker
 ```bash
-  docker-compose up
+  docker-compose up -d
 ```
 
-Run services in locally git bash script (requires npm install for all services)
+OR
+
+Run databases and AMQP broker using docker:
 ```bash
-  ./dev.sh
+  docker-compose -f docker-compose-dev.yml up -d
 ```
-    
+And then execute the dev.<service>.sh files
+
+
 ## Authors
 
 - [Alex Uldahl Pedersen](https://www.github.com/uldahlalex)

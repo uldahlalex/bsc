@@ -10,9 +10,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cassandra-driver": "^4.6.3",
     "cypher-query-builder": "^6.0.4",
     "mongoose": "^6.2.0",
-    "bcryptjs": "^2.4.3",
     "neo4j-driver": "^4.4.3",
     "parse-neo4j": "^0.6.11"
   },

@@ -5,24 +5,25 @@ import minimist from 'minimist';
 import "reflect-metadata";
 import cors from 'cors';
 import * as utils from './utils/utils';
-import * as cqlWriter from './infrastructure/infrastructure.writes';
+import * as cqlReader from './infrastructure/infrastructure.reads';
 import * as grpcServer from './inter-service/grpc.server';
+import * as amqpClient from './inter-service/amqp';
 
 const app = express();
 const server = http.createServer(app)
 const argv = minimist(process.argv.slice(1));
 const port = argv['port'] || 3003;
 
-app.use(cors(/*{
-    origin: ['http://localhost:8100', 'http://localhost:4200', 'http://localhost:5000'],
-    methods: "GET, PUT"
-}*/));
+if (argv['secret'] == undefined) {
+    argv['secret']='secret';
+    console.log('No secret defined. Program will use default development secret for demo database')
+}
+
+app.use(cors());
 app.use(express.json());
 
-/**
- * JWT bliver alligevel attached ved alle requests fra front-end, så at injecte userId er måske kontraproduktivt?
- * UID ikke heltal
- */
+amqpClient.init();
+
 app.get('/recentActivity/:numberOfRecords/forUser/:forUser/:entityId', utils.authorize('Member'), async (req, res) => {
     let query;
     let entityId;
@@ -36,7 +37,7 @@ app.get('/recentActivity/:numberOfRecords/forUser/:forUser/:entityId', utils.aut
     }
     let limit = Number(req.params.numberOfRecords);
 
-    cqlWriter.getRecords(query, entityId, limit).then(result => {
+    cqlReader.getRecords(query, entityId, limit).then(result => {
         res.send(result.rows);
     })
 })

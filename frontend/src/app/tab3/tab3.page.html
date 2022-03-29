@@ -15,7 +15,7 @@
     <ion-list-header>New organization?</ion-list-header>
     <ion-item>
 
-      <ion-input placeholder="Organization name" [formControl]="organizationName"></ion-input>
+      <ion-input style="text-align: center;" placeholder="Organization name" [formControl]="organizationName"></ion-input>
       <ion-button slot="end" expand="block" fill="outline" (click)="newOrganization()">Create organization</ion-button>
     </ion-item>
     <br>
@@ -27,9 +27,13 @@
         <ion-button *ngIf="user_org._id.low!=o._fields[0]._id.low" fill="outline" slot="end"
                     (click)="joinOrganization(o._fields[0]._id.low)">Join
         </ion-button>
+        <ion-button color="danger" *ngIf="user_org._id.low==o._fields[0]._id.low" fill="outline"
+                    slot="end" (click)="deleteOrganization(o._fields[0]._id.low)">Delete organization
+        </ion-button>
         <ion-button color="success" disabled="true" *ngIf="user_org._id.low==o._fields[0]._id.low" fill="outline"
                     slot="end">Your organization
         </ion-button>
+
       </ion-item>
     </ion-list>
 

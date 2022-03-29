@@ -1,1 +1,2 @@
 CALL db.createIndex("TitleIndex", ["Task"], ["title"], "native-btree-1.0", {`spatial.cartesian.max`: [100.0,100.0], `spatial.cartesian.min`: [-100.0,-100.0]});
+

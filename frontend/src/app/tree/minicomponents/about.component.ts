@@ -4,10 +4,7 @@ import {Component} from "@angular/core";
   selector: "app-my-popover",
   template: `
     <ion-content class="ion-padding">
-
-      <ion-img style="width: 40%;"
-               src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Cassandra_logo.svg/1024px-Cassandra_logo.svg.png"
-               alt=""></ion-img>
+      <b>This feature only exists on the backend for now.\nPlease use APIs to use this feature.</b>
     </ion-content>
   `
 })

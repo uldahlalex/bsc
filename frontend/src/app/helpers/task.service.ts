@@ -9,7 +9,6 @@ export class TaskService {
   constructor(private http: HttpClient) { }
 
   baseUrl = 'http://localhost:5000/task/';
-  identityUrl = 'http://localhost:3002/';
 
   getOrganizations() {
     return this.http.get<any[]>(this.baseUrl+'organizations');
@@ -21,7 +20,7 @@ export class TaskService {
     return this.http.get<any>(this.baseUrl+'organizations/'+organizationId+'/projects/'+projectId);
   }
   getTasks(organizationId, projectId) {
-    return this.http.get<any[]>(this.baseUrl+'organizations/'+organizationId+'/projects/'+projectId+'/tasks');
+    return this.http.get<any[]>(this.baseUrl+'organizations/'+organizationId+'/projects/'+projectId+'/tasksWithUserData');
   }
   markTaskAsDone(organizationId, projectId, taskId) {
     return this.http.put<any>(this.baseUrl+'organizations/'+organizationId+'/projects/'+projectId+'/tasks/'+taskId+'/markTaskAsDone', {});
@@ -47,7 +46,12 @@ export class TaskService {
   deleteTasks(organizationId, projectId, taskId) {
     return this.http.delete<any>(this.baseUrl+'organizations/'+organizationId+'/projects/'+projectId+'/tasks/'+taskId);
   }
-  joinOrganization(organizationId) {
-    return this.http.patch<any>(this.identityUrl+'joinOrganization/', organizationId);
+  deleteProject(organizationId, projectId) {
+    return this.http.delete<any>(this.baseUrl+'organizations/'+organizationId+'/projects/'+projectId);
   }
+  deleteOrganization(organizationId) {
+    return this.http.delete<any>(this.baseUrl+'organizations/'+organizationId);
+  }
+
+
 }

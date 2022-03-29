@@ -65,5 +65,12 @@ export class Tab2Page {
       }
     })
   }
+
+  deleteProject(projectId) {
+    /*
+    this.taskService.deleteProject(this.decoded_token.organization, projectId).subscribe(sub => {
+      this.projects = this.projects.filter(({id}) =>  id.low != projectId)
+    })*/
+  }
 }
 

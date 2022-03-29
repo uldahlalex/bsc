@@ -28,15 +28,18 @@ export class Tab3Page {
               private taskService: TaskService,
               private popoverController: PopoverController) {
     this.decoded_token = JSON.parse(localStorage.getItem('decoded_token'));
-    taskService.getOrganizations().subscribe(sub => {
-      this.organizations = sub;
-      sub.forEach(each => {
-        if(each._fields[0]._id.low == this.decoded_token.organization) {
-          this.user_org = each._fields[0];
+    if(localStorage.getItem('id_token')) {
+      taskService.getOrganizations().subscribe(sub => {
+        this.organizations = sub;
+        sub.forEach(each => {
+          if(each._fields[0]._id.low == this.decoded_token.organization) {
+            this.user_org = each._fields[0];
 
-        }
+          }
+        })
       })
-    })
+    }
+
   }
 
   newOrganization() {
@@ -54,33 +57,45 @@ export class Tab3Page {
     )
   }
 
-  joinOrganization(orgId) {
+  async joinOrganization(orgId) {/*
     this.authService.joinOrganization(orgId).subscribe(sub => {
-      //also revoke and place new token at this step
       this.organizations.forEach(each => {
         if(each._fields[0]._id.low == sub.organizationId) {
           this.user_org = each._fields[0];
 
         }
       })
-    })
+    })*/
+    const popover = await this.popoverController.create({
+      component: AboutComponent,
+    });
+    popover.present()
   }
 
   logout() {
     this.authService.logout();
-    window.location.reload();
+
   }
 
   async openAbout() {
     const popover = await this.popoverController.create({
       component: AboutComponent,
     });
-    await popover.present();
   }
 
   logIn() {
-    this.authService.login(this.emailForm.value, this.passwordForm.value)
-    window.location.reload();
+    this.authService.login(this.emailForm.value, this.passwordForm.value);
+
+  }
+
+  async deleteOrganization(organizationId) {
+    const popover = await this.popoverController.create({
+      component: AboutComponent,
+    });
+    popover.present()
+    /*this.taskService.deleteOrganization(organizationId).subscribe(sub => {
+      this.organizations = this.organizations.filter(org => org._fields[0]._id.low == !organizationId)
+    })*/
   }
 }
 
