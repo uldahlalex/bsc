@@ -14,10 +14,13 @@ services:
     volumes:
       - ./.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
       - ./.docker-conf/rabbitmq/log/:/var/log/rabbitmq
-    network_mode: host
+    ports:
+      - 5672:5672
+      - 15672:15672
 
   identityStore:
-    network_mode: host
+    ports:
+      - '27017:27017'
     image: mongo
     restart: 'on-failure'
     environment:
@@ -31,7 +34,8 @@ services:
     depends_on:
       - identityStore
       - rabbitmq
-    network_mode: host
+    ports:
+      - '3002:3002'
 
   taskStore:
     container_name: taskStore
@@ -39,7 +43,9 @@ services:
     volumes:
       - ./data:/data
       - ./plugins:/plugins
-    network_mode: host
+    ports:
+      - "7474:7474"
+      - "7687:7687"
     environment:
       - NEO4J_apoc_export_file_enabled=true
       - NEO4J_apoc_import_file_enabled=true
@@ -52,7 +58,8 @@ services:
     depends_on:
       - taskStore
       - rabbitmq
-    network_mode: host
+    ports:
+      - '3001:3001'
 
   activityStore:
     image: cassandra:4.0
@@ -67,7 +74,8 @@ services:
     depends_on:
       - activityStore
       - rabbitmq
-    network_mode: host
+    ports:
+      - '3003:3003'
 
 
   frontend:
@@ -79,9 +87,5 @@ services:
   gateway:
     image: gateway
     build: ./gateway
-    network_mode: host
-
-networks:
-  host:
-    name: host
-    external: true
+    ports:
+      - '5000:5000'
