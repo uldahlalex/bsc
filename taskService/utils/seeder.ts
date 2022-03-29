@@ -9,7 +9,7 @@ export function seed() {
     cypherReader.getOrganizationByName('Test Organization').then(res => {
         if (res.length<1) {
             console.log('Seeding test organization with some data')
-            cypherWriter.createOrganization('Test Organization').then(org => {
+            cypherWriter.createOrganization('Test Organization', 0).then(org => {
                 cypherWriter.createProjectForOrganization(org._fields[0]._id.low, 'Test Project', 'Test description').then(project => {
                     console.log(project._id.low)
                     for (let i = 0; i < 5; i++) {

@@ -57,16 +57,19 @@ export class Tab3Page {
     )
   }
 
-  joinOrganization(orgId) {
+  async joinOrganization(orgId) {/*
     this.authService.joinOrganization(orgId).subscribe(sub => {
-      //also revoke and place new token at this step
       this.organizations.forEach(each => {
         if(each._fields[0]._id.low == sub.organizationId) {
           this.user_org = each._fields[0];
 
         }
       })
-    })
+    })*/
+    const popover = await this.popoverController.create({
+      component: AboutComponent,
+    });
+    popover.present()
   }
 
   logout() {
@@ -78,7 +81,6 @@ export class Tab3Page {
     const popover = await this.popoverController.create({
       component: AboutComponent,
     });
-    await popover.present();
   }
 
   logIn() {
@@ -86,11 +88,14 @@ export class Tab3Page {
 
   }
 
-  deleteOrganization(organizationId) {
-    console.log(this.organizations);
-    this.taskService.deleteOrganization(organizationId).subscribe(sub => {
+  async deleteOrganization(organizationId) {
+    const popover = await this.popoverController.create({
+      component: AboutComponent,
+    });
+    popover.present()
+    /*this.taskService.deleteOrganization(organizationId).subscribe(sub => {
       this.organizations = this.organizations.filter(org => org._fields[0]._id.low == !organizationId)
-    })
+    })*/
   }
 }
 

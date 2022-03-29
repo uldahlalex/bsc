@@ -9,7 +9,7 @@ export class ActivityService {
 
   constructor(private http: HttpClient) { }
 
-  activityUrl = 'http://172.17.0.0:3003/';
+  activityUrl = 'http://localhost:5000/activity/';
 
   getActivity(userId, numberOfRecords, forUser, organizationId) {
     let query;

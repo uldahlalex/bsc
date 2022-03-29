@@ -14,10 +14,10 @@ export function markTaskAsDone(organizationId, projectId, taskId) {
         'WITH t as task \n' +
         'SET task.done = true \n' +
         'RETURN task;', {
-        organizationId: organizationId,//Number(req.params.organizationId),
-        projectId: projectId,//Number(req.params.projectId),
-        taskId: taskId//Number(req.params.taskId)
-    }).then(result => {
+            organizationId: organizationId,//Number(req.params.organizationId),
+            projectId: projectId,//Number(req.params.projectId),
+            taskId: taskId//Number(req.params.taskId)
+        }).then(result => {
         session.close();
         return result.records.length > 0;
     })
@@ -34,17 +34,18 @@ export function markTaskAsUndone(organizationId, projectId, taskId) {
         'with t as task\n' +
         'SET task.done = false\n' +
         'RETURN task;', {
-        organizationId: organizationId,//Number(req.params.organizationId),
-        projectId: projectId,//Number(req.params.projectId),
-        taskId: taskId//Number(req.params.taskId)
-    }).then(result => {
-      session.close();
-      return result.records.length > 0
+            organizationId: organizationId,//Number(req.params.organizationId),
+            projectId: projectId,//Number(req.params.projectId),
+            taskId: taskId//Number(req.params.taskId)
+        }).then(result => {
+        session.close();
+        return result.records.length > 0
     })
 }
 
 export function createProjectForOrganization(organizationId, name, description) {
     let session = driver.session();
+
     return session.run(
         'MATCH (o: Organization) WHERE ID(o)=$organizationId\n' +
         'WITH o as organization\n' +
@@ -52,29 +53,44 @@ export function createProjectForOrganization(organizationId, name, description) 
         'WITH COLLECT(p) AS ps\n' +
         'CALL apoc.convert.toTree(ps) YIELD value\n' +
         'RETURN value;', {
-        organizationId: organizationId,//Number(req.params.organizationId),
-        name: name, //req.body.name,
-        description: description//req.body.description
-    }).then((result: any) => {
+            organizationId: organizationId,//Number(req.params.organizationId),
+            name: name, //req.body.name,
+            description: description//req.body.description
+        }).then((result: any) => {
         session.close();
         let dto = result.records[0]._fields[0];
         dto.children = null;
         return dto;
     })
+
+
 }
 
-export function createOrganization(name) {
+export function createOrganization(name, id?) {
     let session = driver.session();
-    return session.run('' +
-        'CREATE p=(o:Organization {name: $name}) ' +
-        'WITH COLLECT(p) AS ps ' +
-        'CALL apoc.convert.toTree(ps) YIELD value ' +
-        'RETURN value;', {
-        name: name//req.body.name
-    }).then((result: any) => {
-        session.close();
-        return result.records[0];
-    })
+    if (id) {
+        return session.run('' +
+            'CREATE p=(o:Organization {name: $name, ID: 0}) ' +
+            'WITH COLLECT(p) AS ps ' +
+            'CALL apoc.convert.toTree(ps) YIELD value ' +
+            'RETURN value;', {
+            name: name//req.body.name
+        }).then((result: any) => {
+            session.close();
+            return result.records[0];
+        })
+    } else {
+        return session.run('' +
+            'CREATE p=(o:Organization {name: $name}) ' +
+            'WITH COLLECT(p) AS ps ' +
+            'CALL apoc.convert.toTree(ps) YIELD value ' +
+            'RETURN value;', {
+            name: name//req.body.name
+        }).then((result: any) => {
+            session.close();
+            return result.records[0];
+        })
+    }
 }
 
 export function createTaskForProject(userId, organizationId, projectId, name, description) {
@@ -93,12 +109,12 @@ export function createTaskForProject(userId, organizationId, projectId, name, de
         'WITH COLLECT(collect) AS ps\n' +
         'CALL apoc.convert.toTree(ps) YIELD value\n' +
         'RETURN value;', {
-            organizationId: organizationId,//Number(req.params.organizationId),
-            projectId: projectId,//Number(req.params.projectId),
-            name: name,//req.body.name,
-            description: description,//req.body.description,
-            createdBy: userId//token.user_id
-        })
+        organizationId: organizationId,//Number(req.params.organizationId),
+        projectId: projectId,//Number(req.params.projectId),
+        name: name,//req.body.name,
+        description: description,//req.body.description,
+        createdBy: userId//token.user_id
+    })
         .then((result: any) => {
             session.close();
             let dto = result.records[0]._fields[0];
