@@ -18,6 +18,11 @@ const server = http.createServer(app)
 const argv = minimist(process.argv.slice(1));
 const port = argv['port'] || 3001;
 
+if (argv['secret'] == undefined) {
+    argv['secret']='secret';
+    console.log('No secret defined. Program will use default development secret for demo database')
+}
+
 app.use(express.json());
 app.use(cors(
     {origin: ['http://localhost:8100', 'http://localhost:4200', 'http://localhost:5000'],
