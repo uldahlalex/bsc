@@ -19,10 +19,7 @@ if (argv['secret'] == undefined) {
     console.log('No secret defined. Program will use default development secret for demo database')
 }
 
-app.use(cors(/*{
-    origin: ['http://localhost:8100', 'http://localhost:4200', 'http://localhost:5000'],
-    methods: "GET, PUT"
-}*/));
+app.use(cors());
 app.use(express.json());
 
 amqpClient.init();

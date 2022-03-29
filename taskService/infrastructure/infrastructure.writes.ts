@@ -1,5 +1,4 @@
 import * as shared from './infrastructure.shared';
-import {getToken} from "../utils/utils";
 
 let driver = shared.neo4Driver;
 
@@ -155,10 +154,6 @@ export function createSubtask(userId, organizationId, projectId, taskId, name, d
     })
 }
 
-/**
- * Preferred using delete task + subtasks over only subtasks, but this may be situational
- * @param req
- */
 export function deleteSubtasks(organizationId, projectId, taskId) {
     let session = driver.session();
     return session.run('' +

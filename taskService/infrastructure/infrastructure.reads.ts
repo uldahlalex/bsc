@@ -1,7 +1,6 @@
 import * as shared from './infrastructure.shared';
 let driver = shared.neo4Driver;
 
-
 export function getOrganizations() {
     let session = driver.session();
     return session.run(

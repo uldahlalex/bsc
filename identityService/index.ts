@@ -6,7 +6,6 @@ import cors from 'cors';
 import express from "express";
 import * as grpcServer from './inter-service/grpc.server';
 import * as grpcClient from './inter-service/grpc.client';
-import {authorize} from "./utils/utils";
 import * as mongooseRead from './infrastructure/infrastructure.reads';
 import * as mongooseWrite from './infrastructure/infrastructure.writes';
 import * as mongo from './infrastructure/infrastructure.shared';
@@ -23,10 +22,8 @@ if (argv['secret'] == undefined) {
 }
 
 app.use(express.json({limit: "50mb"}));
-app.use(cors(/*{
-    origin: ['http://localhost:8100', 'http://localhost:4200', 'http://localhost:5000'],
-    methods: "GET, PUT, POST, DELETE"
-}*/))
+app.use(cors())
+
 mongo.init();
 
 app.post("/register", async (req, res) => {
@@ -118,9 +115,8 @@ app.delete('/delete', async (req, res) => {
             if (result.isDeleted == false) {
                 await mongooseWrite.registerUser(
                     rollbackValue.first_name, rollbackValue.last_name, rollbackValue.email, rollbackValue.hash, rollbackValue.roles, rollbackValue.organization, rollbackValue._id)
-                    .then(result => {
-                        returnValue = 'User has not been deleted due to transaction problems. ' +
-                            'A rollback has occured.';
+                    .then( () => {
+                        returnValue = 'User has not been deleted due to transaction problems. A rollback has occurred.';
                     })
             } else {
                 returnValue = 'User with data has been safely deleted';
@@ -128,25 +124,6 @@ app.delete('/delete', async (req, res) => {
         })
     res.send(returnValue);
 })
-
-app.get("/test", authorize("Member"), (req, res) => {
-    return res.status(200).send("Welcome. Token accepted");
-});
-
-app.get('/openEndpoint', (req, res) => {
-    return res.send('Connected');
-})
-
-app.use("*", (req, res) => {
-    return res.status(404).json({
-        success: "false",
-        message: "Page not found",
-        error: {
-            statusCode: 404,
-            message: "Route not found",
-        },
-    });
-});
 
 httpServer.listen(port, () => {
     grpcServer.initGrpcServer();
