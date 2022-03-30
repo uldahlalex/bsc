@@ -44,6 +44,7 @@ services:
       - NEO4J_apoc_import_file_use__neo4j__config=true
       - NEO4JLABS_PLUGINS=["apoc"]
       - NEO4J_dbms_query__cache__size=0
+      - NEO4J_AUTH=neo4j/test
 
   activityStore:
     ports:
