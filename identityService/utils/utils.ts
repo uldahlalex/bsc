@@ -23,7 +23,7 @@ export function authorize(...role) {
     }
 }
 
-export function emitToActivityService(...message) {
+export function emitToActivityService() {
     return (req, res, next) => {
         const token = getToken(req);
         let dto = {

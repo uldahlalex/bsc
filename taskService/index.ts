@@ -28,7 +28,7 @@ app.use(cors(
     methods: "GET, PUT, POST, DELETE"}
 ));
 
-app.get('/organizations', utils.emitToActivityService('T'), async (req, res) => {
+app.get('/organizations', utils.emitToActivityService(), async (req, res) => {
     readCypher.getOrganizations().then(result => {
         if (result == undefined) {
             res.status(404).send("Resource not found");
@@ -38,7 +38,7 @@ app.get('/organizations', utils.emitToActivityService('T'), async (req, res) => 
     })
 })
 
-app.get('/organizations/:organizationId/projects', utils.emitToActivityService('T'), async (req, res) => {
+app.get('/organizations/:organizationId/projects', utils.emitToActivityService(), async (req, res) => {
     readCypher.getProjectsForOrganization(Number(req.params.organizationId)).then(result => {
         if (result == undefined) {
             res.status(404).send("Resource not found");
@@ -49,7 +49,7 @@ app.get('/organizations/:organizationId/projects', utils.emitToActivityService('
 
 })
 
-app.get('/organizations/:organizationId/projects/:projectId', utils.emitToActivityService('T'), async (req, res) => {
+app.get('/organizations/:organizationId/projects/:projectId', utils.emitToActivityService(), async (req, res) => {
     readCypher.getProjectFromOrganization(Number(req.params.organizationId), Number(req.params.projectId)).then(result => {
         if (result == undefined) {
             res.status(404).send("Resource not found");
@@ -59,7 +59,7 @@ app.get('/organizations/:organizationId/projects/:projectId', utils.emitToActivi
     })
 })
 
-app.get('/organizations/:organizationId/projects/:projectId/tasks', utils.emitToActivityService('T'), async (req, res) => {
+app.get('/organizations/:organizationId/projects/:projectId/tasks', utils.emitToActivityService(), async (req, res) => {
     readCypher.getTasksForProject(Number(req.params.organizationId), Number(req.params.projectId)).then(result => {
         if (result == undefined) {
             res.status(404).send("Resource not found");
@@ -79,7 +79,7 @@ app.get('/organizations/:organizationId/projects/:projectId/tasksWithUserdata', 
     })
 })
 
-app.put('/organizations/:organizationId/projects/:projectId/tasks/:taskId/markTaskAsDone', utils.emitToActivityService('T'), async (req, res) => {
+app.put('/organizations/:organizationId/projects/:projectId/tasks/:taskId/markTaskAsDone', utils.emitToActivityService(), async (req, res) => {
     writeCypher.markTaskAsDone(Number(req.params.organizationId), Number(req.params.projectId), Number(req.params.taskId)).then(result => {
         if (result == undefined) {
             res.status(418).send("Update not possible");
@@ -90,7 +90,7 @@ app.put('/organizations/:organizationId/projects/:projectId/tasks/:taskId/markTa
 })
 
 
-app.put('/organizations/:organizationId/projects/:projectId/tasks/:taskId/markTaskAsUnDone', utils.emitToActivityService('T'), async (req, res) => {
+app.put('/organizations/:organizationId/projects/:projectId/tasks/:taskId/markTaskAsUnDone', utils.emitToActivityService(), async (req, res) => {
     writeCypher.markTaskAsUndone(Number(req.params.organizationId), Number(req.params.projectId), Number(req.params.taskId)).then(result => {
         if (result == undefined) {
             res.status(418).send("Update not possible");
@@ -100,7 +100,7 @@ app.put('/organizations/:organizationId/projects/:projectId/tasks/:taskId/markTa
     })
 })
 
-app.post('/organizations/:organizationId/projects', utils.emitToActivityService('T'), async (req, res) => {
+app.post('/organizations/:organizationId/projects', utils.emitToActivityService(), async (req, res) => {
     writeCypher.createProjectForOrganization(Number(req.params.organizationId), req.body.name, req.body.description).then(result => {
         if (result == undefined) {
             res.status(418).send("Project creation not possible");
@@ -110,7 +110,7 @@ app.post('/organizations/:organizationId/projects', utils.emitToActivityService(
     })
 })
 
-app.post('/organizations', utils.emitToActivityService('T'), async (req, res) => {
+app.post('/organizations', utils.emitToActivityService(), async (req, res) => {
     writeCypher.createOrganization(req.body.name).then(result => {
         if (result == undefined) {
             res.status(418).send("Organization creation not possible");
@@ -120,7 +120,7 @@ app.post('/organizations', utils.emitToActivityService('T'), async (req, res) =>
     })
 })
 
-app.post('/organizations/:organizationId/projects/:projectId/tasks', utils.emitToActivityService('T'), async (req, res) => {
+app.post('/organizations/:organizationId/projects/:projectId/tasks', utils.emitToActivityService(), async (req, res) => {
     let userId = getToken(req).user_id;
     console.log(userId);
 
@@ -134,7 +134,7 @@ app.post('/organizations/:organizationId/projects/:projectId/tasks', utils.emitT
     })
 })
 
-app.post('/organizations/:organizationId/projects/:projectId/tasks/:taskId/subtask', utils.emitToActivityService('T'), async (req, res) => {
+app.post('/organizations/:organizationId/projects/:projectId/tasks/:taskId/subtask', utils.emitToActivityService(), async (req, res) => {
     let userId = getToken(req).user_id;
     writeCypher.createSubtask(userId, Number(req.params.organizationId), Number(req.params.projectId),Number(req.params.taskId), req.body.name, req.body.description).then(result => {
         if (result == undefined) {
@@ -145,7 +145,7 @@ app.post('/organizations/:organizationId/projects/:projectId/tasks/:taskId/subta
     })
 })
 
-app.delete('/organizations/:organizationId/projects/:projectId/tasks/:taskId/subtasks', utils.emitToActivityService('T'), async (req, res) => {
+app.delete('/organizations/:organizationId/projects/:projectId/tasks/:taskId/subtasks', utils.emitToActivityService(), async (req, res) => {
     writeCypher.deleteSubtasks(Number(req.params.organizationId), Number(req.params.projectId), Number(req.params.taskId)).then(result => {
         if (result == undefined) {
             res.status(418).send("Task deletion not possible");
@@ -155,7 +155,7 @@ app.delete('/organizations/:organizationId/projects/:projectId/tasks/:taskId/sub
     })
 })
 
-app.delete('/organizations/:organizationId/projects/:projectId/tasks/:taskId', utils.emitToActivityService('T'), async (req, res) => {
+app.delete('/organizations/:organizationId/projects/:projectId/tasks/:taskId', utils.emitToActivityService(), async (req, res) => {
     writeCypher.deleteTask(Number(req.params.organizationId), Number(req.params.projectId), Number(req.params.taskId)).then(result => {
         if (result == undefined) {
             res.status(418).send("Task deletion not possible");
@@ -165,7 +165,7 @@ app.delete('/organizations/:organizationId/projects/:projectId/tasks/:taskId', u
     })
 })
 
-app.delete('/organizations/:organizationId/projects/:projectId', utils.emitToActivityService('T'), async(req, res) => {
+app.delete('/organizations/:organizationId/projects/:projectId', utils.emitToActivityService(), async(req, res) => {
     writeCypher.deleteProject(Number(req.params.organizationId),Number(req.params.projectId)).then(result => {
         if(result==undefined) {
             res.status(418).send('Could not delete project')
@@ -175,7 +175,7 @@ app.delete('/organizations/:organizationId/projects/:projectId', utils.emitToAct
     })
 })
 
-app.delete('/organizations/:organizationId', utils.emitToActivityService('T'), async(req, res) => {
+app.delete('/organizations/:organizationId', utils.emitToActivityService(), async(req, res) => {
     writeCypher.deleteOrganization(Number(req.params.organizationId)).then(result => {
         if(result==undefined) {
             res.status(418).send('Could not delete organization')

@@ -59,7 +59,7 @@ export function authorize(...role) {
     }
 }
 
-export function emitToActivityService(...message) {
+export function emitToActivityService() {
     return (req, res, next) => {
         const token = getToken(req);
         let dto = {
@@ -70,7 +70,8 @@ export function emitToActivityService(...message) {
             endpoint: req.route.path,
             service: 'task'
         };
-        amqpClient.publish('activity', 'activity.task', Buffer.from(JSON.stringify(dto)))
+        amqpClient.publish('activity', 'activity.task',
+            Buffer.from(JSON.stringify(dto)))
         return next();
     }
 }
