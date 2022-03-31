@@ -1,11 +1,5 @@
 version: '3.8'
 
-# This is a compose file for running the system locally,
-# and therefore requires running microservices independently.
-# There is not .env file for environment variables,
-# since this is for testing and development purposes only
-# For a complete setup w/ all microservices, execute the docker-compose-dev.yml
-
 services:
   rabbitmq:
     ports:

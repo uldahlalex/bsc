@@ -12,9 +12,7 @@ if (user && pass) {
     url = 'amqp://localhost'
 }
 
-let taskRepo;
 let taskChannel: Channel;
-let instanceQ;
 
 amqp.connect(url, function (error0, connection) {
     if (error0) {
@@ -24,7 +22,7 @@ amqp.connect(url, function (error0, connection) {
         if (error1) {
             throw error1;
         }
-        var exchange = 'topic_logs';
+        var exchange = 'activity';
 
         channel.assertExchange(exchange, 'topic', {
             durable: false
@@ -36,8 +34,8 @@ amqp.connect(url, function (error0, connection) {
             if (error2) {
                 throw error2;
             }
-            console.log(' [*] Waiting for logs. To exit press CTRL+C');
-            const args = ["#", "topic.*", "*.critical"];
+            console.log('Connected to AMQP');
+            const args = ["activity.*"];
             args.forEach(function (key) {
                 channel.bindQueue(q.queue, exchange, key);
             });
@@ -47,6 +45,6 @@ amqp.connect(url, function (error0, connection) {
     });
 });
 
-export function publish(arg, kwarg, zarg) {
-    taskChannel.publish(arg, kwarg, zarg);
+export function publish(exchange, routingKey, content) {
+    taskChannel.publish(exchange, routingKey, content);
 }

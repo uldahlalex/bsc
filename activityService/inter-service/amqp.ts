@@ -14,13 +14,8 @@ if (user && pass) {
     url = 'amqp://localhost'
 }
 
-let taskRepo;
 let taskChannel: Channel;
-let instanceQ;
 
-/**
- * PERSIST DATA TO CASSANDRA UPON AMQP MESSAGES
- */
 export function init() {
     amqp.connect(url, function(error0, connection) {
         if (error0) {
@@ -30,8 +25,7 @@ export function init() {
             if (error1) {
                 throw error1;
             }
-            var exchange = 'topic_logs'; //Exhanges route messages to queues using routing keys (binding = link between queue and exchange)
-            //channels are used for publishing or consuming messages from a queue
+            var exchange = 'activity';
             channel.assertExchange(exchange, 'topic', {
                 durable: false
             });
@@ -42,8 +36,8 @@ export function init() {
                 if (error2) {
                     throw error2;
                 }
-                console.log(' [*] Waiting for logs. To exit press CTRL+C');
-                const args = ["#", "topic.*", "*.critical"];
+                console.log('Connected to AMQP');
+                const args = ["activity.*"];
                 args.forEach(function(key) {
                     channel.bindQueue(q.queue, exchange, key);
                 });

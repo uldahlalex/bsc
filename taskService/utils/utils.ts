@@ -70,7 +70,7 @@ export function emitToActivityService(...message) {
             endpoint: req.route.path,
             service: 'task'
         };
-        amqpClient.publish('topic_logs', 'topic.critical', Buffer.from(JSON.stringify(dto)))
+        amqpClient.publish('activity', 'activity.task', Buffer.from(JSON.stringify(dto)))
         return next();
     }
 }

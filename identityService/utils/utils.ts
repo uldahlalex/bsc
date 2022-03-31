@@ -34,7 +34,7 @@ export function emitToActivityService(...message) {
             endpoint: req.route.path,
             service: 'identity'
         };
-        amqpClient.publish('topic_logs', 'topic.critical', Buffer.from(JSON.stringify(dto)))
+        amqpClient.publish('activity', 'activity.identity', Buffer.from(JSON.stringify(dto)))
         return next();
     }
 }
