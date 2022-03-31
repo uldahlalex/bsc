@@ -77,14 +77,14 @@ export function getTasksForProject(organizationId, projectId){
     return session.run('' +
         'MATCH (o:Organization) WHERE ID(o)=$organizationId\n' +
         'WITH o as organization\n' +
-        'MATCH (p:Project)<-[:CHILDREN]-(organization) WHERE ID(p)=$projectId\n' +
+        'MATCH (p:Project)<-[:CHILDREN]-(organization) WHERE ID(p)=$projectId\n'+
         'WITH p as projects\n' +
         'MATCH collect=(projects)-[:CHILDREN*]->(t:Task)\n' +
         'WITH COLLECT(collect) AS ps\n' +
         'CALL apoc.convert.toTree(ps) YIELD value\n' +
         'RETURN value;', {
-        organizationId: organizationId,//Number(req.params.organizationId),
-        projectId: projectId//Number(req.params.projectId)
+        organizationId: organizationId,
+        projectId: projectId
     }).then((result: any) => {
         session.close();
         return result.records[0]._fields[0].children
@@ -102,8 +102,8 @@ export function getTasksForProjectWithUserData(organizationId, projectId) {
         'WITH COLLECT(collect) AS ps\n' +
         'CALL apoc.convert.toTree(ps) YIELD value\n' +
         'RETURN value;', {
-        organizationId: organizationId,//Number(req.params.organizationId),
-        projectId: projectId//Number(req.params.projectId)
+        organizationId: organizationId,
+        projectId: projectId
     }).then((result: any) => {
         session.close();
         return result.records[0]._fields[0];
